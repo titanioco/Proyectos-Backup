@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Java Login Application Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #17a2b8;
+        }
+        .vnc-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .instructions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Java Login Application</h1>
+        
+        <div class="info">
+            <h3>Application Status</h3>
+            <p>Your Java Swing login application is now running on a virtual display!</p>
+            <p><strong>Project:</strong> NetBeans-based Java application with login/registration interface</p>
+            <p><strong>Technologies:</strong> Java Swing, MigLayout, TimingFramework</p>
+            <p><strong>Main Class:</strong> com.raven.main.Main</p>
+        </div>
+
+        <div class="instructions">
+            <h3>How to View Your Application</h3>
+            <p>Since this is a GUI application running in a cloud environment, you need to access it via VNC:</p>
+            
+            <ol>
+                <li><strong>Port Forwarding (Recommended):</strong>
+                    <ul>
+                        <li>In VS Code, go to the "Ports" tab (usually next to Terminal)</li>
+                        <li>Forward port <code>5900</code> for VNC access</li>
+                        <li>Use any VNC viewer to connect to <code>localhost:5900</code></li>
+                    </ul>
+                </li>
+                
+                <li><strong>Web VNC (Alternative):</strong>
+                    <ul>
+                        <li>Forward port <code>6080</code> in VS Code</li>
+                        <li>Open <code>http://localhost:6080</code> in your browser</li>
+                        <li>Use a web-based VNC client like noVNC</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <div class="vnc-container">
+            <h3>Quick Actions</h3>
+            <button onclick="location.href='http://localhost:6080'">Open Web VNC (Port 6080)</button>
+            <button onclick="showPortInfo()">Show Port Information</button>
+        </div>
+
+        <div class="info">
+            <h3>Application Features</h3>
+            <ul>
+                <li>🔐 Login/Registration interface with smooth animations</li>
+                <li>🎨 Modern UI with custom components (buttons, text fields)</li>
+                <li>📱 Responsive layout using MigLayout</li>
+                <li>✨ Smooth transitions with TimingFramework</li>
+                <li>🖼️ Icon support for user interface elements</li>
+            </ul>
+        </div>
+
+        <div class="instructions">
+            <h3>Development Commands</h3>
+            <p>You can use these commands in the VS Code terminal:</p>
+            <ul>
+                <li><code>./run-gui.sh</code> - Start the application with GUI</li>
+                <li><code>ant clean compile</code> - Clean and compile the project</li>
+                <li><code>ant run</code> - Run the application (after setting DISPLAY=:99)</li>
+                <li><code>pkill -f java.*Main</code> - Stop the application</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function showPortInfo() {
+            alert('Port Information:\n\n' +
+                  'VNC Server: localhost:5900\n' +
+                  'Web VNC: localhost:6080\n\n' +
+                  'Make sure to forward these ports in VS Code to access from your local machine.');
+        }
+    </script>
+</body>
+</html>

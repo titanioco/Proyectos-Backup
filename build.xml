@@ -70,4 +70,36 @@
     nbproject/build-impl.xml file. 
 
     -->
+    
+    <!-- Custom target to create executable JAR with all dependencies -->
+    <target name="jar-with-deps" depends="compile" description="Create executable JAR with dependencies">
+        <mkdir dir="${dist.dir}"/>
+        
+        <!-- Create manifest with main class -->
+        <manifest file="${dist.dir}/MANIFEST.MF">
+            <attribute name="Main-Class" value="${main.class}"/>
+            <attribute name="Class-Path" value="miglayout-4.0.jar TimingFramework-0.55.jar"/>
+            <attribute name="Implementation-Title" value="${application.title}"/>
+            <attribute name="Implementation-Version" value="1.0"/>
+            <attribute name="Implementation-Vendor" value="${application.vendor}"/>
+        </manifest>
+        
+        <!-- Create the JAR file -->
+        <jar destfile="${dist.jar}" manifest="${dist.dir}/MANIFEST.MF">
+            <fileset dir="${build.classes.dir}"/>
+        </jar>
+        
+        <!-- Copy dependency JARs to dist folder -->
+        <copy todir="${dist.dir}">
+            <fileset file="miglayout-4.0.jar"/>
+            <fileset file="TimingFramework-0.55.jar"/>
+        </copy>
+        
+        <echo message="Executable JAR created: ${dist.jar}"/>
+        <echo message="Dependencies copied to: ${dist.dir}"/>
+    </target>
+    
+    <!-- Override default jar target -->
+    <target name="jar" depends="jar-with-deps"/>
+    
 </project>
