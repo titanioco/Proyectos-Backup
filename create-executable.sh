@@ -65,7 +65,16 @@ fi
 
 echo ""
 echo -e "${BLUE}Step 3: Create portable JAR with dependencies${NC}"
+echo -e "${BLUE}Step 2.5: Clean up license files${NC}"
 
+if [ -d "dist/$PROJECT_NAME" ]; then
+    # Move licenses to a separate folder
+    mkdir -p "dist/$PROJECT_NAME/legal"
+    mv "dist/$PROJECT_NAME/THIRD-PARTY-LICENSE" "dist/$PROJECT_NAME/legal/" 2>/dev/null || true
+    mv "dist/$PROJECT_NAME/ADDITIONAL_LICENSE_INFO" "dist/$PROJECT_NAME/legal/" 2>/dev/null || true
+    
+    echo -e "${GREEN}✅ License files moved to legal/ folder${NC}"
+fi
 # Create a single JAR with all dependencies
 mkdir -p dist/fat-jar
 cd dist/fat-jar
