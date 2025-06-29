@@ -1,3 +1,8 @@
 Manifest-Version: 1.0
-X-COMMENT: Main-Class will be added automatically by build
+Main-Class: com.raven.main.Main
+Class-Path: .
+Created-By: RAVEN
+Implementation-Title: Login Application
+Implementation-Version: 1.0
+Implementation-Vendor: RAVEN
 
