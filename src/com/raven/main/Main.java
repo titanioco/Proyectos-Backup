@@ -92,6 +92,40 @@ public class Main extends javax.swing.JFrame {
                 }
             }
         });
+        // Add Exit button to the top-right corner and set its layer to always be on top
+        com.raven.swing.Button exitButton = new com.raven.swing.Button() {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                // Draw a square with rounded corners (12px radius)
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
+                super.paintComponent(g2);
+                g2.dispose();
+            }
+        };
+        exitButton.setText("X");
+        exitButton.setBackground(new java.awt.Color(200, 50, 50));
+        exitButton.setForeground(new java.awt.Color(255, 255, 255));
+        exitButton.setFont(new java.awt.Font("sansserif", java.awt.Font.BOLD, 18));
+        exitButton.setFocusPainted(false);
+        exitButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        exitButton.setEffectColor(new java.awt.Color(255,255,255,60)); // subtle white ripple
+        exitButton.addActionListener(e -> System.exit(0));
+        // Highlight on hover
+        exitButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                exitButton.setBackground(new java.awt.Color(220, 80, 80));
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                exitButton.setBackground(new java.awt.Color(200, 50, 50));
+            }
+        });
+        bg.add(exitButton, "pos 1al 0.01al, w 40!, h 40!");
+        bg.setLayer(exitButton, javax.swing.JLayeredPane.DRAG_LAYER);
     }
 
     @SuppressWarnings("unchecked")

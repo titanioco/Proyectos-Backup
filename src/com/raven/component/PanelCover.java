@@ -94,15 +94,17 @@ public class PanelCover extends javax.swing.JPanel {
     public void registerLeft(double v) {
         v = Double.valueOf(df.format(v));
         login(false);
-        layout.setComponentConstraints(title, "pad 0 -" + v + "% 0 0");
-        layout.setComponentConstraints(description, "pad 0 -" + v + "% 0 0");
-        layout.setComponentConstraints(description1, "pad 0 -" + v + "% 0 0");
-        layout.setComponentConstraints(description2, "pad 0 -" + v + "% 0 0");
+        // Animate from center to left: pad left increases from 0 to v%, pad right stays 0
+        layout.setComponentConstraints(title, "pad 0 " + v + "% 0 0");
+        layout.setComponentConstraints(description, "pad 0 " + v + "% 0 0");
+        layout.setComponentConstraints(description1, "pad 0 " + v + "% 0 0");
+        layout.setComponentConstraints(description2, "pad 0 " + v + "% 0 0");
     }
 
     public void registerRight(double v) {
         v = Double.valueOf(df.format(v));
         login(false);
+        // Animate from left to center: pad left decreases from v% to 0, pad right stays 0
         layout.setComponentConstraints(title, "pad 0 -" + v + "% 0 0");
         layout.setComponentConstraints(description, "pad 0 -" + v + "% 0 0");
         layout.setComponentConstraints(description1, "pad 0 -" + v + "% 0 0");

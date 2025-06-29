@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Ant-Version: Apache Ant 1.10.14
-Created-By: 17.0.15+6-Ubuntu-0ubuntu124.04 (Ubuntu)
-Main-Class: com.raven.main.Main
-Implementation-Title: login-001
-Implementation-Version: 1.0
-Implementation-Vendor: RAVEN
-Class-Path: miglayout-4.0.jar TimingFramework-0.55.jar
-

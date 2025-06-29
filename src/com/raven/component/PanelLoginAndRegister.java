@@ -22,7 +22,7 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
     }
 
     private void initRegister() {
-        register.setLayout(new MigLayout("wrap", "push[center]push", "push[]25[]10[]10[]25[]push"));
+        register.setLayout(new MigLayout("wrap", "push[left]push", "push[]25[]10[]10[]25[]push"));
         JLabel label = new JLabel("Crear Cuenta");
         label.setFont(new Font("sansserif", 1, 30));
         label.setForeground(new Color(7, 164, 121));
@@ -47,7 +47,7 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
     }
 
     private void initLogin() {
-        login.setLayout(new MigLayout("wrap", "push[center]push", "push[]25[]10[]10[]55[]push"));
+        login.setLayout(new MigLayout("wrap", "push[center]push", "push[]25[]10[]10[]10[]push"));
         JLabel label = new JLabel("Universidad Nacional");
         label.setFont(new Font("sansserif", 1, 40));
         label.setForeground(new Color(7, 163, 15));
@@ -67,13 +67,14 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         MyPasswordField txtPass = new MyPasswordField();
         txtPass.setPrefixIcon(new ImageIcon(getClass().getResource("/com/raven/icon/pass.png")));
         txtPass.setHint("Password");
-        login.add(txtPass, "w 60%, gapbottom 10");
+        login.add(txtPass, "w 60%");
         JButton cmdForget = new JButton("Forgot your password ?");
         cmdForget.setForeground(new Color(100, 100, 100));
         cmdForget.setFont(new Font("sansserif", 1, 12));
         cmdForget.setContentAreaFilled(false);
         cmdForget.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        login.add(cmdForget);
+        // Move 30px up: use negative gap
+        login.add(cmdForget, "gap top -20, wrap");
         Button cmd = new Button();
         cmd.setBackground(new Color(29, 99, 81));
         cmd.setForeground(new Color(250, 250, 250));
