@@ -52,7 +52,7 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         label.setFont(new Font("sansserif", 1, 40));
         label.setForeground(new Color(7, 163, 15));
         login.add(label);
-        JLabel labelLogo = new JLabel("Proyectos Universitarios");
+        JLabel labelLogo = new JLabel("Proyectos Universitarios UN");
         labelLogo.setFont(new Font("sansserif", 1, 30));
         labelLogo.setForeground(new Color(7, 163, 121));
         login.add(labelLogo);
@@ -68,7 +68,7 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         txtPass.setPrefixIcon(new ImageIcon(getClass().getResource("/com/raven/icon/pass.png")));
         txtPass.setHint("Password");
         login.add(txtPass, "w 60%");
-        JButton cmdForget = new JButton("Forgot your password ?");
+        JButton cmdForget = new JButton("Olvidaste tu Contraseña ?");
         cmdForget.setForeground(new Color(100, 100, 100));
         cmdForget.setFont(new Font("sansserif", 1, 12));
         cmdForget.setContentAreaFilled(false);
@@ -93,7 +93,7 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
     }
 
     @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+
     private void initComponents() {
 
         login = new javax.swing.JPanel();
@@ -130,10 +130,9 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         );
 
         add(register, "card2");
-    }// </editor-fold>//GEN-END:initComponents
+    }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel login;
     private javax.swing.JPanel register;
-    // End of variables declaration//GEN-END:variables
+
 }
