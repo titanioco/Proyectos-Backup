@@ -29,7 +29,7 @@ public class PanelCover extends javax.swing.JPanel {
     public PanelCover() {
         initComponents();
         setOpaque(false);
-        layout = new MigLayout("wrap, fill", "[center]", "push[]25[]10[]25[]push");
+        layout = new MigLayout("wrap, fill", "[center]", "push[]25[]25[]25[]push");
         setLayout(layout);
         init();
 
@@ -63,7 +63,7 @@ public class PanelCover extends javax.swing.JPanel {
     }
 
     @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    
     private void initComponents() {
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -76,7 +76,7 @@ public class PanelCover extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 300, Short.MAX_VALUE)
         );
-    }// </editor-fold>//GEN-END:initComponents
+    }
 
     @Override
     protected void paintComponent(Graphics grphcs) {

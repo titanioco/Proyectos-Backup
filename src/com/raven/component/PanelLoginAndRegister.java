@@ -73,8 +73,8 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         cmdForget.setFont(new Font("sansserif", 1, 12));
         cmdForget.setContentAreaFilled(false);
         cmdForget.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        // Move 30px up: use negative gap
-        login.add(cmdForget, "gap top -20, wrap");
+
+        login.add(cmdForget);
         Button cmd = new Button();
         cmd.setBackground(new Color(29, 99, 81));
         cmd.setForeground(new Color(250, 250, 250));
