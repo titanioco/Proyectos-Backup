@@ -1,0 +1,630 @@
+titanioco: *- Permitir al usuario registrarse y crear una cuenta nueva utilizando diferentes web-based
+- Permitir al usuario registrar una cuenta nueva utilizando hard-wallets (billetera física)
+- Permitir al usuario observar el balance de su cuenta en cualquier momento
+- Permitir al usuario depositar cryptomonedas (ethereum, bitcoin, dollar) para aprovechar los beneficios de la plataforma Aave ( appi de servicio tercerizado)
+- Permitir al usuario revisar el historial de deposito, préstamo y pagos en la plataforma
+- Permitir al usuario gestionar su balance con pagos parciales, totales, inversiones pendientes, solicitar y repagar préstamos
+- Permitir inversiones y préstamos simultáneamente a través de la función de préstamo automático (leveraged by Aave)
+- Permitir al usuario revisar su puntuación de salud (riesgo de liquidación)
+- Permitir el control del riesgo de liquidación a través del pago parcial de la deuda usando el colateral disponible
+- Programar mensajes de alerta para indicarle al usuario cuando su porcentaje de salud está en riesgo de liquidación
+- Agregar un indicador del balance general del usuario (inversiones - deudas)
+- Proporcionar una sección con el perfil personal para observar el historial de movimientos 
+- Permitir acceso a funciones avanzadas de la plataforma de inversión a través de una sección para expertos
+- Permitir la generación de un enlace de referidos para crear otras cuentas asociadas al usuario (Ingreso residual)
+- Permitir que el usuario pueda copiar, compartir la billetera en uso  y generar ingresos residuales a través de referidos
+- Permitir al usuario vaciar la cuenta y extraer los fondos a voluntad.
+- El usuario quiere extraer los datos que se han registrado en un intervalo de tiempo en formato csv.
+- El sistema debe permitirle al usuario cerrar y abrir la cuenta en uno o varios dispositivos.)
+
+el texto anterior siguiente es el formato de 20 historias de usuario de un programa distinto, observa mi programa desde el main y sus componente y ayudame a generar 20 historias de usuario coherentes al estado actual de desarrollo de la aplicacion, teniendo en cuenta que hace falta la conexion a la base de datos para almacenar a los usuarios registrados, la conexion con los servicios de google para la autenticacion con correo electronico y la conexion con apis de servicio como openAI para la integracion con el agente virtual
+
+GitHub Copilot: Voy a analizar el código actual de tu aplicación Java Swing para entender su estado actual y generar 20 historias de usuario coherentes. Basándome en el análisis del código actual de tu aplicación Java Swing, puedo ver que es una aplicación de login/registro universitario con interfaz animada. Considerando el estado actual y las funcionalidades mencionadas (base de datos, autenticación con Google, integración con OpenAI), aquí están las 20 historias de usuario coherentes:
+
+## Historias de Usuario para Sistema Universitario de Proyectos
+
+### **Autenticación y Registro**
+1. **Como estudiante universitario**, quiero poder registrarme en el sistema usando mi correo institucional para acceder a la plataforma de proyectos académicos.
+
+2. **Como usuario registrado**, quiero poder iniciar sesión con mis credenciales (email y contraseña) para acceder a mi cuenta personal en el sistema.
+
+3. **Como estudiante**, quiero poder autenticarme usando mi cuenta de Google institucional para facilitar el acceso sin crear credenciales adicionales.
+
+4. **Como usuario**, quiero poder recuperar mi contraseña mediante un enlace enviado a mi correo electrónico cuando olvide mis credenciales de acceso.
+
+### **Gestión de Perfil y Datos**
+5. **Como usuario registrado**, quiero poder visualizar y editar mi perfil personal (nombre, correo, información académica) para mantener actualizada mi información.
+
+6. **Como estudiante**, quiero poder conectar múltiples cuentas de correo institucional para acceder desde diferentes dispositivos de manera segura.
+
+7. **Como usuario**, quiero poder exportar mis datos personales y actividad del sistema en formato CSV para llevar un registro externo.
+
+8. **Como usuario**, quiero poder cerrar mi cuenta de forma permanente y eliminar todos mis datos del sistema cuando ya no necesite la plataforma.
+
+### **Gestión de Proyectos Académicos**
+9. **Como estudiante**, quiero poder crear y registrar nuevos proyectos académicos con información detallada (título, descripción, materia, fecha) para organizar mi trabajo.
+
+10. **Como usuario**, quiero poder visualizar el historial completo de mis proyectos (creados, en progreso, finalizados) para hacer seguimiento a mi progreso académico.
+
+11. **Como estudiante**, quiero poder marcar proyectos como favoritos y categorizarlos por materia o semestre para una mejor organización.
+
+12. **Como usuario**, quiero poder compartir enlaces de mis proyectos con compañeros de clase para colaboración y revisión peer-to-peer.
+
+### **Asistente Virtual con IA**
+13. **Como estudiante**, quiero poder consultar un asistente virtual alimentado por IA (OpenAI) para obtener ayuda con dudas académicas y sugerencias para mis proyectos.
+
+14. **Como usuario**, quiero poder hacer preguntas al asistente sobre metodologías de investigación, formato de documentos y mejores prácticas académicas.
+
+15. **Como estudiante**, quiero que el asistente IA pueda revisar el progreso de mis proyectos y sugerir mejoras o próximos pasos a seguir.
+
+### **Colaboración y Comunidad**
+16. **Como usuario**, quiero poder generar enlaces de invitación para que otros estudiantes se registren en la plataforma y formen parte de mi red académica.
+
+17. **Como estudiante**, quiero poder explorar proyectos públicos de otros usuarios para inspirarme y aprender de trabajos similares a los míos.
+
+18. **Como usuario**, quiero poder recibir notificaciones sobre actualizaciones importantes del sistema, nuevas funcionalidades y recordatorios de proyectos.
+
+### **Funcionalidades Avanzadas**
+19. **Como usuario avanzado**, quiero acceder a una sección de herramientas especializadas con funciones adicionales para análisis de datos y gestión avanzada de proyectos.
+
+20. **Como administrador/estudiante avanzado**, quiero poder acceder a estadísticas detalladas de uso de la plataforma y métricas de productividad académica para optimizar mi rendimiento.
+
+---
+
+Estas historias de usuario están alineadas con:
+- **Estado actual**: Interfaz de login/registro funcional con animaciones
+- **Funcionalidades pendientes**: Integración con base de datos, autenticación Google, y servicios de IA
+- **Contexto universitario**: Enfocado en proyectos académicos y colaboración estudiantil
+- **Escalabilidad**: Preparado para crecimiento con funciones avanzadas
+
+¿Te gustaría que desarrolle alguna de estas historias en mayor detalle o que ajuste alguna funcionalidad específica?
+
+titanioco: Con base en el siguiente texto donde se expone brevemente las 3 etapas de desarrollo sobre las cuales se esta enfocando la creacion de esta aplicacion 
+crea un texto donde se explique en profundidad el estado de desarrollo actual  a nivel de un estudiante de ingenieria y desde el enfoque del analisis del sistema, teniendo en cuenta que hace falta la conexion a la base de datos para almacenar a los usuarios registrados, la conexion con los servicios de google para la autenticacion con correo electronico y la conexion con apis de servicio como openAI para la integracion con el agente virtual pero asumiendo que se van a realizar hasta cumplir las historias de usuario creadas en la respuesta anterior:
+
+"El análisis, diseño y desarrollo de software son etapas interconectadas de un proceso para crear aplicaciones informáticas. El análisis se enfoca en entender las necesidades del usuario y los objetivos del software, mientras que el diseño detalla cómo se implementará la solución, y el desarrollo es la creación del código. Estas fases son cruciales para asegurar que el software sea de alta calidad, cumpla con los requisitos y sea escalable. 
+Análisis de Software:
+Comprender las necesidades: Se identifican los problemas, objetivos y funcionalidades que el software debe cumplir. 
+Recopilación de requisitos: Se documentan los requerimientos funcionales y no funcionales del software. 
+Modelado de procesos: Se crean diagramas y modelos que representan cómo funcionará el sistema. "
+
+GitHub Copilot: # Análisis del Estado Actual de Desarrollo del Sistema Universitario de Proyectos
+
+## **1. Contexto del Proyecto y Metodología de Desarrollo**
+
+El presente análisis examina el estado actual de desarrollo de una aplicación Java Swing destinada a la gestión de proyectos universitarios, siguiendo las tres etapas fundamentales del desarrollo de software: análisis, diseño e implementación. El proyecto se encuentra en una fase de transición entre el diseño de interfaz de usuario completado y la implementación de funcionalidades backend críticas.
+
+## **2. Estado Actual del Desarrollo**
+
+### **2.1 Análisis de Software - COMPLETADO PARCIALMENTE**
+
+**Comprensión de Necesidades:**
+El análisis inicial ha identificado exitosamente las necesidades primarias del sistema universitario:
+- Autenticación segura de estudiantes mediante credenciales institucionales
+- Gestión integral de proyectos académicos
+- Integración con servicios de inteligencia artificial para asistencia académica
+- Colaboración entre estudiantes y compartición de recursos
+
+**Recopilación de Requisitos:**
+Se han documentado 20 historias de usuario específicas que cubren:
+- **Requisitos Funcionales:** Autenticación, gestión de perfil, CRUD de proyectos, asistente IA, colaboración
+- **Requisitos No Funcionales:** Seguridad (OAuth Google), usabilidad (interfaz animada), escalabilidad (arquitectura modular)
+
+**Modelado de Procesos:**
+El sistema presenta un flujo claramente definido:
+```
+Usuario → Autenticación → Dashboard → Gestión de Proyectos → Asistencia IA → Colaboración
+```
+
+### **2.2 Diseño de Software - COMPLETADO EN CAPA DE PRESENTACIÓN**
+
+**Arquitectura Implementada:**
+El diseño actual sigue el patrón **MVC (Model-View-Controller)** con la siguiente estructura:
+
+```
+├── com.raven.main/
+│   └── Main.java (Controlador principal)
+├── com.raven.component/
+│   ├── PanelCover.java (Vista - Panel de bienvenida)
+│   └── PanelLoginAndRegister.java (Vista - Autenticación)
+└── com.raven.swing/
+    ├── Button.java (Componentes UI personalizados)
+    ├── MyTextField.java
+    └── MyPasswordField.java
+```
+
+**Características de Diseño Implementadas:**
+1. **Interfaz Responsiva:** Utilización de MigLayout para diseño adaptativo
+2. **Animaciones Fluidas:** Implementación con TimingFramework para transiciones suaves
+3. **Componentes Personalizados:** Campos de texto y botones con iconografía especializada
+4. **Gestión de Estados:** Sistema de alternancia entre paneles de login y registro
+
+### **2.3 Desarrollo/Implementación - EN PROGRESO (30% COMPLETADO)**
+
+**Funcionalidades Implementadas:**
+- ✅ **Interfaz de Usuario Completa:** Paneles animados de login/registro
+- ✅ **Validación Visual:** Campos con iconos y hints informativos
+- ✅ **Arquitectura Base:** Estructura modular escalable
+- ✅ **Gestión de Eventos:** Sistema de listeners para interacciones
+
+**Funcionalidades Pendientes (Críticas para MVP):**
+
+#### **A. Capa de Persistencia - PENDIENTE**
+```java
+// Estructura requerida para implementación
+├── com.raven.database/
+│   ├── DatabaseConnection.java
+│   ├── UserDAO.java
+│   └── ProjectDAO.java
+└── resources/
+    └── database.properties
+```
+
+**Tecnologías sugeridas:**
+- **Base de Datos:** PostgreSQL/MySQL para producción, H2 para desarrollo
+- **ORM:** Hibernate/JPA para mapeo objeto-relacional
+- **Pool de Conexiones:** HikariCP para optimización de rendimiento
+
+#### **B. Integración con Google OAuth - PENDIENTE**
+```java
+// Componentes requeridos
+├── com.raven.auth/
+│   ├── GoogleAuthService.java
+│   ├── TokenManager.java
+│   └── UserSession.java
+```
+
+**Dependencias requeridas:**
+- Google OAuth Client Library
+- JSON Web Token (JWT) para manejo de sesiones
+- HttpClient para comunicación con APIs de Google
+
+#### **C. Integración con OpenAI API - PENDIENTE**
+```java
+// Estructura para asistente IA
+├── com.raven.ai/
+│   ├── OpenAIService.java
+│   ├── ChatbotInterface.java
+│   └── ResponseProcessor.java
+```
+
+## **3. Análisis Técnico del Código Actual**
+
+### **3.1 Fortalezas Arquitectónicas**
+1. **Separación de Responsabilidades:** Clara división entre componentes UI y lógica de presentación
+2. **Extensibilidad:** Estructura modular que facilita la adición de nuevas funcionalidades
+3. **Experiencia de Usuario:** Animaciones profesionales que mejoran la interacción
+4. **Mantenibilidad:** Código bien documentado con convenciones Java estándar
+
+### **3.2 Áreas de Mejora Identificadas**
+1. **Acoplamiento:** Los paneles están fuertemente acoplados al Main controller
+2. **Validación:** Falta implementación de validaciones de entrada robustas
+3. **Manejo de Errores:** Ausencia de sistema centralizado de gestión de excepciones
+4. **Configuración:** Valores hardcodeados que deberían estar externalizados
+
+## **4. Roadmap de Desarrollo para Completar MVP**
+
+### **Fase 1: Implementación de Backend (4-6 semanas)**
+1. **Semana 1-2:** Configuración de base de datos y DAOs
+2. **Semana 3:** Implementación de autenticación Google OAuth
+3. **Semana 4:** Integración con OpenAI API
+4. **Semana 5-6:** Testing y refinamiento
+
+### **Fase 2: Funcionalidades Core (3-4 semanas)**
+1. Gestión completa de proyectos (CRUD)
+2. Sistema de perfiles de usuario
+3. Funcionalidades de colaboración
+4. Dashboard principal post-login
+
+### **Fase 3: Características Avanzadas (2-3 semanas)**
+1. Sistema de notificaciones
+2. Exportación de datos (CSV)
+3. Métricas y analytics
+4. Funciones administrativas
+
+## **5. Consideraciones de Calidad y Escalabilidad**
+
+### **5.1 Testing Strategy**
+- **Unit Testing:** JUnit para lógica de negocio
+- **Integration Testing:** TestContainers para testing con base de datos
+- **UI Testing:** AssertJ Swing para automatización de UI
+
+### **5.2 Métricas de Calidad Actuales**
+- **Cobertura de Código:** 0% (solo UI implementada)
+- **Deuda Técnica:** Baja (código bien estructurado)
+- **Complejidad Ciclomática:** Moderada en animaciones
+
+## **6. Conclusión del Análisis**
+
+El proyecto presenta una **base sólida a nivel de interfaz de usuario** con arquitectura escalable y diseño profesional. El estado actual representa aproximadamente un **30% de completitud** hacia el MVP, con la infraestructura visual completamente funcional pero requiriendo la implementación crítica de:
+
+1. **Backend Services** (35% del trabajo restante)
+2. **Integrations** (25% del trabajo restante)  
+3. **Business Logic** (10% del trabajo restante)
+
+La transición de la fase de diseño a la implementación completa requiere un enfoque sistemático en la integración de servicios externos y la construcción de la capa de persistencia, manteniendo la calidad del código y la experiencia de usuario ya establecidas.
+
+El cronograma estimado para alcanzar un MVP funcional es de **9-13 semanas** con un desarrollador experimentado, considerando la complejidad de las integraciones con servicios de terceros y la necesidad de testing exhaustivo para un entorno académico.
+
+titanioco: Utilizando el contexto en la respuesta anterior, describe el estado actual y futuro de la aplicacion teniendo en cuenta el MVP y los objetivos planteados desde la perspectiva del diseño como lo describe el siguiente texto:
+
+"Diseño de Software:
+Diseño de la arquitectura:
+Se define la estructura general del software y cómo interactuarán sus componentes. 
+Diseño de interfaces:
+Se crean los elementos visuales y la forma en que los usuarios interactuarán con el software. 
+Diseño de base de datos:
+Se define la estructura y organización de los datos que utilizará el software. "
+
+GitHub Copilot: # Análisis del Diseño de Software: Estado Actual y Futuro del Sistema Universitario de Proyectos
+
+## **1. DISEÑO DE LA ARQUITECTURA**
+
+### **1.1 Estado Actual de la Arquitectura**
+
+**Arquitectura Implementada:**
+El sistema actualmente implementa una **arquitectura en capas híbrida** que combina elementos del patrón MVC con componentes especializados:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CAPA DE PRESENTACIÓN                     │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
+│  │   Main.java     │  │  PanelCover     │  │PanelLogin&  │ │
+│  │  (Controller)   │  │  (View Cover)   │  │Register     │ │
+│  │                 │  │                 │  │  (View)     │ │ 
+│  └─────────────────┘  └─────────────────┘  └─────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                CAPA DE COMPONENTES UI                       │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │   Button    │  │MyTextField  │  │  MyPasswordField    │ │
+│  │ (Custom UI) │  │(Custom UI)  │  │   (Custom UI)       │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│           CAPA DE SERVICIOS (NO IMPLEMENTADA)               │
+│                    [FUTURO DESARROLLO]                      │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│          CAPA DE PERSISTENCIA (NO IMPLEMENTADA)             │
+│                    [FUTURO DESARROLLO]                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Fortalezas Arquitectónicas Actuales:**
+- **Modularidad:** Separación clara entre componentes UI especializados
+- **Reutilización:** Componentes personalizados (Button, MyTextField) reutilizables
+- **Mantenibilidad:** Estructura organizada por responsabilidades
+- **Extensibilidad:** Facilita la adición de nuevos paneles y funcionalidades
+
+### **1.2 Arquitectura Objetivo para MVP**
+
+**Diseño Arquitectónico Completo Propuesto:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CAPA DE PRESENTACIÓN                     │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────┐ │
+│ │Main.java    │ │Dashboard    │ │ProjectMgmt  │ │Profile  │ │
+│ │PanelCover   │ │Panel        │ │Panel        │ │Panel    │ │
+│ │PanelLogin&  │ │             │ │             │ │         │ │
+│ │Register     │ │             │ │             │ │         │ │
+│ └─────────────┘ └─────────────┘ └─────────────┘ └─────────┘ │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                 CAPA DE CONTROLADORES                       │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────┐ │
+│ │AuthController│ │ProjectCtrl  │ │UserCtrl     │ │AICtrl   │ │
+│ └─────────────┘ └─────────────┘ └─────────────┘ └─────────┘ │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                   CAPA DE SERVICIOS                         │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────┐ │
+│ │AuthService  │ │ProjectSvc   │ │GoogleOAuth  │ │OpenAI   │ │
+│ │UserService  │ │FileService  │ │Service      │ │Service  │ │
+│ └─────────────┘ └─────────────┘ └─────────────┘ └─────────┘ │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                  CAPA DE ACCESO A DATOS                     │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────┐ │
+│ │UserDAO      │ │ProjectDAO   │ │SessionDAO   │ │FileDAO  │ │
+│ └─────────────┘ └─────────────┘ └─────────────┘ └─────────┘ │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│              CAPA DE PERSISTENCIA Y EXTERNAS                │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────┐ │
+│ │PostgreSQL   │ │File System │ │Google APIs  │ │OpenAI   │ │
+│ │Database     │ │Storage      │ │OAuth        │ │API      │ │
+│ └─────────────┘ └─────────────┘ └─────────────┘ └─────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Patrones Arquitectónicos a Implementar:**
+1. **Repository Pattern:** Para abstracción de acceso a datos
+2. **Service Layer Pattern:** Para lógica de negocio centralizada
+3. **Observer Pattern:** Para notificaciones y eventos del sistema
+4. **Strategy Pattern:** Para diferentes métodos de autenticación
+5. **Factory Pattern:** Para creación de componentes UI dinámicos
+
+## **2. DISEÑO DE INTERFACES**
+
+### **2.1 Estado Actual del Diseño de Interfaces**
+
+**Interfaces Implementadas:**
+
+**A. Interfaz de Autenticación:**
+```java
+// Características actuales implementadas:
+- Animación fluida entre paneles de login/registro (800ms duration)
+- Campos personalizados con iconografía (user, mail, password)
+- Validación visual mediante hints y prefijos
+- Diseño responsivo con MigLayout
+- Paleta de colores institucional (Verde universitario: #07A479)
+```
+
+**B. Componentes UI Personalizados:**
+- **MyTextField:** Campo de texto con soporte para iconos prefijo y hints
+- **MyPasswordField:** Campo de contraseña con funcionalidades de seguridad
+- **Button/ButtonOutLine:** Botones con estilos personalizados y efectos hover
+- **PanelCover:** Panel con gradientes y animaciones de transición
+
+**Fortalezas del Diseño Actual:**
+1. **Consistencia Visual:** Paleta de colores coherente y tipografía unificada
+2. **Usabilidad:** Navegación intuitiva con retroalimentación visual
+3. **Responsive Design:** Adaptación automática a diferentes resoluciones
+4. **Accesibilidad:** Iconografía clara y hints informativos
+
+### **2.2 Diseño de Interfaces para MVP Completo**
+
+**Arquitectura de UI Objetivo:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    PANTALLA PRINCIPAL                       │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │  Header Navigation (Usuario, Notificaciones, Logout)   │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│ ┌─────────────┐ ┌─────────────────────────────────────────┐ │
+│ │  Sidebar    │ │         Área de Contenido Principal     │ │
+│ │  - Dashboard│ │  ┌─────────────────────────────────────┐│ │
+│ │  - Proyectos│ │  │        Dashboard Widgets            ││ │
+│ │  - Perfil   │ │  │  - Proyectos Recientes              ││ │
+│ │  - IA Chat  │ │  │  - Estadísticas Académicas          ││ │
+│ │  - Config   │ │  │  - Asistente IA                     ││ │
+│ │             │ │  │  - Colaboraciones Activas           ││ │
+│ │             │ │  └─────────────────────────────────────┘│ │
+│ └─────────────┘ └─────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Nuevas Interfaces a Desarrollar:**
+
+**A. Dashboard Principal:**
+```java
+// Componentes requeridos:
+- ProjectSummaryWidget (resumen de proyectos)
+- AIAssistantChat (integración conversacional)
+- CollaborationPanel (proyectos compartidos)
+- NotificationCenter (alertas y actualizaciones)
+```
+
+**B. Gestión de Proyectos:**
+```java
+// Interfaces especializadas:
+- ProjectCreationWizard (wizard step-by-step)
+- ProjectEditor (editor rich-text con markdown)
+- FileUploadManager (gestión de archivos adjuntos)
+- CollaboratorInviter (invitación de colaboradores)
+```
+
+**C. Perfil de Usuario:**
+```java
+// Componentes de perfil:
+- UserProfileEditor (edición de información personal)
+- AcademicHistory (historial académico)
+- ExportDataPanel (exportación CSV/PDF)
+- PrivacySettings (configuración de privacidad)
+```
+
+## **3. DISEÑO DE BASE DE DATOS**
+
+### **3.1 Estado Actual: Sin Implementación de Persistencia**
+
+Actualmente, el sistema **no tiene implementada ninguna capa de persistencia**, lo que representa una limitación crítica para el MVP. Los datos se manejan únicamente en memoria durante la ejecución.
+
+### **3.2 Diseño de Base de Datos Objetivo**
+
+**Esquema de Base de Datos Propuesto:**
+
+```sql
+-- MODELO ENTIDAD-RELACIÓN PRINCIPAL
+
+┌─────────────────────────────────────────────────────────────┐
+│                     ESQUEMA UNIVERSITARIO                   │
+└─────────────────────────────────────────────────────────────┘
+
+-- Tabla de Usuarios
+CREATE TABLE users (
+    user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    institutional_email VARCHAR(255) UNIQUE NOT NULL,
+    google_id VARCHAR(255) UNIQUE,
+    full_name VARCHAR(255) NOT NULL,
+    student_id VARCHAR(50),
+    faculty VARCHAR(100),
+    program VARCHAR(100),
+    semester INTEGER,
+    profile_picture_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT true,
+    last_login TIMESTAMP
+);
+
+-- Tabla de Proyectos
+CREATE TABLE projects (
+    project_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    subject VARCHAR(100),
+    project_type ENUM('individual', 'group', 'research'),
+    status ENUM('planning', 'in_progress', 'completed', 'archived'),
+    visibility ENUM('private', 'faculty', 'public'),
+    due_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completion_percentage INTEGER DEFAULT 0,
+    tags TEXT[], -- PostgreSQL array for tags
+    metadata JSONB -- Flexible metadata storage
+);
+
+-- Tabla de Colaboradores
+CREATE TABLE project_collaborators (
+    collaboration_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_id UUID REFERENCES projects(project_id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    role ENUM('owner', 'editor', 'viewer', 'reviewer'),
+    invited_by UUID REFERENCES users(user_id),
+    invited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    accepted_at TIMESTAMP,
+    status ENUM('pending', 'accepted', 'declined', 'removed'),
+    permissions JSONB,
+    UNIQUE(project_id, user_id)
+);
+
+-- Tabla de Archivos
+CREATE TABLE project_files (
+    file_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_id UUID REFERENCES projects(project_id) ON DELETE CASCADE,
+    uploaded_by UUID REFERENCES users(user_id),
+    file_name VARCHAR(255) NOT NULL,
+    file_path TEXT NOT NULL,
+    file_size BIGINT,
+    mime_type VARCHAR(100),
+    file_hash VARCHAR(64), -- SHA-256 hash for integrity
+    upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    version INTEGER DEFAULT 1,
+    is_active BOOLEAN DEFAULT true
+);
+
+-- Tabla de Sesiones de IA
+CREATE TABLE ai_sessions (
+    session_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    project_id UUID REFERENCES projects(project_id) ON DELETE SET NULL,
+    conversation_history JSONB,
+    tokens_used INTEGER DEFAULT 0,
+    session_start TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    session_end TIMESTAMP,
+    session_rating INTEGER CHECK (session_rating >= 1 AND session_rating <= 5)
+);
+
+-- Tabla de Configuraciones de Usuario
+CREATE TABLE user_preferences (
+    preference_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    notification_settings JSONB,
+    theme_preferences JSONB,
+    privacy_settings JSONB,
+    ai_preferences JSONB,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla de Auditoría
+CREATE TABLE audit_log (
+    log_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(user_id),
+    action VARCHAR(100) NOT NULL,
+    resource_type VARCHAR(50),
+    resource_id UUID,
+    details JSONB,
+    ip_address INET,
+    user_agent TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**Índices y Optimizaciones:**
+```sql
+-- Índices para optimización de consultas
+CREATE INDEX idx_users_email ON users(institutional_email);
+CREATE INDEX idx_users_google_id ON users(google_id);
+CREATE INDEX idx_projects_owner ON projects(owner_id);
+CREATE INDEX idx_projects_status ON projects(status);
+CREATE INDEX idx_projects_created ON projects(created_at);
+CREATE INDEX idx_collaborators_project ON project_collaborators(project_id);
+CREATE INDEX idx_files_project ON project_files(project_id);
+CREATE INDEX idx_ai_sessions_user ON ai_sessions(user_id);
+CREATE INDEX idx_audit_user_timestamp ON audit_log(user_id, timestamp);
+
+-- Índices compuestos para consultas complejas
+CREATE INDEX idx_projects_owner_status ON projects(owner_id, status);
+CREATE INDEX idx_collaborators_user_status ON project_collaborators(user_id, status);
+```
+
+### **3.3 Consideraciones de Diseño de Datos**
+
+**A. Escalabilidad:**
+- **Particionamiento:** Tabla audit_log particionada por fecha
+- **Archivado:** Estrategia de archivado para proyectos antiguos
+- **Caching:** Redis para sesiones y datos frecuentemente accedidos
+
+**B. Seguridad:**
+- **Encriptación:** Campos sensibles encriptados en la base de datos
+- **Auditoría Completa:** Registro de todas las acciones críticas
+- **Backup:** Estrategia de respaldo automatizada cada 6 horas
+
+**C. Integridad Referencial:**
+- **Foreign Keys:** Relaciones estrictas entre entidades
+- **Constraints:** Validaciones a nivel de base de datos
+- **Triggers:** Actualizaciones automáticas de timestamps
+
+## **4. INTEGRACIÓN DE LOS COMPONENTES DE DISEÑO**
+
+### **4.1 Flujo de Datos en el Sistema Completo**
+
+```
+Usuario → Interfaz → Controlador → Servicio → DAO → Base de Datos
+   ↓         ↑         ↑           ↑        ↑         ↑
+Eventos → Validación → Lógica → Transformación → SQL → Persistencia
+```
+
+### **4.2 Cronograma de Implementación del Diseño**
+
+**Fase 1 (Semanas 1-3): Fundación de Datos**
+- Implementación del esquema de base de datos
+- Desarrollo de la capa DAO
+- Configuración de conexiones y pools
+
+**Fase 2 (Semanas 4-6): Servicios Backend**
+- Implementación de servicios de negocio
+- Integración con APIs externas (Google, OpenAI)
+- Sistema de autenticación y autorización
+
+**Fase 3 (Semanas 7-9): Expansión de UI**
+- Dashboard principal
+- Gestión de proyectos
+- Integración del chat de IA
+
+**Fase 4 (Semanas 10-12): Refinamiento**
+- Optimización de rendimiento
+- Testing integral
+- Pulimiento de UX
+
+## **5. CONCLUSIÓN DEL ANÁLISIS DE DISEÑO**
+
+El sistema presenta una **arquitectura de presentación sólida y extensible** que proporciona una base excelente para el desarrollo del MVP completo. El diseño actual demuestra madurez en:
+
+- **Separación de responsabilidades** en la capa de presentación
+- **Componentes reutilizables** y bien diseñados
+- **Experiencia de usuario** profesional y pulida
+
+Las **áreas críticas para completar el MVP** requieren:
+
+1. **Implementación completa de la capa de persistencia** (40% del esfuerzo restante)
+2. **Desarrollo de servicios backend integrados** (35% del esfuerzo restante)
+3. **Expansión de interfaces de usuario** (25% del esfuerzo restante)
+
+El diseño propuesto mantiene la **coherencia arquitectónica** establecida mientras escala hacia un sistema empresarial robusto, cumpliendo con las 20 historias de usuario definidas y preparando el sistema para futuras expansiones académicas.
+
+Similar code found with 4 license types
