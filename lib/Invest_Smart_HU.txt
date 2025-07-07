@@ -1,0 +1,1836 @@
+titanioco: *- Permitir al usuario registrarse y crear una cuenta nueva utilizando diferentes web-based
+- Permitir al usuario registrar una cuenta nueva utilizando hard-wallets (billetera física)
+- Permitir al usuario observar el balance de su cuenta en cualquier momento
+- Permitir al usuario depositar cryptomonedas (ethereum, bitcoin, dollar) para aprovechar los beneficios de la plataforma Aave ( appi de servicio tercerizado)
+- Permitir al usuario revisar el historial de deposito, préstamo y pagos en la plataforma
+- Permitir al usuario gestionar su balance con pagos parciales, totales, inversiones pendientes, solicitar y repagar préstamos
+- Permitir inversiones y préstamos simultáneamente a través de la función de préstamo automático (leveraged by Aave)
+- Permitir al usuario revisar su puntuación de salud (riesgo de liquidación)
+- Permitir el control del riesgo de liquidación a través del pago parcial de la deuda usando el colateral disponible
+- Programar mensajes de alerta para indicarle al usuario cuando su porcentaje de salud está en riesgo de liquidación
+- Agregar un indicador del balance general del usuario (inversiones - deudas)
+- Proporcionar una sección con el perfil personal para observar el historial de movimientos 
+- Permitir acceso a funciones avanzadas de la plataforma de inversión a través de una sección para expertos
+- Permitir la generación de un enlace de referidos para crear otras cuentas asociadas al usuario (Ingreso residual)
+- Permitir que el usuario pueda copiar, compartir la billetera en uso  y generar ingresos residuales a través de referidos
+- Permitir al usuario vaciar la cuenta y extraer los fondos a voluntad.
+- El usuario quiere extraer los datos que se han registrado en un intervalo de tiempo en formato csv.
+- El sistema debe permitirle al usuario cerrar y abrir la cuenta en uno o varios dispositivos.)
+
+el texto anterior siguiente es el formato de 20 historias de usuario de un programa distinto, observa mi programa desde el main y sus componente y ayudame a generar 20 historias de usuario coherentes al estado actual de desarrollo de la aplicacion, teniendo en cuenta que hace falta la conexion a la base de datos para almacenar a los usuarios registrados, la conexion con los servicios de google para la autenticacion con correo electronico y la conexion con apis de servicio como openAI para la integracion con el agente virtual
+
+GitHub Copilot: Voy a analizar el código actual de tu aplicación Java Swing para entender su estado actual y generar 20 historias de usuario coherentes. Basándome en el análisis del código actual de tu aplicación Java Swing, puedo ver que es una aplicación de login/registro universitario con interfaz animada. Considerando el estado actual y las funcionalidades mencionadas (base de datos, autenticación con Google, integración con OpenAI), aquí están las 20 historias de usuario coherentes:
+
+## Historias de Usuario para Sistema Universitario de Proyectos
+
+### **Autenticación y Registro**
+1. **Como estudiante universitario**, quiero poder registrarme en el sistema usando mi correo institucional para acceder a la plataforma de proyectos académicos.
+
+2. **Como usuario registrado**, quiero poder iniciar sesión con mis credenciales (email y contraseña) para acceder a mi cuenta personal en el sistema.
+
+3. **Como estudiante**, quiero poder autenticarme usando mi cuenta de Google institucional para facilitar el acceso sin crear credenciales adicionales.
+
+4. **Como usuario**, quiero poder recuperar mi contraseña mediante un enlace enviado a mi correo electrónico cuando olvide mis credenciales de acceso.
+
+### **Gestión de Perfil y Datos**
+5. **Como usuario registrado**, quiero poder visualizar y editar mi perfil personal (nombre, correo, información académica) para mantener actualizada mi información.
+
+6. **Como estudiante**, quiero poder conectar múltiples cuentas de correo institucional para acceder desde diferentes dispositivos de manera segura.
+
+7. **Como usuario**, quiero poder exportar mis datos personales y actividad del sistema en formato CSV para llevar un registro externo.
+
+8. **Como usuario**, quiero poder cerrar mi cuenta de forma permanente y eliminar todos mis datos del sistema cuando ya no necesite la plataforma.
+
+### **Gestión de Proyectos Académicos**
+9. **Como estudiante**, quiero poder crear y registrar nuevos proyectos académicos con información detallada (título, descripción, materia, fecha) para organizar mi trabajo.
+
+10. **Como usuario**, quiero poder visualizar el historial completo de mis proyectos (creados, en progreso, finalizados) para hacer seguimiento a mi progreso académico.
+
+11. **Como estudiante**, quiero poder marcar proyectos como favoritos y categorizarlos por materia o semestre para una mejor organización.
+
+12. **Como usuario**, quiero poder compartir enlaces de mis proyectos con compañeros de clase para colaboración y revisión peer-to-peer.
+
+### **Asistente Virtual con IA**
+13. **Como estudiante**, quiero poder consultar un asistente virtual alimentado por IA (OpenAI) para obtener ayuda con dudas académicas y sugerencias para mis proyectos.
+
+14. **Como usuario**, quiero poder hacer preguntas al asistente sobre metodologías de investigación, formato de documentos y mejores prácticas académicas.
+
+15. **Como estudiante**, quiero que el asistente IA pueda revisar el progreso de mis proyectos y sugerir mejoras o próximos pasos a seguir.
+
+### **Colaboración y Comunidad**
+16. **Como usuario**, quiero poder generar enlaces de invitación para que otros estudiantes se registren en la plataforma y formen parte de mi red académica.
+
+17. **Como estudiante**, quiero poder explorar proyectos públicos de otros usuarios para inspirarme y aprender de trabajos similares a los míos.
+
+18. **Como usuario**, quiero poder recibir notificaciones sobre actualizaciones importantes del sistema, nuevas funcionalidades y recordatorios de proyectos.
+
+### **Funcionalidades Avanzadas**
+19. **Como usuario avanzado**, quiero acceder a una sección de herramientas especializadas con funciones adicionales para análisis de datos y gestión avanzada de proyectos.
+
+20. **Como administrador/estudiante avanzado**, quiero poder acceder a estadísticas detalladas de uso de la plataforma y métricas de productividad académica para optimizar mi rendimiento.
+
+---
+
+Estas historias de usuario están alineadas con:
+- **Estado actual**: Interfaz de login/registro funcional con animaciones
+- **Funcionalidades pendientes**: Integración con base de datos, autenticación Google, y servicios de IA
+- **Contexto universitario**: Enfocado en proyectos académicos y colaboración estudiantil
+- **Escalabilidad**: Preparado para crecimiento con funciones avanzadas
+
+¿Te gustaría que desarrolle alguna de estas historias en mayor detalle o que ajuste alguna funcionalidad específica?
+
+titanioco: Con base en el siguiente texto donde se expone brevemente las 3 etapas de desarrollo sobre las cuales se esta enfocando la creacion de esta aplicacion 
+crea un texto donde se explique en profundidad el estado de desarrollo actual  a nivel de un estudiante de ingenieria y desde el enfoque del analisis del sistema, teniendo en cuenta que hace falta la conexion a la base de datos para almacenar a los usuarios registrados, la conexion con los servicios de google para la autenticacion con correo electronico y la conexion con apis de servicio como openAI para la integracion con el agente virtual pero asumiendo que se van a realizar hasta cumplir las historias de usuario creadas en la respuesta anterior:
+
+"El análisis, diseño y desarrollo de software son etapas interconectadas de un proceso para crear aplicaciones informáticas. El análisis se enfoca en entender las necesidades del usuario y los objetivos del software, mientras que el diseño detalla cómo se implementará la solución, y el desarrollo es la creación del código. Estas fases son cruciales para asegurar que el software sea de alta calidad, cumpla con los requisitos y sea escalable. 
+Análisis de Software:
+Comprender las necesidades: Se identifican los problemas, objetivos y funcionalidades que el software debe cumplir. 
+Recopilación de requisitos: Se documentan los requerimientos funcionales y no funcionales del software. 
+Modelado de procesos: Se crean diagramas y modelos que representan cómo funcionará el sistema. "
+
+GitHub Copilot: # Análisis del Estado Actual de Desarrollo del Sistema Universitario de Proyectos
+
+## **1. Contexto del Proyecto y Metodología de Desarrollo**
+
+El presente análisis examina el estado actual de desarrollo de una aplicación Java Swing destinada a la gestión de proyectos universitarios, siguiendo las tres etapas fundamentales del desarrollo de software: análisis, diseño e implementación. El proyecto se encuentra en una fase de transición entre el diseño de interfaz de usuario completado y la implementación de funcionalidades backend críticas.
+
+## **2. Estado Actual del Desarrollo**
+
+### **2.1 Análisis de Software - COMPLETADO PARCIALMENTE**
+
+**Comprensión de Necesidades:**
+El análisis inicial ha identificado exitosamente las necesidades primarias del sistema universitario:
+- Autenticación segura de estudiantes mediante credenciales institucionales
+- Gestión integral de proyectos académicos
+- Integración con servicios de inteligencia artificial para asistencia académica
+- Colaboración entre estudiantes y compartición de recursos
+
+**Recopilación de Requisitos:**
+Se han documentado 20 historias de usuario específicas que cubren:
+- **Requisitos Funcionales:** Autenticación, gestión de perfil, CRUD de proyectos, asistente IA, colaboración
+- **Requisitos No Funcionales:** Seguridad (OAuth Google), usabilidad (interfaz animada), escalabilidad (arquitectura modular)
+
+**Modelado de Procesos:**
+El sistema presenta un flujo claramente definido:
+```
+Usuario → Autenticación → Dashboard → Gestión de Proyectos → Asistencia IA → Colaboración
+```
+
+### **2.2 Diseño de Software - COMPLETADO EN CAPA DE PRESENTACIÓN**
+
+**Arquitectura Implementada:**
+El diseño actual sigue el patrón **MVC (Model-View-Controller)** con la siguiente estructura:
+
+```
+├── com.raven.main/
+│   └── Main.java (Controlador principal)
+├── com.raven.component/
+│   ├── PanelCover.java (Vista - Panel de bienvenida)
+│   └── PanelLoginAndRegister.java (Vista - Autenticación)
+└── com.raven.swing/
+    ├── Button.java (Componentes UI personalizados)
+    ├── MyTextField.java
+    └── MyPasswordField.java
+```
+
+**Características de Diseño Implementadas:**
+1. **Interfaz Responsiva:** Utilización de MigLayout para diseño adaptativo
+2. **Animaciones Fluidas:** Implementación con TimingFramework para transiciones suaves
+3. **Componentes Personalizados:** Campos de texto y botones con iconografía especializada
+4. **Gestión de Estados:** Sistema de alternancia entre paneles de login y registro
+
+### **2.3 Desarrollo/Implementación - EN PROGRESO (30% COMPLETADO)**
+
+**Funcionalidades Implementadas:**
+- ✅ **Interfaz de Usuario Completa:** Paneles animados de login/registro
+- ✅ **Validación Visual:** Campos con iconos y hints informativos
+- ✅ **Arquitectura Base:** Estructura modular escalable
+- ✅ **Gestión de Eventos:** Sistema de listeners para interacciones
+
+**Funcionalidades Pendientes (Críticas para MVP):**
+
+#### **A. Capa de Persistencia - PENDIENTE**
+```java
+// Estructura requerida para implementación
+├── com.raven.database/
+│   ├── DatabaseConnection.java
+│   ├── UserDAO.java
+│   └── ProjectDAO.java
+└── resources/
+    └── database.properties
+```
+
+**Tecnologías sugeridas:**
+- **Base de Datos:** PostgreSQL/MySQL para producción, H2 para desarrollo
+- **ORM:** Hibernate/JPA para mapeo objeto-relacional
+- **Pool de Conexiones:** HikariCP para optimización de rendimiento
+
+#### **B. Integración con Google OAuth - PENDIENTE**
+```java
+// Componentes requeridos
+├── com.raven.auth/
+│   ├── GoogleAuthService.java
+│   ├── TokenManager.java
+│   └── UserSession.java
+```
+
+**Dependencias requeridas:**
+- Google OAuth Client Library
+- JSON Web Token (JWT) para manejo de sesiones
+- HttpClient para comunicación con APIs de Google
+
+#### **C. Integración con OpenAI API - PENDIENTE**
+```java
+// Estructura para asistente IA
+├── com.raven.ai/
+│   ├── OpenAIService.java
+│   ├── ChatbotInterface.java
+│   └── ResponseProcessor.java
+```
+
+## **3. Análisis Técnico del Código Actual**
+
+### **3.1 Fortalezas Arquitectónicas**
+1. **Separación de Responsabilidades:** Clara división entre componentes UI y lógica de presentación
+2. **Extensibilidad:** Estructura modular que facilita la adición de nuevas funcionalidades
+3. **Experiencia de Usuario:** Animaciones profesionales que mejoran la interacción
+4. **Mantenibilidad:** Código bien documentado con convenciones Java estándar
+
+### **3.2 Áreas de Mejora Identificadas**
+1. **Acoplamiento:** Los paneles están fuertemente acoplados al Main controller
+2. **Validación:** Falta implementación de validaciones de entrada robustas
+3. **Manejo de Errores:** Ausencia de sistema centralizado de gestión de excepciones
+4. **Configuración:** Valores hardcodeados que deberían estar externalizados
+
+## **4. Roadmap de Desarrollo para Completar MVP**
+
+### **Fase 1: Implementación de Backend (4-6 semanas)**
+1. **Semana 1-2:** Configuración de base de datos y DAOs
+2. **Semana 3:** Implementación de autenticación Google OAuth
+3. **Semana 4:** Integración con OpenAI API
+4. **Semana 5-6:** Testing y refinamiento
+
+### **Fase 2: Funcionalidades Core (3-4 semanas)**
+1. Gestión completa de proyectos (CRUD)
+2. Sistema de perfiles de usuario
+3. Funcionalidades de colaboración
+4. Dashboard principal post-login
+
+### **Fase 3: Características Avanzadas (2-3 semanas)**
+1. Sistema de notificaciones
+2. Exportación de datos (CSV)
+3. Métricas y analytics
+4. Funciones administrativas
+
+## **5. Consideraciones de Calidad y Escalabilidad**
+
+### **5.1 Testing Strategy**
+- **Unit Testing:** JUnit para lógica de negocio
+- **Integration Testing:** TestContainers para testing con base de datos
+- **UI Testing:** AssertJ Swing para automatización de UI
+
+### **5.2 Métricas de Calidad Actuales**
+- **Cobertura de Código:** 0% (solo UI implementada)
+- **Deuda Técnica:** Baja (código bien estructurado)
+- **Complejidad Ciclomática:** Moderada en animaciones
+
+## **6. Conclusión del Análisis**
+
+El proyecto presenta una **base sólida a nivel de interfaz de usuario** con arquitectura escalable y diseño profesional. El estado actual representa aproximadamente un **30% de completitud** hacia el MVP, con la infraestructura visual completamente funcional pero requiriendo la implementación crítica de:
+
+1. **Backend Services** (35% del trabajo restante)
+2. **Integrations** (25% del trabajo restante)  
+3. **Business Logic** (10% del trabajo restante)
+
+La transición de la fase de diseño a la implementación completa requiere un enfoque sistemático en la integración de servicios externos y la construcción de la capa de persistencia, manteniendo la calidad del código y la experiencia de usuario ya establecidas.
+
+El cronograma estimado para alcanzar un MVP funcional es de **9-13 semanas** con un desarrollador experimentado, considerando la complejidad de las integraciones con servicios de terceros y la necesidad de testing exhaustivo para un entorno académico.
+
+titanioco: Utilizando el contexto en la respuesta anterior, describe el estado actual y futuro de la aplicacion teniendo en cuenta el MVP y los objetivos planteados desde la perspectiva del diseño como lo describe el siguiente texto:
+
+"Diseño de Software:
+Diseño de la arquitectura:
+Se define la estructura general del software y cómo interactuarán sus componentes. 
+Diseño de interfaces:
+Se crean los elementos visuales y la forma en que los usuarios interactuarán con el software. 
+Diseño de base de datos:
+Se define la estructura y organización de los datos que utilizará el software. "
+
+GitHub Copilot: # Análisis del Diseño de Software: Estado Actual y Futuro del Sistema Universitario de Proyectos
+
+## **1. DISEÑO DE LA ARQUITECTURA**
+
+### **1.1 Estado Actual de la Arquitectura**
+
+**Arquitectura Implementada:**
+El sistema actualmente implementa una **arquitectura en capas híbrida** que combina elementos del patrón MVC con componentes especializados:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CAPA DE PRESENTACIÓN                     │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
+│  │   Main.java     │  │  PanelCover     │  │PanelLogin&  │ │
+│  │  (Controller)   │  │  (View Cover)   │  │Register     │ │
+│  │                 │  │                 │  │  (View)     │ │ 
+│  └─────────────────┘  └─────────────────┘  └─────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                CAPA DE COMPONENTES UI                       │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
+│  │   Button    │  │MyTextField  │  │  MyPasswordField    │ │
+│  │ (Custom UI) │  │(Custom UI)  │  │   (Custom UI)       │ │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│           CAPA DE SERVICIOS (NO IMPLEMENTADA)               │
+│                    [FUTURO DESARROLLO]                      │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│          CAPA DE PERSISTENCIA (NO IMPLEMENTADA)             │
+│                    [FUTURO DESARROLLO]                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Fortalezas Arquitectónicas Actuales:**
+- **Modularidad:** Separación clara entre componentes UI especializados
+- **Reutilización:** Componentes personalizados (Button, MyTextField) reutilizables
+- **Mantenibilidad:** Estructura organizada por responsabilidades
+- **Extensibilidad:** Facilita la adición de nuevos paneles y funcionalidades
+
+### **1.2 Arquitectura Objetivo para MVP**
+
+**Diseño Arquitectónico Completo Propuesto:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CAPA DE PRESENTACIÓN                     │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────┐ │
+│ │Main.java    │ │Dashboard    │ │ProjectMgmt  │ │Profile  │ │
+│ │PanelCover   │ │Panel        │ │Panel        │ │Panel    │ │
+│ │PanelLogin&  │ │             │ │             │ │         │ │
+│ │Register     │ │             │ │             │ │         │ │
+│ └─────────────┘ └─────────────┘ └─────────────┘ └─────────┘ │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                 CAPA DE CONTROLADORES                       │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────┐ │
+│ │AuthController│ │ProjectCtrl  │ │UserCtrl     │ │AICtrl   │ │
+│ └─────────────┘ └─────────────┘ └─────────────┘ └─────────┘ │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                   CAPA DE SERVICIOS                         │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────┐ │
+│ │AuthService  │ │ProjectSvc   │ │GoogleOAuth  │ │OpenAI   │ │
+│ │UserService  │ │FileService  │ │Service      │ │Service  │ │
+│ └─────────────┘ └─────────────┘ └─────────────┘ └─────────┘ │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                  CAPA DE ACCESO A DATOS                     │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────┐ │
+│ │UserDAO      │ │ProjectDAO   │ │SessionDAO   │ │FileDAO  │ │
+│ └─────────────┘ └─────────────┘ └─────────────┘ └─────────┘ │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│              CAPA DE PERSISTENCIA Y EXTERNAS                │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────┐ │
+│ │PostgreSQL   │ │File System │ │Google APIs  │ │OpenAI   │ │
+│ │Database     │ │Storage      │ │OAuth        │ │API      │ │
+│ └─────────────┘ └─────────────┘ └─────────────┘ └─────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Patrones Arquitectónicos a Implementar:**
+1. **Repository Pattern:** Para abstracción de acceso a datos
+2. **Service Layer Pattern:** Para lógica de negocio centralizada
+3. **Observer Pattern:** Para notificaciones y eventos del sistema
+4. **Strategy Pattern:** Para diferentes métodos de autenticación
+5. **Factory Pattern:** Para creación de componentes UI dinámicos
+
+## **2. DISEÑO DE INTERFACES**
+
+### **2.1 Estado Actual del Diseño de Interfaces**
+
+**Interfaces Implementadas:**
+
+**A. Interfaz de Autenticación:**
+```java
+// Características actuales implementadas:
+- Animación fluida entre paneles de login/registro (800ms duration)
+- Campos personalizados con iconografía (user, mail, password)
+- Validación visual mediante hints y prefijos
+- Diseño responsivo con MigLayout
+- Paleta de colores institucional (Verde universitario: #07A479)
+```
+
+**B. Componentes UI Personalizados:**
+- **MyTextField:** Campo de texto con soporte para iconos prefijo y hints
+- **MyPasswordField:** Campo de contraseña con funcionalidades de seguridad
+- **Button/ButtonOutLine:** Botones con estilos personalizados y efectos hover
+- **PanelCover:** Panel con gradientes y animaciones de transición
+
+**Fortalezas del Diseño Actual:**
+1. **Consistencia Visual:** Paleta de colores coherente y tipografía unificada
+2. **Usabilidad:** Navegación intuitiva con retroalimentación visual
+3. **Responsive Design:** Adaptación automática a diferentes resoluciones
+4. **Accesibilidad:** Iconografía clara y hints informativos
+
+### **2.2 Diseño de Interfaces para MVP Completo**
+
+**Arquitectura de UI Objetivo:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    PANTALLA PRINCIPAL                       │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │  Header Navigation (Usuario, Notificaciones, Logout)   │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│ ┌─────────────┐ ┌─────────────────────────────────────────┐ │
+│ │  Sidebar    │ │         Área de Contenido Principal     │ │
+│ │  - Dashboard│ │  ┌─────────────────────────────────────┐│ │
+│ │  - Proyectos│ │  │        Dashboard Widgets            ││ │
+│ │  - Perfil   │ │  │  - Proyectos Recientes              ││ │
+│ │  - IA Chat  │ │  │  - Estadísticas Académicas          ││ │
+│ │  - Config   │ │  │  - Asistente IA                     ││ │
+│ │             │ │  │  - Colaboraciones Activas           ││ │
+│ │             │ │  └─────────────────────────────────────┘│ │
+│ └─────────────┘ └─────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Nuevas Interfaces a Desarrollar:**
+
+**A. Dashboard Principal:**
+```java
+// Componentes requeridos:
+- ProjectSummaryWidget (resumen de proyectos)
+- AIAssistantChat (integración conversacional)
+- CollaborationPanel (proyectos compartidos)
+- NotificationCenter (alertas y actualizaciones)
+```
+
+**B. Gestión de Proyectos:**
+```java
+// Interfaces especializadas:
+- ProjectCreationWizard (wizard step-by-step)
+- ProjectEditor (editor rich-text con markdown)
+- FileUploadManager (gestión de archivos adjuntos)
+- CollaboratorInviter (invitación de colaboradores)
+```
+
+**C. Perfil de Usuario:**
+```java
+// Componentes de perfil:
+- UserProfileEditor (edición de información personal)
+- AcademicHistory (historial académico)
+- ExportDataPanel (exportación CSV/PDF)
+- PrivacySettings (configuración de privacidad)
+```
+
+## **3. DISEÑO DE BASE DE DATOS**
+
+### **3.1 Estado Actual: Sin Implementación de Persistencia**
+
+Actualmente, el sistema **no tiene implementada ninguna capa de persistencia**, lo que representa una limitación crítica para el MVP. Los datos se manejan únicamente en memoria durante la ejecución.
+
+### **3.2 Diseño de Base de Datos Objetivo**
+
+**Esquema de Base de Datos Propuesto:**
+
+```sql
+-- MODELO ENTIDAD-RELACIÓN PRINCIPAL
+
+┌─────────────────────────────────────────────────────────────┐
+│                     ESQUEMA UNIVERSITARIO                   │
+└─────────────────────────────────────────────────────────────┘
+
+-- Tabla de Usuarios
+CREATE TABLE users (
+    user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    institutional_email VARCHAR(255) UNIQUE NOT NULL,
+    google_id VARCHAR(255) UNIQUE,
+    full_name VARCHAR(255) NOT NULL,
+    student_id VARCHAR(50),
+    faculty VARCHAR(100),
+    program VARCHAR(100),
+    semester INTEGER,
+    profile_picture_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT true,
+    last_login TIMESTAMP
+);
+
+-- Tabla de Proyectos
+CREATE TABLE projects (
+    project_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    subject VARCHAR(100),
+    project_type ENUM('individual', 'group', 'research'),
+    status ENUM('planning', 'in_progress', 'completed', 'archived'),
+    visibility ENUM('private', 'faculty', 'public'),
+    due_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completion_percentage INTEGER DEFAULT 0,
+    tags TEXT[], -- PostgreSQL array for tags
+    metadata JSONB -- Flexible metadata storage
+);
+
+-- Tabla de Colaboradores
+CREATE TABLE project_collaborators (
+    collaboration_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_id UUID REFERENCES projects(project_id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    role ENUM('owner', 'editor', 'viewer', 'reviewer'),
+    invited_by UUID REFERENCES users(user_id),
+    invited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    accepted_at TIMESTAMP,
+    status ENUM('pending', 'accepted', 'declined', 'removed'),
+    permissions JSONB,
+    UNIQUE(project_id, user_id)
+);
+
+-- Tabla de Archivos
+CREATE TABLE project_files (
+    file_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_id UUID REFERENCES projects(project_id) ON DELETE CASCADE,
+    uploaded_by UUID REFERENCES users(user_id),
+    file_name VARCHAR(255) NOT NULL,
+    file_path TEXT NOT NULL,
+    file_size BIGINT,
+    mime_type VARCHAR(100),
+    file_hash VARCHAR(64), -- SHA-256 hash for integrity
+    upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    version INTEGER DEFAULT 1,
+    is_active BOOLEAN DEFAULT true
+);
+
+-- Tabla de Sesiones de IA
+CREATE TABLE ai_sessions (
+    session_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    project_id UUID REFERENCES projects(project_id) ON DELETE SET NULL,
+    conversation_history JSONB,
+    tokens_used INTEGER DEFAULT 0,
+    session_start TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    session_end TIMESTAMP,
+    session_rating INTEGER CHECK (session_rating >= 1 AND session_rating <= 5)
+);
+
+-- Tabla de Configuraciones de Usuario
+CREATE TABLE user_preferences (
+    preference_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    notification_settings JSONB,
+    theme_preferences JSONB,
+    privacy_settings JSONB,
+    ai_preferences JSONB,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla de Auditoría
+CREATE TABLE audit_log (
+    log_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(user_id),
+    action VARCHAR(100) NOT NULL,
+    resource_type VARCHAR(50),
+    resource_id UUID,
+    details JSONB,
+    ip_address INET,
+    user_agent TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**Índices y Optimizaciones:**
+```sql
+-- Índices para optimización de consultas
+CREATE INDEX idx_users_email ON users(institutional_email);
+CREATE INDEX idx_users_google_id ON users(google_id);
+CREATE INDEX idx_projects_owner ON projects(owner_id);
+CREATE INDEX idx_projects_status ON projects(status);
+CREATE INDEX idx_projects_created ON projects(created_at);
+CREATE INDEX idx_collaborators_project ON project_collaborators(project_id);
+CREATE INDEX idx_files_project ON project_files(project_id);
+CREATE INDEX idx_ai_sessions_user ON ai_sessions(user_id);
+CREATE INDEX idx_audit_user_timestamp ON audit_log(user_id, timestamp);
+
+-- Índices compuestos para consultas complejas
+CREATE INDEX idx_projects_owner_status ON projects(owner_id, status);
+CREATE INDEX idx_collaborators_user_status ON project_collaborators(user_id, status);
+```
+
+### **3.3 Consideraciones de Diseño de Datos**
+
+**A. Escalabilidad:**
+- **Particionamiento:** Tabla audit_log particionada por fecha
+- **Archivado:** Estrategia de archivado para proyectos antiguos
+- **Caching:** Redis para sesiones y datos frecuentemente accedidos
+
+**B. Seguridad:**
+- **Encriptación:** Campos sensibles encriptados en la base de datos
+- **Auditoría Completa:** Registro de todas las acciones críticas
+- **Backup:** Estrategia de respaldo automatizada cada 6 horas
+
+**C. Integridad Referencial:**
+- **Foreign Keys:** Relaciones estrictas entre entidades
+- **Constraints:** Validaciones a nivel de base de datos
+- **Triggers:** Actualizaciones automáticas de timestamps
+
+## **4. INTEGRACIÓN DE LOS COMPONENTES DE DISEÑO**
+
+### **4.1 Flujo de Datos en el Sistema Completo**
+
+```
+Usuario → Interfaz → Controlador → Servicio → DAO → Base de Datos
+   ↓         ↑         ↑           ↑        ↑         ↑
+Eventos → Validación → Lógica → Transformación → SQL → Persistencia
+```
+
+### **4.2 Cronograma de Implementación del Diseño**
+
+**Fase 1 (Semanas 1-3): Fundación de Datos**
+- Implementación del esquema de base de datos
+- Desarrollo de la capa DAO
+- Configuración de conexiones y pools
+
+**Fase 2 (Semanas 4-6): Servicios Backend**
+- Implementación de servicios de negocio
+- Integración con APIs externas (Google, OpenAI)
+- Sistema de autenticación y autorización
+
+**Fase 3 (Semanas 7-9): Expansión de UI**
+- Dashboard principal
+- Gestión de proyectos
+- Integración del chat de IA
+
+**Fase 4 (Semanas 10-12): Refinamiento**
+- Optimización de rendimiento
+- Testing integral
+- Pulimiento de UX
+
+## **5. CONCLUSIÓN DEL ANÁLISIS DE DISEÑO**
+
+El sistema presenta una **arquitectura de presentación sólida y extensible** que proporciona una base excelente para el desarrollo del MVP completo. El diseño actual demuestra madurez en:
+
+- **Separación de responsabilidades** en la capa de presentación
+- **Componentes reutilizables** y bien diseñados
+- **Experiencia de usuario** profesional y pulida
+
+Las **áreas críticas para completar el MVP** requieren:
+
+1. **Implementación completa de la capa de persistencia** (40% del esfuerzo restante)
+2. **Desarrollo de servicios backend integrados** (35% del esfuerzo restante)
+3. **Expansión de interfaces de usuario** (25% del esfuerzo restante)
+
+El diseño propuesto mantiene la **coherencia arquitectónica** establecida mientras escala hacia un sistema empresarial robusto, cumpliendo con las 20 historias de usuario definidas y preparando el sistema para futuras expansiones académicas.
+
+Similar code found with 4 license types
+
+titanioco: Utiliza todo el contexto anterior para completar descripciones de las historias de usuario desde el punto de vista de SMART e INVEST para diseñar un roadmap que se pueda establecer en SCRUM y compartir con un equipo de desarrollo 
+
+GitHub Copilot: # Roadmap de Desarrollo SCRUM: Sistema Universitario de Proyectos
+
+## **1. HISTORIAS DE USUARIO REFINADAS CON CRITERIOS SMART E INVEST**
+
+### **Epic 1: Autenticación y Gestión de Usuarios**
+
+#### **HU-001: Registro con Correo Institucional**
+**Como** estudiante universitario  
+**Quiero** registrarme usando mi correo institucional (@universidad.edu)  
+**Para que** pueda acceder a la plataforma académica de manera segura
+
+**Criterios SMART:**
+- **S**pecific: Registro exclusivo con dominios universitarios validados
+- **M**easurable: 100% de registros exitosos con emails válidos, tiempo de registro < 2 minutos
+- **A**chievable: Utiliza validación regex y lista blanca de dominios
+- **R**elevant: Esencial para seguridad y control de acceso institucional
+- **T**ime-bound: Completar en Sprint 1 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: No depende de otras historias para funcionar
+- **N**egotiable: Puede ajustarse la lista de dominios aceptados
+- **V**aluable: Proporciona valor inmediato al usuario final
+- **E**stimable: 13 Story Points (Complejo por validaciones)
+- **S**mall: Completable en un sprint
+- **T**estable: Casos de prueba claros para validación de email
+
+**Criterios de Aceptación:**
+```gherkin
+Given un estudiante con email institucional válido
+When completa el formulario de registro
+Then el sistema crea la cuenta y envía confirmación
+And el usuario puede iniciar sesión inmediatamente
+
+Given un usuario con email no institucional
+When intenta registrarse
+Then el sistema muestra error "Email no institucional"
+And no permite continuar con el registro
+```
+
+**Tareas Técnicas:**
+- [ ] Implementar UserDAO con validaciones
+- [ ] Crear servicio de validación de emails institucionales
+- [ ] Desarrollar UI de registro con validación en tiempo real
+- [ ] Configurar base de datos PostgreSQL
+- [ ] Implementar tests unitarios y de integración
+
+---
+
+#### **HU-002: Autenticación con Google OAuth**
+**Como** usuario registrado  
+**Quiero** autenticarme usando mi cuenta Google institucional  
+**Para que** pueda acceder rápidamente sin recordar otra contraseña
+
+**Criterios SMART:**
+- **S**pecific: Integración completa con Google OAuth 2.0
+- **M**easurable: Login exitoso en < 5 segundos, 99% de disponibilidad
+- **A**chievable: Utiliza Google Client Libraries oficiales
+- **R**elevant: Mejora UX y seguridad significativamente
+- **T**ime-bound: Completar en Sprint 2 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere HU-001 completada
+- **N**egotiable: Puede implementarse como alternativa opcional
+- **V**aluable: Reduce fricción de acceso para usuarios
+- **E**stimable: 21 Story Points (Muy complejo por integración externa)
+- **S**mall: Límite para un sprint, puede dividirse
+- **T**estable: Mockeable para testing automatizado
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario con cuenta Google institucional
+When hace clic en "Iniciar sesión con Google"
+Then se redirige a Google OAuth
+And retorna con sesión activa en la aplicación
+
+Given un usuario sin cuenta Google institucional
+When intenta OAuth login
+Then el sistema rechaza la autenticación
+And muestra mensaje de dominio no autorizado
+```
+
+---
+
+### **Epic 2: Gestión de Proyectos Académicos**
+
+#### **HU-003: Crear Proyecto Académico**
+**Como** estudiante autenticado  
+**Quiero** crear un nuevo proyecto con título, descripción, materia y fecha límite  
+**Para que** pueda organizar y gestionar mis trabajos académicos
+
+**Criterios SMART:**
+- **S**pecific: CRUD completo de proyectos con metadatos académicos
+- **M**easurable: Creación exitosa en < 30 segundos, validación 100% campos requeridos
+- **A**chievable: Interfaz simple con componentes existentes
+- **R**elevant: Funcionalidad core del sistema
+- **T**ime-bound: Completar en Sprint 3 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere autenticación funcional (HU-001/002)
+- **N**egotiable: Campos opcionales pueden ajustarse
+- **V**aluable: Proporciona valor académico inmediato
+- **E**stimable: 8 Story Points (Complejidad media)
+- **S**mall: Completable en un sprint
+- **T**estable: Casos de prueba claros para CRUD
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario autenticado
+When completa el formulario de nuevo proyecto
+Then el proyecto se guarda con estado "En Planificación"
+And aparece en su dashboard personal
+
+Given campos requeridos vacíos
+When intenta guardar el proyecto
+Then el sistema muestra errores de validación
+And no permite guardar hasta completar campos
+```
+
+---
+
+#### **HU-004: Visualizar Dashboard de Proyectos**
+**Como** estudiante con proyectos creados  
+**Quiero** ver un dashboard con mis proyectos organizados por estado y prioridad  
+**Para que** pueda tener una visión general de mi carga académica
+
+**Criterios SMART:**
+- **S**pecific: Dashboard con widgets configurables y filtros
+- **M**easurable: Carga completa en < 2 segundos, 5 filtros mínimo
+- **A**chievable: Utiliza componentes UI existentes
+- **R**elevant: Vista principal post-login
+- **T**ime-bound: Completar en Sprint 4 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere HU-003 completada
+- **N**egotiable: Layout y widgets pueden ajustarse
+- **V**aluable: Mejora productividad estudiantil
+- **E**stimable: 13 Story Points (Complejo por visualizaciones)
+- **S**mall: Completable en un sprint
+- **T**estable: Rendimiento y funcionalidad medibles
+
+---
+
+### **Epic 3: Asistente Virtual con IA**
+
+#### **HU-005: Chat con Asistente IA**
+**Como** estudiante trabajando en un proyecto  
+**Quiero** hacer preguntas al asistente IA sobre metodologías y buenas prácticas  
+**Para que** pueda mejorar la calidad de mi trabajo académico
+
+**Criterios SMART:**
+- **S**pecific: Integración completa con OpenAI GPT-4 API
+- **M**easurable: Respuesta en < 3 segundos, precisión > 85%
+- **A**chievable: Utiliza API oficial de OpenAI
+- **R**elevant: Diferenciador clave del producto
+- **T**ime-bound: Completar en Sprint 5 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere infraestructura básica
+- **N**egotiable: Modelo de IA puede ajustarse
+- **V**aluable: Alto valor para experiencia estudiantil
+- **E**stimable: 21 Story Points (Muy complejo por IA)
+- **S**mall: En el límite, considerar división
+- **T**testable: Respuestas mockeable para testing
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario en un proyecto específico
+When escribe una pregunta al asistente IA
+Then recibe una respuesta contextualizada en < 3 segundos
+And la respuesta incluye referencias académicas cuando corresponde
+
+Given el servicio de IA no disponible
+When el usuario intenta usar el chat
+Then se muestra mensaje de servicio temporalmente no disponible
+And se ofrece funcionalidad offline básica
+```
+
+---
+
+## **2. PRODUCT BACKLOG PRIORIZADO**
+
+### **Release 1.0 - MVP (Sprints 1-6)**
+
+| **Epic** | **Historia de Usuario** | **Story Points** | **Sprint** | **Prioridad** | **Dependencias** |
+|----------|-------------------------|------------------|------------|---------------|------------------|
+| Autenticación | HU-001: Registro Institucional | 13 | 1 | ALTA | Ninguna |
+| Autenticación | HU-002: Google OAuth | 21 | 2 | ALTA | HU-001 |
+| Proyectos | HU-003: Crear Proyecto | 8 | 3 | ALTA | HU-001 |
+| Proyectos | HU-004: Dashboard Proyectos | 13 | 4 | ALTA | HU-003 |
+| IA | HU-005: Chat Asistente IA | 21 | 5 | MEDIA | HU-003 |
+| Perfil | HU-006: Gestión de Perfil | 8 | 6 | MEDIA | HU-001 |
+
+### **Release 1.1 - Características Avanzadas (Sprints 7-12)**
+
+| **Epic** | **Historia de Usuario** | **Story Points** | **Sprint** | **Prioridad** | **Dependencias** |
+|----------|-------------------------|------------------|------------|---------------|------------------|
+| Colaboración | HU-007: Invitar Colaboradores | 13 | 7 | MEDIA | HU-003 |
+| Proyectos | HU-008: Historial de Proyectos | 8 | 7 | BAJA | HU-004 |
+| Datos | HU-009: Exportar a CSV | 5 | 8 | BAJA | HU-004 |
+| Colaboración | HU-010: Compartir Enlaces | 8 | 8 | MEDIA | HU-007 |
+| Notificaciones | HU-011: Sistema de Alertas | 13 | 9 | MEDIA | HU-004 |
+| IA | HU-012: IA Contextual por Proyecto | 21 | 10 | ALTA | HU-005 |
+| Seguridad | HU-013: Gestión de Sesiones | 8 | 11 | ALTA | HU-002 |
+| Admin | HU-014: Panel Administrativo | 21 | 12 | BAJA | HU-013 |
+
+---
+
+## **3. DEFINICIÓN DE SPRINTS DETALLADA**
+
+### **Sprint 1: Fundación de Autenticación (2 semanas)**
+
+**Sprint Goal:** Establecer sistema básico de registro y autenticación local
+
+**Capacidad del Equipo:** 26 Story Points
+- **Developer 1 (Full-Stack):** 13 SP
+- **Developer 2 (Backend):** 8 SP  
+- **Developer 3 (Frontend):** 5 SP
+
+**Historias Incluidas:**
+- ✅ HU-001: Registro Institucional (13 SP)
+- ✅ Configuración inicial BD (8 SP)
+- ✅ Setup CI/CD pipeline (5 SP)
+
+**Definition of Done:**
+- [ ] Código revisado por peer review
+- [ ] Tests unitarios con cobertura > 80%
+- [ ] Tests de integración pasando
+- [ ] Documentación técnica actualizada
+- [ ] Deploy exitoso en ambiente staging
+- [ ] Validación UX por Product Owner
+
+**Tareas Técnicas Sprint 1:**
+```
+□ Setup PostgreSQL con Docker
+□ Configurar conexión JDBC con HikariCP
+□ Implementar modelo User entity
+□ Crear UserDAO con validaciones
+□ Desarrollar UserService con lógica de negocio
+□ Expandir UI de registro con validaciones
+□ Configurar pipeline Jenkins/GitHub Actions
+□ Escribir 15+ test cases
+□ Documentar API endpoints
+□ Performance testing básico
+```
+
+---
+
+### **Sprint 2: Integración Google OAuth (2 semanas)**
+
+**Sprint Goal:** Habilitar autenticación segura con Google para usuarios institucionales
+
+**Historias Incluidas:**
+- ✅ HU-002: Google OAuth (21 SP)
+- ✅ Mejoras UX login (5 SP)
+
+**Riesgos Identificados:**
+- 🔴 **ALTO:** Latencia en APIs de Google
+- 🟡 **MEDIO:** Configuración OAuth en producción
+- 🟢 **BAJO:** Compatibilidad con navegadores
+
+**Mitigación de Riesgos:**
+- Implementar timeouts y retry logic
+- Configurar staging environment con OAuth real
+- Testing cross-browser automatizado
+
+---
+
+### **Sprint 3: Gestión Básica de Proyectos (2 semanas)**
+
+**Sprint Goal:** Permitir a usuarios crear y gestionar proyectos académicos
+
+**Historias Incluidas:**
+- ✅ HU-003: Crear Proyecto (8 SP)
+- ✅ HU-015: Editar Proyecto (8 SP)
+- ✅ HU-016: Eliminar Proyecto (5 SP)
+- ✅ Validaciones avanzadas (5 SP)
+
+**Criterios de Validación:**
+- Formularios con validación en tiempo real
+- Persistencia correcta en base de datos
+- Manejo de errores graceful
+- UI responsiva en móviles
+
+---
+
+## **4. MÉTRICAS Y KPIs DEL PROYECTO**
+
+### **Métricas de Desarrollo (Por Sprint)**
+
+| **Métrica** | **Objetivo** | **Medición** | **Responsable** |
+|-------------|--------------|--------------|-----------------|
+| Velocity | 25-30 SP/sprint | Story Points completados | Scrum Master |
+| Code Coverage | > 80% | SonarQube | Tech Lead |
+| Bug Escape Rate | < 5% | Bugs en producción | QA Lead |
+| Lead Time | < 3 días | Jira tracking | Product Owner |
+| Cycle Time | < 1 día | Git commits | Developer Team |
+
+### **Métricas de Negocio (Post-Release)**
+
+| **KPI** | **Objetivo Q1 2025** | **Frecuencia** | **Herramienta** |
+|---------|----------------------|----------------|-----------------|
+| Usuarios Activos Mensuales | 500+ estudiantes | Mensual | Google Analytics |
+| Tiempo Sesión Promedio | 15+ minutos | Semanal | Mixpanel |
+| Proyectos Creados/Usuario | 3+ proyectos | Mensual | Base de datos |
+| Satisfacción Usuario (NPS) | Score > 70 | Trimestral | SurveyMonkey |
+| Uptime del Sistema | 99.5% | Diario | Pingdom |
+
+---
+
+## **5. GESTIÓN DE RIESGOS Y DEPENDENCIAS**
+
+### **Matriz de Riesgos**
+
+| **Riesgo** | **Probabilidad** | **Impacto** | **Mitigación** | **Owner** |
+|------------|------------------|-------------|----------------|-----------|
+| API OpenAI no disponible | Media | Alto | Implementar fallback con modelo local | Tech Lead |
+| Cambios en Google OAuth | Baja | Alto | Monitoreo de deprecations, implementar OAuth 2.1 | Senior Dev |
+| Sobrecarga base de datos | Media | Medio | Implementar caching con Redis | DevOps |
+| Rotación del equipo | Alta | Alto | Documentación exhaustiva, pair programming | Scrum Master |
+| Cambios de requisitos | Alta | Medio | Sprint Reviews frecuentes, comunicación stakeholders | Product Owner |
+
+### **Dependencias Externas**
+
+```mermaid
+graph TD
+    A[Google OAuth API] --> B[Sistema de Autenticación]
+    C[OpenAI API] --> D[Asistente IA]
+    E[PostgreSQL Cloud] --> F[Persistencia de Datos]
+    G[AWS S3] --> H[Almacenamiento de Archivos]
+    B --> I[Dashboard Principal]
+    D --> I
+    F --> I
+    H --> I
+```
+
+---
+
+## **6. CEREMONIES Y COMUNICACIÓN**
+
+### **Sprint Planning (Cada 2 semanas - 4 horas)**
+- **Participantes:** Product Owner, Scrum Master, Development Team
+- **Objetivo:** Seleccionar historias y crear Sprint Backlog
+- **Deliverable:** Sprint Goal y compromisos claros
+
+### **Daily Standups (Diario - 15 minutos)**
+- **Formato:** ¿Qué hice ayer? ¿Qué haré hoy? ¿Hay impedimentos?
+- **Tool:** Slack async + presencial 3 días/semana
+
+### **Sprint Review (Cada 2 semanas - 2 horas)**
+- **Stakeholders:** Universidad, estudiantes beta, equipo técnico
+- **Demo:** Funcionalidades completadas en ambiente staging
+
+### **Sprint Retrospective (Cada 2 semanas - 1.5 horas)**
+- **Framework:** Start/Stop/Continue + Action Items
+- **Métricas:** Velocity, satisfacción del equipo, impedimentos
+
+---
+
+## **7. ROADMAP VISUAL 2025**
+
+```
+Q1 2025          Q2 2025          Q3 2025          Q4 2025
+│                │                │                │
+├─ Sprint 1-3    ├─ Sprint 7-9    ├─ Sprint 13-15  ├─ Sprint 19-21
+│  MVP Core      │  Colaboración  │  IA Avanzada   │  Analytics
+│                │                │                │
+├─ Sprint 4-6    ├─ Sprint 10-12  ├─ Sprint 16-18  ├─ Sprint 22-24
+│  Dashboard     │  Notificaciones│  Mobile App    │  Integración LMS
+│                │                │                │
+▼                ▼                ▼                ▼
+Release 1.0      Release 1.1      Release 2.0      Release 2.1
+(500 usuarios)   (1000 usuarios)  (2500 usuarios)  (5000 usuarios)
+```
+
+**Hitos Clave:**
+- **31 Mar 2025:** MVP Release (6 sprints completados)
+- **30 Jun 2025:** Colaboración Release (12 sprints completados)
+- **30 Sep 2025:** IA Avanzada Release (18 sprints completados)
+- **31 Dic 2025:** Plataforma Completa (24 sprints completados)
+
+---
+
+## **8. RECURSOS Y PRESUPUESTO**
+
+### **Equipo de Desarrollo**
+
+| **Rol** | **Cantidad** | **Sprint Rate** | **Costo Total 6 Sprints** |
+|---------|--------------|-----------------|---------------------------|
+| Tech Lead/Architect | 1 | $8,000 | $48,000 |
+| Senior Full-Stack Developer | 2 | $6,000 | $72,000 |
+| Backend Developer | 1 | $4,500 | $27,000 |
+| Frontend Developer | 1 | $4,000 | $24,000 |
+| QA Engineer | 1 | $3,500 | $21,000 |
+| Scrum Master | 0.5 | $3,000 | $9,000 |
+| **TOTAL** | **6.5 FTE** | **$29,000** | **$201,000** |
+
+### **Infraestructura y Servicios**
+
+| **Servicio** | **Costo Mensual** | **Costo 6 Meses** |
+|--------------|-------------------|-------------------|
+| AWS/Google Cloud | $500 | $3,000 |
+| PostgreSQL Managed | $200 | $1,200 |
+| OpenAI API Credits | $300 | $1,800 |
+| Monitoring Tools | $100 | $600 |
+| CI/CD Pipeline | $150 | $900 |
+| **TOTAL** | **$1,250** | **$7,500** |
+
+**Presupuesto Total MVP:** $208,500
+
+---
+
+Este roadmap proporciona una estructura completa para el desarrollo del sistema universitario, con historias de usuario detalladas siguiendo criterios SMART e INVEST, métricas claras, gestión de riesgos y un cronograma realista para entregar valor incremental cada sprint.
+
+titanioco: HU-001: Registro con Correo Institucional
+Como estudiante universitario
+Quiero registrarme usando mi correo institucional (@universidad.edu)
+Para que pueda acceder a la plataforma académica de manera segura
+
+Criterios SMART:
+
+Specific: Registro exclusivo con dominios universitarios validados
+Measurable: 100% de registros exitosos con emails válidos, tiempo de registro < 2 minutos
+Achievable: Utiliza validación regex y lista blanca de dominios
+Relevant: Esencial para seguridad y control de acceso institucional
+Time-bound: Completar en Sprint 1 (2 semanas)
+Criterios INVEST:
+
+Independent: No depende de otras historias para funcionar
+Negotiable: Puede ajustarse la lista de dominios aceptados
+Valuable: Proporciona valor inmediato al usuario final
+Estimable: 13 Story Points (Complejo por validaciones)
+Small: Completable en un sprint
+Testable: Casos de prueba claros para validación de email
+Criterios de Aceptación:
+Utiliza este mismo formato para darme las 20 historias de usuario seleccionadas de forma inicial 
+(Historias de Usuario para Sistema Universitario de Proyectos
+Autenticación y Registro
+Como estudiante universitario, quiero poder registrarme en el sistema usando mi correo institucional para acceder a la plataforma de proyectos académicos.
+
+Como usuario registrado, quiero poder iniciar sesión con mis credenciales (email y contraseña) para acceder a mi cuenta personal en el sistema.
+
+Como estudiante, quiero poder autenticarme usando mi cuenta de Google institucional para facilitar el acceso sin crear credenciales adicionales.
+
+Como usuario, quiero poder recuperar mi contraseña mediante un enlace enviado a mi correo electrónico cuando olvide mis credenciales de acceso.
+
+Gestión de Perfil y Datos
+Como usuario registrado, quiero poder visualizar y editar mi perfil personal (nombre, correo, información académica) para mantener actualizada mi información.
+
+Como estudiante, quiero poder conectar múltiples cuentas de correo institucional para acceder desde diferentes dispositivos de manera segura.
+
+Como usuario, quiero poder exportar mis datos personales y actividad del sistema en formato CSV para llevar un registro externo.
+
+Como usuario, quiero poder cerrar mi cuenta de forma permanente y eliminar todos mis datos del sistema cuando ya no necesite la plataforma.
+
+Gestión de Proyectos Académicos
+Como estudiante, quiero poder crear y registrar nuevos proyectos académicos con información detallada (título, descripción, materia, fecha) para organizar mi trabajo.
+
+Como usuario, quiero poder visualizar el historial completo de mis proyectos (creados, en progreso, finalizados) para hacer seguimiento a mi progreso académico.
+
+Como estudiante, quiero poder marcar proyectos como favoritos y categorizarlos por materia o semestre para una mejor organización.
+
+Como usuario, quiero poder compartir enlaces de mis proyectos con compañeros de clase para colaboración y revisión peer-to-peer.
+
+Asistente Virtual con IA
+Como estudiante, quiero poder consultar un asistente virtual alimentado por IA (OpenAI) para obtener ayuda con dudas académicas y sugerencias para mis proyectos.
+
+Como usuario, quiero poder hacer preguntas al asistente sobre metodologías de investigación, formato de documentos y mejores prácticas académicas.
+
+Como estudiante, quiero que el asistente IA pueda revisar el progreso de mis proyectos y sugerir mejoras o próximos pasos a seguir.
+
+Colaboración y Comunidad
+Como usuario, quiero poder generar enlaces de invitación para que otros estudiantes se registren en la plataforma y formen parte de mi red académica.
+
+Como estudiante, quiero poder explorar proyectos públicos de otros usuarios para inspirarme y aprender de trabajos similares a los míos.
+
+Como usuario, quiero poder recibir notificaciones sobre actualizaciones importantes del sistema, nuevas funcionalidades y recordatorios de proyectos.
+
+Funcionalidades Avanzadas
+Como usuario avanzado, quiero acceder a una sección de herramientas especializadas con funciones adicionales para análisis de datos y gestión avanzada de proyectos.
+
+Como administrador/estudiante avanzado, quiero poder acceder a estadísticas detalladas de uso de la plataforma y métricas de productividad académica para optimizar mi rendimiento.)
+
+GitHub Copilot: # 20 Historias de Usuario Detalladas - Sistema Universitario de Proyectos
+
+## **Epic 1: Autenticación y Registro**
+
+### **HU-001: Registro con Correo Institucional**
+**Como** estudiante universitario  
+**Quiero** registrarme usando mi correo institucional (@universidad.edu)  
+**Para que** pueda acceder a la plataforma académica de manera segura
+
+**Criterios SMART:**
+- **S**pecific: Registro exclusivo con dominios universitarios validados
+- **M**easurable: 100% de registros exitosos con emails válidos, tiempo de registro < 2 minutos
+- **A**chievable: Utiliza validación regex y lista blanca de dominios
+- **R**elevant: Esencial para seguridad y control de acceso institucional
+- **T**ime-bound: Completar en Sprint 1 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: No depende de otras historias para funcionar
+- **N**egotiable: Puede ajustarse la lista de dominios aceptados
+- **V**aluable: Proporciona valor inmediato al usuario final
+- **E**stimable: 13 Story Points (Complejo por validaciones)
+- **S**mall: Completable en un sprint
+- **T**estable: Casos de prueba claros para validación de email
+
+**Criterios de Aceptación:**
+```gherkin
+Given un estudiante con email institucional válido
+When completa el formulario de registro
+Then el sistema crea la cuenta y envía confirmación
+And el usuario puede iniciar sesión inmediatamente
+```
+
+---
+
+### **HU-002: Inicio de Sesión con Credenciales**
+**Como** usuario registrado  
+**Quiero** iniciar sesión con mi email y contraseña  
+**Para que** pueda acceder a mi cuenta personal de manera segura
+
+**Criterios SMART:**
+- **S**pecific: Autenticación con email/contraseña y bloqueo por intentos fallidos
+- **M**easurable: Login exitoso en < 3 segundos, seguridad 99.9%
+- **A**chievable: Utiliza bcrypt para hash de contraseñas y JWT para sesiones
+- **R**elevant: Funcionalidad básica esencial del sistema
+- **T**ime-bound: Completar en Sprint 1 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere HU-001 completada
+- **N**egotiable: Políticas de contraseña pueden ajustarse
+- **V**aluable: Acceso fundamental a la plataforma
+- **E**stimable: 8 Story Points (Complejidad media)
+- **S**mall: Completable en un sprint
+- **T**estable: Casos de login exitoso y fallido
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario con credenciales válidas
+When ingresa email y contraseña correctos
+Then accede al dashboard principal
+And se crea sesión segura con JWT
+
+Given credenciales incorrectas 3 veces
+When intenta login nuevamente
+Then cuenta se bloquea temporalmente 15 minutos
+And se envía notificación de seguridad por email
+```
+
+---
+
+### **HU-003: Autenticación con Google OAuth**
+**Como** estudiante  
+**Quiero** autenticarme usando mi cuenta Google institucional  
+**Para que** pueda acceder rápidamente sin recordar otra contraseña
+
+**Criterios SMART:**
+- **S**pecific: Integración completa con Google OAuth 2.0 para dominios educativos
+- **M**easurable: Login OAuth en < 5 segundos, 99.5% de éxito
+- **A**chievable: Utiliza Google Client Libraries oficiales
+- **R**elevant: Mejora significativamente la experiencia del usuario
+- **T**ime-bound: Completar en Sprint 2 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Funciona independiente del login tradicional
+- **N**egotiable: Puede ser opcional o único método de acceso
+- **V**aluable: Reduce fricción de acceso considerablemente
+- **E**stimable: 21 Story Points (Muy complejo por integración externa)
+- **S**mall: En el límite de un sprint
+- **T**testable: Mockeable para testing automatizado
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario con cuenta Google institucional
+When hace clic en "Iniciar sesión con Google"
+Then se redirige a OAuth y retorna autenticado
+And se crea/actualiza perfil automáticamente
+
+Given dominio Google no institucional
+When intenta OAuth login
+Then sistema rechaza autenticación
+And muestra mensaje de dominio no autorizado
+```
+
+---
+
+### **HU-004: Recuperación de Contraseña**
+**Como** usuario  
+**Quiero** recuperar mi contraseña mediante enlace por email  
+**Para que** pueda acceder nuevamente si olvido mis credenciales
+
+**Criterios SMART:**
+- **S**pecific: Sistema completo de reset con tokens seguros y expiración
+- **M**easurable: Email entregado en < 1 minuto, token válido 15 minutos
+- **A**chievable: Utiliza servicio SMTP y tokens JWT temporales
+- **R**elevant: Funcionalidad crítica para retención de usuarios
+- **T**ime-bound: Completar en Sprint 3 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere sistema de email configurado
+- **N**egotiable: Tiempo de expiración de tokens puede ajustarse
+- **V**aluable: Evita pérdida de cuentas por contraseñas olvidadas
+- **E**stimable: 13 Story Points (Complejo por seguridad)
+- **S**mall: Completable en un sprint
+- **T**estable: Flujo completo automatizable
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario registrado
+When solicita recuperación de contraseña
+Then recibe email con enlace válido por 15 minutos
+And puede establecer nueva contraseña
+
+Given token expirado
+When intenta usar enlace de recuperación
+Then muestra mensaje de token expirado
+And ofrece generar nuevo enlace
+```
+
+---
+
+## **Epic 2: Gestión de Perfil y Datos**
+
+### **HU-005: Gestión de Perfil Personal**
+**Como** usuario registrado  
+**Quiero** visualizar y editar mi perfil personal (nombre, correo, información académica)  
+**Para que** pueda mantener actualizada mi información
+
+**Criterios SMART:**
+- **S**pecific: CRUD completo de perfil con validaciones académicas
+- **M**easurable: Actualización exitosa en < 10 segundos, validación 100%
+- **A**chievable: Formularios con validación en tiempo real
+- **R**elevant: Información personal es base de personalización
+- **T**ime-bound: Completar en Sprint 4 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere sistema de autenticación
+- **N**egotiable: Campos opcionales pueden variar
+- **V**aluable: Personalización mejora engagement
+- **E**stimable: 8 Story Points (Complejidad media)
+- **S**mall: Completable en un sprint
+- **T**testable: Validaciones y persistencia verificables
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario autenticado
+When actualiza información de perfil
+Then cambios se guardan inmediatamente
+And se muestra confirmación visual
+
+Given campos requeridos vacíos
+When intenta guardar perfil
+Then muestra errores específicos por campo
+And no permite guardar hasta completar
+```
+
+---
+
+### **HU-006: Gestión Multi-cuenta**
+**Como** estudiante  
+**Quiero** conectar múltiples cuentas de correo institucional  
+**Para que** pueda acceder desde diferentes dispositivos de manera segura
+
+**Criterios SMART:**
+- **S**pecific: Vinculación de hasta 3 emails institucionales por cuenta
+- **M**easurable: Vinculación exitosa en < 30 segundos, verificación 100%
+- **A**chievable: Sistema de verificación por email adicional
+- **R**elevant: Flexibilidad para estudiantes con múltiples programas
+- **T**ime-bound: Completar en Sprint 8 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere sistema base de autenticación
+- **N**egotiable: Número máximo de cuentas puede ajustarse
+- **V**aluable: Conveniencia para usuarios con múltiples afiliaciones
+- **E**stimable: 13 Story Points (Complejo por múltiples validaciones)
+- **S**mall: Completable en un sprint
+- **T**testable: Flujo de verificación automatizable
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario con cuenta principal
+When añade email institucional adicional
+Then se envía verificación a nuevo email
+And email se vincula tras confirmación
+
+Given intenta vincular email no institucional
+When completa formulario de vinculación
+Then sistema rechaza email no válido
+And muestra lista de dominios aceptados
+```
+
+---
+
+### **HU-007: Exportación de Datos**
+**Como** usuario  
+**Quiero** exportar mis datos personales y actividad en formato CSV  
+**Para que** pueda llevar un registro externo
+
+**Criterios SMART:**
+- **S**pecific: Exportación completa de proyectos, actividad y perfil en CSV
+- **M**easurable: Archivo generado en < 30 segundos, datos 100% precisos
+- **A**chievable: Utiliza biblioteca Apache Commons CSV
+- **R**elevant: Cumple regulaciones de portabilidad de datos
+- **T**ime-bound: Completar en Sprint 10 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere datos existentes en el sistema
+- **N**egotiable: Formato puede incluir JSON como alternativa
+- **V**aluable: Transparencia y control de datos personal
+- **E**stimable: 5 Story Points (Complejidad baja)
+- **S**mall: Completable en un sprint
+- **T**testable: Contenido y formato del archivo verificables
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario con datos en el sistema
+When solicita exportación de datos
+Then descarga archivo CSV con información completa
+And archivo incluye todos los proyectos y actividades
+
+Given usuario sin proyectos
+When solicita exportación
+Then descarga archivo CSV con datos de perfil únicamente
+And archivo contiene estructura válida vacía
+```
+
+---
+
+### **HU-008: Eliminación de Cuenta**
+**Como** usuario  
+**Quiero** cerrar mi cuenta permanentemente y eliminar todos mis datos  
+**Para que** pueda ejercer mi derecho al olvido cuando no necesite la plataforma
+
+**Criterios SMART:**
+- **S**pecific: Eliminación completa con período de gracia de 30 días
+- **M**easurable: Datos eliminados en 24 horas, confirmación 100%
+- **A**chievable: Soft delete con proceso de purga automatizado
+- **R**elevant: Cumple GDPR y regulaciones de privacidad
+- **T**ime-bound: Completar en Sprint 12 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere sistema de autenticación activo
+- **N**egotiable: Período de gracia puede ajustarse
+- **V**aluable: Confianza y cumplimiento legal
+- **E**stimable: 13 Story Points (Complejo por implicaciones de datos)
+- **S**mall: Completable en un sprint
+- **T**testable: Verificación de eliminación automatizable
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario autenticado
+When solicita eliminación de cuenta
+Then se inicia período de gracia de 30 días
+And recibe confirmación por email
+
+Given período de gracia completado
+When sistema ejecuta purga automática
+Then todos los datos se eliminan permanentemente
+And se envía confirmación final de eliminación
+```
+
+---
+
+## **Epic 3: Gestión de Proyectos Académicos**
+
+### **HU-009: Creación de Proyectos**
+**Como** estudiante  
+**Quiero** crear y registrar nuevos proyectos académicos con información detallada  
+**Para que** pueda organizar mi trabajo académico
+
+**Criterios SMART:**
+- **S**pecific: Formulario completo con título, descripción, materia, fecha límite, tipo
+- **M**easurable: Creación exitosa en < 2 minutos, validación 100%
+- **A**chievable: UI intuitiva con componentes existentes
+- **R**elevant: Funcionalidad core del sistema académico
+- **T**ime-bound: Completar en Sprint 3 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere usuario autenticado
+- **N**egotiable: Campos opcionales pueden ajustarse según universidad
+- **V**aluable: Organización académica inmediata
+- **E**stimable: 8 Story Points (Complejidad media)
+- **S**mall: Completable en un sprint
+- **T**testable: CRUD completo verificable
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario autenticado
+When completa formulario de nuevo proyecto
+Then proyecto se crea con estado "Planificación"
+And aparece en dashboard personal
+
+Given campos requeridos incompletos
+When intenta crear proyecto
+Then muestra validaciones específicas
+And resalta campos faltantes
+```
+
+---
+
+### **HU-010: Dashboard de Proyectos**
+**Como** usuario  
+**Quiero** visualizar historial completo de mis proyectos por estado  
+**Para que** pueda hacer seguimiento a mi progreso académico
+
+**Criterios SMART:**
+- **S**pecific: Vista organizada por estado (planificación, progreso, completado, archivado)
+- **M**easurable: Carga completa en < 2 segundos, 4 filtros mínimo
+- **A**chievable: Utiliza componentes UI existentes con lazy loading
+- **R**elevant: Vista principal para gestión de proyectos
+- **T**ime-bound: Completar en Sprint 4 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere proyectos existentes
+- **N**egotiable: Layout y filtros pueden personalizarse
+- **V**aluable: Visión general mejora productividad
+- **E**stimable: 13 Story Points (Complejo por visualizaciones)
+- **S**mall: Completable en un sprint
+- **T**testable: Rendimiento y filtros verificables
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario con proyectos creados
+When accede al dashboard
+Then ve proyectos organizados por estado
+And puede filtrar por materia, fecha, tipo
+
+Given usuario sin proyectos
+When accede al dashboard
+Then ve mensaje de bienvenida
+And botón prominente para crear primer proyecto
+```
+
+---
+
+### **HU-011: Organización por Favoritos**
+**Como** estudiante  
+**Quiero** marcar proyectos como favoritos y categorizarlos por materia  
+**Para que** pueda organizar mejor mi trabajo
+
+**Criterios SMART:**
+- **S**pecific: Sistema de favoritos con categorización automática y manual
+- **M**easurable: Marcado de favorito en < 1 segundo, categorías ilimitadas
+- **A**chievable: Utiliza tags y sistema de etiquetado
+- **R**elevant: Organización personalizada mejora eficiencia
+- **T**ime-bound: Completar en Sprint 5 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere proyectos existentes
+- **N**egotiable: Sistema de categorías puede expandirse
+- **V**aluable: Personalización y organización avanzada
+- **E**stimable: 5 Story Points (Complejidad baja)
+- **S**mall: Completable en un sprint
+- **T**testable: Funcionalidad de marcado y filtrado verificable
+
+**Criterios de Aceptación:**
+```gherkin
+Given un proyecto existente
+When usuario marca como favorito
+Then proyecto aparece en sección de favoritos
+And mantiene marcado visual de estrella
+
+Given proyectos categorizados por materia
+When filtra por categoría específica
+Then muestra solo proyectos de esa materia
+And actualiza contador de resultados
+```
+
+---
+
+### **HU-012: Compartir Proyectos**
+**Como** usuario  
+**Quiero** compartir enlaces de mis proyectos con compañeros  
+**Para que** pueda colaborar y recibir revisión peer-to-peer
+
+**Criterios SMART:**
+- **S**pecific: Enlaces únicos con permisos configurables (ver/comentar/editar)
+- **M**easurable: Enlace generado en < 5 segundos, acceso inmediato
+- **A**chievable: Sistema de tokens únicos con expiración
+- **R**elevant: Colaboración es esencial en ambiente académico
+- **T**ime-bound: Completar en Sprint 6 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere sistema de proyectos funcionando
+- **N**egotiable: Tipos de permisos pueden ajustarse
+- **V**aluable: Colaboración académica real
+- **E**stimable: 13 Story Points (Complejo por permisos)
+- **S**mall: Completable en un sprint
+- **T**testable: Generación de enlaces y permisos verificables
+
+**Criterios de Aceptación:**
+```gherkin
+Given un proyecto con permisos de compartir
+When genera enlace de colaboración
+Then enlace permite acceso según permisos configurados
+And colaborador puede ver/comentar/editar según rol
+
+Given enlace con permisos de solo lectura
+When colaborador accede via enlace
+Then puede ver proyecto pero no modificar
+And se registra acceso en historial
+```
+
+---
+
+## **Epic 4: Asistente Virtual con IA**
+
+### **HU-013: Consulta al Asistente IA**
+**Como** estudiante  
+**Quiero** consultar un asistente virtual alimentado por IA (OpenAI)  
+**Para que** pueda obtener ayuda con dudas académicas y sugerencias
+
+**Criterios SMART:**
+- **S**pecific: Chat integrado con OpenAI GPT-4 contextualizado a educación
+- **M**easurable: Respuesta en < 3 segundos, precisión académica > 85%
+- **A**chievable: Utiliza API oficial de OpenAI con prompts optimizados
+- **R**elevant: Diferenciador clave del producto educativo
+- **T**ime-bound: Completar en Sprint 5 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere configuración de API externa
+- **N**egotiable: Modelo de IA puede ajustarse según presupuesto
+- **V**aluable: Alto valor para experiencia estudiantil
+- **E**stimable: 21 Story Points (Muy complejo por IA)
+- **S**mall: En el límite, considerar división
+- **T**testable: Respuestas mockeable para testing
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario con proyecto activo
+When hace pregunta académica al asistente
+Then recibe respuesta contextualizada en < 3 segundos
+And respuesta incluye fuentes académicas cuando es relevante
+
+Given servicio de IA no disponible
+When intenta usar chat
+Then muestra mensaje de servicio no disponible
+And ofrece contacto con soporte académico
+```
+
+---
+
+### **HU-014: Preguntas sobre Metodologías**
+**Como** usuario  
+**Quiero** hacer preguntas sobre metodologías de investigación y mejores prácticas  
+**Para que** pueda mejorar la calidad de mis trabajos académicos
+
+**Criterios SMART:**
+- **S**pecific: Base de conocimiento especializada en metodologías académicas
+- **M**easurable: 90% de preguntas metodológicas respondidas correctamente
+- **A**chievable: Prompts especializados y fine-tuning para contexto académico
+- **R**elevant: Mejora calidad académica directamente
+- **T**ime-bound: Completar en Sprint 6 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere HU-013 implementada
+- **N**egotiable: Especialización puede expandirse por área
+- **V**aluable: Mejora directa en calidad académica
+- **E**stimable: 8 Story Points (Complejidad media, usa base existente)
+- **S**mall: Completable en un sprint
+- **T**testable: Calidad de respuestas medible
+
+**Criterios de Aceptación:**
+```gherkin
+Given pregunta sobre metodología de investigación
+When consulta al asistente IA
+Then recibe guía paso a paso metodológica
+And incluye ejemplos prácticos aplicables
+
+Given pregunta sobre formato de documentos
+When solicita ayuda de formato
+Then recibe plantillas y ejemplos específicos
+And sugiere herramientas de formateo
+```
+
+---
+
+### **HU-015: Revisión de Progreso con IA**
+**Como** estudiante  
+**Quiero** que el asistente IA revise el progreso de mis proyectos  
+**Para que** pueda recibir sugerencias de mejora y próximos pasos
+
+**Criterios SMART:**
+- **S**pecific: Análisis automático de progreso con sugerencias personalizadas
+- **M**easurable: Análisis completado en < 10 segundos, 3+ sugerencias por revisión
+- **A**chievable: Integra datos del proyecto con análisis de IA
+- **R**elevant: Retroalimentación continua mejora resultados académicos
+- **T**ime-bound: Completar en Sprint 7 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere HU-013 y sistema de proyectos
+- **N**egotiable: Frecuencia de análisis puede configurarse
+- **V**aluable: Coaching académico personalizado
+- **E**stimable: 13 Story Points (Complejo por análisis contextual)
+- **S**mall: Completable en un sprint
+- **T**testable: Calidad de sugerencias evaluable
+
+**Criterios de Aceptación:**
+```gherkin
+Given un proyecto con progreso registrado
+When solicita revisión de IA
+Then recibe análisis del estado actual
+And obtiene 3-5 sugerencias específicas de mejora
+
+Given proyecto sin actividad reciente
+When IA analiza progreso
+Then identifica estancamiento
+And sugiere acciones para reactivar proyecto
+```
+
+---
+
+## **Epic 5: Colaboración y Comunidad**
+
+### **HU-016: Enlaces de Invitación**
+**Como** usuario  
+**Quiero** generar enlaces de invitación para otros estudiantes  
+**Para que** puedan registrarse y formar parte de mi red académica
+
+**Criterios SMART:**
+- **S**pecific: Sistema de referidos con enlaces únicos y rastreo
+- **M**easurable: Enlaces válidos por 30 días, rastreo 100% de conversiones
+- **A**chievable: Utiliza tokens únicos con métricas de conversión
+- **R**elevant: Crecimiento orgánico de la comunidad académica
+- **T**ime-bound: Completar en Sprint 8 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere sistema de registro funcionando
+- **N**egotiable: Incentivos por referidos pueden añadirse
+- **V**aluable: Crecimiento de red académica del usuario
+- **E**stimable: 8 Story Points (Complejidad media)
+- **S**mall: Completable en un sprint
+- **T**testable: Generación y conversión de enlaces verificables
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario registrado
+When genera enlace de invitación
+Then enlace es válido por 30 días
+And rastrea registros exitosos generados
+
+Given estudiante accede via enlace de invitación
+When completa registro
+Then se vincula automáticamente con invitador
+And ambos reciben notificación de conexión
+```
+
+---
+
+### **HU-017: Explorar Proyectos Públicos**
+**Como** estudiante  
+**Quiero** explorar proyectos públicos de otros usuarios  
+**Para que** pueda inspirarme y aprender de trabajos similares
+
+**Criterios SMART:**
+- **S**pecific: Galería de proyectos públicos con filtros y búsqueda
+- **M**easurable: Carga en < 3 segundos, 5+ filtros disponibles
+- **A**chievable: Utiliza índices de búsqueda y sistema de permisos
+- **R**elevant: Aprendizaje peer-to-peer es valioso académicamente
+- **T**ime-bound: Completar en Sprint 9 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere proyectos con configuración de visibilidad
+- **N**egotiable: Criterios de búsqueda pueden expandirse
+- **V**aluable: Inspiración y aprendizaje entre estudiantes
+- **E**stimable: 13 Story Points (Complejo por búsqueda y filtros)
+- **S**small: Completable en un sprint
+- **T**testable: Funcionalidad de búsqueda y filtros verificables
+
+**Criterios de Aceptación:**
+```gherkin
+Given proyectos marcados como públicos
+When accede a galería de exploración
+Then ve proyectos ordenados por relevancia
+And puede filtrar por materia, universidad, fecha
+
+Given búsqueda por palabra clave
+When ingresa términos de búsqueda
+Then resultados muestran proyectos relevantes
+And resalta términos encontrados en resultados
+```
+
+---
+
+### **HU-018: Sistema de Notificaciones**
+**Como** usuario  
+**Quiero** recibir notificaciones sobre actualizaciones importantes del sistema  
+**Para que** pueda estar informado de nuevas funcionalidades y recordatorios
+
+**Criterios SMART:**
+- **S**pecific: Notificaciones in-app, email y push para eventos importantes
+- **M**easurable: Entrega en < 1 minuto, 95% de tasa de entrega
+- **A**chievable: Utiliza sistema de colas y múltiples canales
+- **R**elevant: Engagement y retención de usuarios
+- **T**ime-bound: Completar en Sprint 10 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere sistema de usuarios y preferencias
+- **N**egotiable: Tipos de notificaciones pueden configurarse
+- **V**aluable: Mantiene usuarios informados y comprometidos
+- **E**stimable: 13 Story Points (Complejo por múltiples canales)
+- **S**mall: Completable en un sprint
+- **T**testable: Entrega y formato de notificaciones verificables
+
+**Criterios de Aceptación:**
+```gherkin
+Given un evento importante del sistema
+When se activa notificación
+Then usuario recibe alerta según preferencias
+And puede configurar frecuencia y canales
+
+Given fecha límite de proyecto próxima
+When sistema detecta proyecto pendiente
+Then envía recordatorio 48h antes
+And incluye enlace directo al proyecto
+```
+
+---
+
+## **Epic 6: Funcionalidades Avanzadas**
+
+### **HU-019: Herramientas Especializadas**
+**Como** usuario avanzado  
+**Quiero** acceder a herramientas especializadas para análisis de datos  
+**Para que** pueda realizar gestión avanzada de proyectos
+
+**Criterios SMART:**
+- **S**pecific: Suite de herramientas para análisis, reportes y gestión avanzada
+- **M**easurable: 5+ herramientas disponibles, tiempo de carga < 5 segundos
+- **A**chievable: Integra bibliotecas de análisis y visualización
+- **R**elevant: Diferenciación para usuarios power
+- **T**ime-bound: Completar en Sprint 11 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere datos suficientes en el sistema
+- **N**egotiable: Herramientas específicas pueden priorizarse
+- **V**aluable: Valor premium para usuarios avanzados
+- **E**stimable: 21 Story Points (Muy complejo por múltiples herramientas)
+- **S**mall: En el límite, considerar división
+- **T**testable: Funcionalidad de cada herramienta verificable
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario con rol avanzado
+When accede a sección de herramientas
+Then ve suite completa de análisis disponible
+And puede generar reportes personalizados
+
+Given datos insuficientes para análisis
+When intenta usar herramienta avanzada
+Then muestra mensaje de datos mínimos requeridos
+And sugiere acciones para generar más datos
+```
+
+---
+
+### **HU-020: Analytics y Métricas**
+**Como** administrador/estudiante avanzado  
+**Quiero** acceder a estadísticas detalladas de uso y productividad  
+**Para que** pueda optimizar mi rendimiento académico
+
+**Criterios SMART:**
+- **S**pecific: Dashboard completo con métricas de productividad y uso
+- **M**easurable: 10+ métricas clave, actualización en tiempo real
+- **A**chievable: Utiliza sistemas de analytics y visualización de datos
+- **R**elevant: Insights para mejora continua del rendimiento
+- **T**ime-bound: Completar en Sprint 12 (2 semanas)
+
+**Criterios INVEST:**
+- **I**ndependent: Requiere datos históricos del sistema
+- **N**egotiable: Métricas específicas pueden personalizarse
+- **V**aluable: Insights accionables para mejora académica
+- **E**stimable: 13 Story Points (Complejo por múltiples métricas)
+- **S**mall: Completable en un sprint
+- **T**testable: Precisión y actualización de métricas verificables
+
+**Criterios de Aceptación:**
+```gherkin
+Given un usuario con historial de actividad
+When accede a dashboard de analytics
+Then ve métricas de productividad personalizadas
+And puede exportar reportes en múltiples formatos
+
+Given datos insuficientes para métricas
+When accede a analytics
+Then muestra mensaje de período mínimo requerido
+And ofrece sugerencias para generar más actividad medible
+```
+
+---
+
+## **Resumen de Story Points por Epic**
+
+| **Epic** | **Story Points Total** | **Sprints Estimados** |
+|----------|------------------------|------------------------|
+| **Autenticación y Registro** | 55 SP | 3 sprints |
+| **Gestión de Perfil y Datos** | 39 SP | 2 sprints |
+| **Gestión de Proyectos** | 39 SP | 2 sprints |
+| **Asistente Virtual con IA** | 42 SP | 2 sprints |
+| **Colaboración y Comunidad** | 34 SP | 2 sprints |
+| **Funcionalidades Avanzadas** | 34 SP | 1 sprint |
+
+**Total General:** 243 Story Points ≈ **12 sprints** para MVP completo
