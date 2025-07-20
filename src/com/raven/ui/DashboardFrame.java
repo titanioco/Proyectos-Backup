@@ -1,6 +1,11 @@
 package com.raven.ui;
 
 import com.raven.model.User;
+import com.raven.ds.core.AnimationEngine;
+import com.raven.ds.core.PDFExporter;
+import com.raven.ds.modules.bst.BSTPanel;
+import com.raven.ds.modules.bst.BSTControls;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,6 +13,7 @@ import java.awt.event.ActionListener;
 
 public class DashboardFrame extends JFrame {
     private User currentUser;
+    private JTabbedPane mainTabbedPane;
     
     public DashboardFrame(User user) {
         this.currentUser = user;
@@ -31,7 +37,7 @@ public class DashboardFrame extends JFrame {
         headerPanel.setBackground(new Color(52, 73, 94));
         headerPanel.setPreferredSize(new Dimension(0, 80));
         
-        JLabel titleLabel = new JLabel("Welcome to your Dashboard");
+        JLabel titleLabel = new JLabel("Interactive Data Structures Learning Suite");
         titleLabel.setFont(new Font("sansserif", Font.BOLD, 24));
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
@@ -42,6 +48,14 @@ public class DashboardFrame extends JFrame {
         JLabel userLabel = new JLabel("Hello, " + currentUser.getFullName());
         userLabel.setFont(new Font("sansserif", Font.PLAIN, 14));
         userLabel.setForeground(Color.WHITE);
+        
+        JButton exportBtn = new JButton("Export PDF");
+        exportBtn.setBackground(new Color(7, 164, 121)); // Raven green
+        exportBtn.setForeground(Color.WHITE);
+        exportBtn.setFocusPainted(false);
+        exportBtn.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        exportBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        exportBtn.addActionListener(e -> exportCurrentTab());
         
         JButton logoutButton = new JButton("Logout");
         logoutButton.setBackground(new Color(231, 76, 60));
@@ -57,82 +71,35 @@ public class DashboardFrame extends JFrame {
         });
         
         userPanel.add(userLabel);
-        userPanel.add(Box.createHorizontalStrut(20));
+        userPanel.add(Box.createHorizontalStrut(15));
+        userPanel.add(exportBtn);
+        userPanel.add(Box.createHorizontalStrut(10));
         userPanel.add(logoutButton);
         userPanel.add(Box.createHorizontalStrut(20));
         
         headerPanel.add(titleLabel, BorderLayout.WEST);
         headerPanel.add(userPanel, BorderLayout.EAST);
         
-        // Main Content Panel
-        JPanel mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setBackground(new Color(236, 240, 241));
+        // Create tabbed pane for data structures
+        mainTabbedPane = new JTabbedPane();
+        mainTabbedPane.setFont(new Font("sansserif", Font.PLAIN, 14));
         
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(20, 20, 20, 20);
-        
-        // User Info Card
-        JPanel userInfoCard = createInfoCard("User Information", 
-            "Email: " + currentUser.getEmail() + "\n" +
-            "Full Name: " + currentUser.getFullName() + "\n" +
-            "User ID: " + currentUser.getId());
-        
-        // Stats Card
-        JPanel statsCard = createInfoCard("Account Stats", 
-            "Account Type: " + (currentUser.getGoogleSub() != null ? "Google Account" : "Email Account") + "\n" +
-            "Registration: Email Verified\n" +
-            "Status: Active");
-        
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 0.5;
-        gbc.weighty = 0.5;
-        gbc.fill = GridBagConstraints.BOTH;
-        mainPanel.add(userInfoCard, gbc);
-        
-        gbc.gridx = 1;
-        mainPanel.add(statsCard, gbc);
+        // Create data structure tabs
+        createDataStructureTabs(mainTabbedPane);
         
         // Footer
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         footerPanel.setBackground(new Color(44, 62, 80));
         footerPanel.setPreferredSize(new Dimension(0, 40));
         
-        JLabel footerLabel = new JLabel("University Management System - Dashboard");
+        JLabel footerLabel = new JLabel("Interactive Data Structures Learning Suite - College Edition");
         footerLabel.setForeground(Color.WHITE);
         footerLabel.setFont(new Font("sansserif", Font.PLAIN, 12));
         footerPanel.add(footerLabel);
         
         add(headerPanel, BorderLayout.NORTH);
-        add(mainPanel, BorderLayout.CENTER);
+        add(mainTabbedPane, BorderLayout.CENTER);
         add(footerPanel, BorderLayout.SOUTH);
-    }
-    
-    private JPanel createInfoCard(String title, String content) {
-        JPanel card = new JPanel(new BorderLayout());
-        card.setBackground(Color.WHITE);
-        card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(189, 195, 199), 1),
-            BorderFactory.createEmptyBorder(20, 20, 20, 20)
-        ));
-        
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font("sansserif", Font.BOLD, 16));
-        titleLabel.setForeground(new Color(52, 73, 94));
-        
-        JTextArea contentArea = new JTextArea(content);
-        contentArea.setFont(new Font("sansserif", Font.PLAIN, 14));
-        contentArea.setForeground(new Color(85, 85, 85));
-        contentArea.setOpaque(false);
-        contentArea.setEditable(false);
-        contentArea.setLineWrap(true);
-        contentArea.setWrapStyleWord(true);
-        
-        card.add(titleLabel, BorderLayout.NORTH);
-        card.add(Box.createVerticalStrut(10), BorderLayout.CENTER);
-        card.add(contentArea, BorderLayout.SOUTH);
-        
-        return card;
     }
     
     private void logout() {
@@ -154,6 +121,85 @@ public class DashboardFrame extends JFrame {
                     e.printStackTrace();
                 }
             });
+        }
+    }
+    
+    private void createDataStructureTabs(JTabbedPane tabbedPane) {
+        // Tab 1: Binary Search Tree
+        createBSTTab(tabbedPane);
+        
+        // Tab 2-7: Placeholder tabs for other data structures
+        createPlaceholderTab(tabbedPane, "Graph (Dijkstra)", "Interactive graph shortest path visualization");
+        createPlaceholderTab(tabbedPane, "Hash Table", "Hash functions and collision resolution");
+        createPlaceholderTab(tabbedPane, "Binary Heap", "Min/Max heap operations");
+        createPlaceholderTab(tabbedPane, "Heapsort", "Heap-based sorting algorithm");
+        createPlaceholderTab(tabbedPane, "AVL Tree", "Self-balancing binary search tree");
+        createPlaceholderTab(tabbedPane, "Dynamic Array", "ArrayList implementation with resizing");
+    }
+    
+    private void createBSTTab(JTabbedPane tabbedPane) {
+        // Create animation engine for BST
+        AnimationEngine bstEngine = new AnimationEngine();
+        
+        // Create BST panel and controls
+        BSTPanel bstPanel = new BSTPanel(bstEngine);
+        BSTControls bstControls = new BSTControls(bstPanel, bstEngine);
+        
+        // Create main BST container
+        JPanel bstContainer = new JPanel(new BorderLayout());
+        bstContainer.add(bstPanel, BorderLayout.CENTER);
+        bstContainer.add(bstControls, BorderLayout.SOUTH);
+        
+        // Add demo button
+        JPanel demoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton demoBtn = new JButton("Load Demo Tree");
+        demoBtn.setBackground(new Color(7, 164, 121));
+        demoBtn.setForeground(Color.WHITE);
+        demoBtn.setFocusPainted(false);
+        demoBtn.addActionListener(e -> bstControls.loadDemo());
+        demoPanel.add(demoBtn);
+        demoPanel.setBackground(Color.WHITE);
+        
+        bstContainer.add(demoPanel, BorderLayout.NORTH);
+        
+        tabbedPane.addTab("BST", bstContainer);
+    }
+    
+    private void createPlaceholderTab(JTabbedPane tabbedPane, String title, String description) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+        
+        JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
+        titleLabel.setFont(new Font("sansserif", Font.BOLD, 24));
+        titleLabel.setForeground(new Color(52, 73, 94));
+        
+        JLabel descLabel = new JLabel("<html><center>" + description + "<br><br>Coming soon!</center></html>", SwingConstants.CENTER);
+        descLabel.setFont(new Font("sansserif", Font.PLAIN, 16));
+        descLabel.setForeground(new Color(85, 85, 85));
+        
+        panel.add(titleLabel, BorderLayout.CENTER);
+        panel.add(descLabel, BorderLayout.SOUTH);
+        
+        tabbedPane.addTab(title, panel);
+    }
+    
+    private void exportCurrentTab() {
+        int selectedIndex = mainTabbedPane.getSelectedIndex();
+        String tabTitle = mainTabbedPane.getTitleAt(selectedIndex);
+        Component selectedComponent = mainTabbedPane.getSelectedComponent();
+        
+        if (selectedComponent instanceof JPanel) {
+            JPanel panel = (JPanel) selectedComponent;
+            String content = "This PDF contains the visualization and explanation for " + tabTitle + 
+                           ". The interactive data structures learning suite helps college students " +
+                           "understand algorithms through step-by-step animations.";
+            
+            PDFExporter.exportToPDF(panel, tabTitle, content);
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "Cannot export this tab to PDF", 
+                "Export Error", 
+                JOptionPane.WARNING_MESSAGE);
         }
     }
     
