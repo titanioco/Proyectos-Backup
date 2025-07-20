@@ -7,14 +7,19 @@ import com.raven.component.PanelLoginAndRegister;
 import com.raven.component.PanelVerifyCode;
 import com.raven.model.ModelMessage;
 import com.raven.model.ModelUser;
+import com.raven.model.User;
+import com.raven.model.UserDAO;
 import com.raven.service.ServiceMail;
+import com.raven.ui.DashboardFrame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Optional;
 import java.util.Locale;
 import javax.swing.JLayeredPane;
+import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.TimingTarget;
@@ -32,7 +37,6 @@ public class Main extends javax.swing.JFrame {
     private final double addSize = 30;
     private final double coverSize = 40;
     private final double loginSize = 60;
-    private final ServiceUser service;
 
     public Main() {
         initComponents();
@@ -40,7 +44,6 @@ public class Main extends javax.swing.JFrame {
     }
 
     private void init() {
-        service= new ServiceUser();
         layout = new MigLayout("fill, insets 0");
         cover = new PanelCover();
         loading=new PanelLoading();
@@ -51,6 +54,7 @@ public class Main extends javax.swing.JFrame {
                 register();
             }
         };
+        
         loginAndRegister = new PanelLoginAndRegister(eventRegister);
         TimingTarget target = new TimingTargetAdapter() {
             @Override
@@ -116,6 +120,14 @@ public class Main extends javax.swing.JFrame {
                 }
             }
         });
+        
+        // Add verification code event handler
+        verifyCode.addEventButtonOK(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleVerificationCode();
+            }
+        });
         // Add Exit button to the top-right corner and set its layer to always be on top
         com.raven.swing.Button exitButton = new com.raven.swing.Button() {
             @Override
@@ -152,20 +164,85 @@ public class Main extends javax.swing.JFrame {
         bg.setLayer(exitButton, javax.swing.JLayeredPane.DRAG_LAYER);
     }
     private void register(){
-        ModelUser user = loginAndRegister.getUser();
-                try {
-                    if (service.checkDuplicateUser(user.getUserName())) {
-                        showMessage(Message.MessageType.ERROR, "User name already exit");
-                    } else if (service.checkDuplicateEmail(user.getEmail())) {
-                        showMessage(Message.MessageType.ERROR, "Email already exit");
-                    } else {
-                        service.insertUser(user);
-                        sendMain(user);
-                    }
-                } catch (SQLException e) {
-                    showMessage(Message.MessageType.ERROR, "Error Register");
+        ModelUser modelUser = loginAndRegister.getUser();
+        
+        new Thread(() -> {
+            try {
+                loading.setVisible(true);
+                
+                // Check if user already exists
+                Optional<User> existingUser = UserDAO.findByEmail(modelUser.getEmail());
+                if (existingUser.isPresent()) {
+                    loading.setVisible(false);
+                    showMessage(Message.MessageType.ERROR, "Email already exists");
+                    return;
                 }
+                
+                // Hash the password and create new user
+                String hashedPassword = UserDAO.hashPassword(modelUser.getPassword());
+                User newUser = new User(modelUser.getEmail(), hashedPassword, modelUser.getUserName());
+                
+                // Save user to database
+                UserDAO.createUser(newUser);
+                
+                // Send verification email (mock)
+                ModelMessage ms = new ServiceMail().sendMain(modelUser.getEmail(), "123456");
+                loading.setVisible(false);
+                
+                if (ms.isSuccess()) {
+                    verifyCode.setVisible(true);
+                } else {
+                    showMessage(Message.MessageType.ERROR, ms.getMessage());
+                }
+                
+            } catch (SQLException e) {
+                loading.setVisible(false);
+                showMessage(Message.MessageType.ERROR, "Error creating account: " + e.getMessage());
+            }
+        }).start();
     }
+    
+    private void handleVerificationCode() {
+        String inputCode = verifyCode.getInputCode();
+        
+        // For demo purposes, accept any 6-digit code or "123456"
+        if (inputCode.equals("123456") || (inputCode.length() == 6 && inputCode.matches("\\d+"))) {
+            new Thread(() -> {
+                try {
+                    loading.setVisible(true);
+                    verifyCode.setVisible(false);
+                    
+                    // Simulate verification delay
+                    Thread.sleep(1000);
+                    
+                    // Get the registered user from the database
+                    ModelUser modelUser = loginAndRegister.getUser();
+                    Optional<User> userOpt = UserDAO.findByEmail(modelUser.getEmail());
+                    
+                    if (userOpt.isPresent()) {
+                        User user = userOpt.get();
+                        loading.setVisible(false);
+                        
+                        // Open dashboard and close main window
+                        SwingUtilities.invokeLater(() -> {
+                            DashboardFrame.showFor(user);
+                            Main.this.dispose();
+                        });
+                    } else {
+                        loading.setVisible(false);
+                        showMessage(Message.MessageType.ERROR, "User not found after verification");
+                    }
+                    
+                } catch (Exception ex) {
+                    loading.setVisible(false);
+                    showMessage(Message.MessageType.ERROR, "Verification error: " + ex.getMessage());
+                }
+            }).start();
+        } else {
+            showMessage(Message.MessageType.ERROR, "Invalid verification code");
+        }
+    }
+    
     private void sendMain(ModelUser user) {
         new Thread(new Runnable() {
             @Override

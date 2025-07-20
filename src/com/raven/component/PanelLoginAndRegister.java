@@ -1,17 +1,28 @@
 package com.raven.component;
 
 import com.raven.model.ModelUser;
+import com.raven.model.User;
+import com.raven.model.UserDAO;
+import com.raven.service.GoogleAuthService;
 import com.raven.swing.Button;
 import com.raven.swing.MyPasswordField;
 import com.raven.swing.MyTextField;
+import com.raven.ui.DashboardFrame;
+import com.raven.ui.GoogleSignInButton;
+import com.raven.ui.PasswordStrengthLabel;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.util.Optional;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import net.miginfocom.swing.MigLayout;
 
 public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
@@ -30,7 +41,7 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
     }
 
     private void initRegister(ActionListener eventRegister) {
-        register.setLayout(new MigLayout("wrap", "push[center]push", "push[]25[]10[]10[]25[]push"));
+        register.setLayout(new MigLayout("wrap", "push[center]push", "push[]25[]10[]10[]5[]10[]25[]push"));
         JLabel label = new JLabel("Crear Cuenta");
         label.setFont(new Font("sansserif", 1, 30));
         label.setForeground(new Color(7, 164, 121));
@@ -47,6 +58,16 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         txtPass.setPrefixIcon(new ImageIcon(getClass().getResource("/com/raven/icon/pass.png")));
         txtPass.setHint("Password");
         register.add(txtPass, "w 60%");
+        
+        // Add password strength indicator
+        PasswordStrengthLabel strengthLabel = new PasswordStrengthLabel();
+        register.add(strengthLabel, "w 60%");
+        
+        // Add password strength checking
+        txtPass.addCaretListener(e -> {
+            strengthLabel.updateStrength(String.valueOf(txtPass.getPassword()));
+        });
+        
         Button cmd = new Button();
         cmd.setBackground(new Color(7, 164, 121));
         cmd.setForeground(new Color(250, 250, 250));
@@ -66,7 +87,7 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
     }
 
     private void initLogin() {
-        login.setLayout(new MigLayout("wrap", "push[center]push", "push[]25[]10[]10[]10[]push"));
+        login.setLayout(new MigLayout("wrap", "push[center]push", "push[]25[]10[]10[]10[]10[]10[]push"));
         JLabel label = new JLabel("Universidad Nacional");
         label.setFont(new Font("sansserif", 1, 40));
         label.setForeground(new Color(7, 163, 15));
@@ -98,7 +119,108 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         cmd.setBackground(new Color(29, 99, 81));
         cmd.setForeground(new Color(250, 250, 250));
         cmd.setText("SIGN IN");
+        cmd.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleLogin(txtEmail.getText().trim(), String.valueOf(txtPass.getPassword()));
+            }
+        });
         login.add(cmd, "w 40%, h 40");
+        
+        // Add Google Sign-In Button
+        GoogleSignInButton googleBtn = new GoogleSignInButton();
+        googleBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleGoogleSignIn();
+            }
+        });
+        login.add(googleBtn, "w 60%, h 45");
+    }
+    
+    private void handleLogin(String email, String password) {
+        if (email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                try {
+                    Optional<User> userOpt = UserDAO.findByEmail(email);
+                    if (userOpt.isPresent()) {
+                        User user = userOpt.get();
+                        if (UserDAO.verifyPassword(password, user.getPasswordHash())) {
+                            // Login successful
+                            SwingUtilities.invokeLater(() -> {
+                                DashboardFrame.showFor(user);
+                                javax.swing.SwingUtilities.getWindowAncestor(PanelLoginAndRegister.this).dispose();
+                            });
+                        } else {
+                            SwingUtilities.invokeLater(() -> {
+                                JOptionPane.showMessageDialog(PanelLoginAndRegister.this, "Invalid password", "Error", JOptionPane.ERROR_MESSAGE);
+                            });
+                        }
+                    } else {
+                        SwingUtilities.invokeLater(() -> {
+                            JOptionPane.showMessageDialog(PanelLoginAndRegister.this, "User not found", "Error", JOptionPane.ERROR_MESSAGE);
+                        });
+                    }
+                } catch (SQLException ex) {
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(PanelLoginAndRegister.this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    });
+                }
+                return null;
+            }
+        };
+        worker.execute();
+    }
+    
+    private void handleGoogleSignIn() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                try {
+                    GoogleAuthService authService = new GoogleAuthService();
+                    authService.initiateOAuth();
+                    
+                    // For demo purposes, simulate a successful Google auth
+                    Thread.sleep(2000);
+                    GoogleAuthService.GoogleUserInfo userInfo = authService.getMockUserInfo();
+                    
+                    Optional<User> existingUser = UserDAO.findByEmail(userInfo.getEmail());
+                    User user;
+                    
+                    if (existingUser.isPresent()) {
+                        user = existingUser.get();
+                        // Update Google sub if not set
+                        if (user.getGoogleSub() == null) {
+                            user.setGoogleSub(userInfo.getSub());
+                            UserDAO.updateUser(user);
+                        }
+                    } else {
+                        // Create new user
+                        user = new User(userInfo.getEmail(), userInfo.getName());
+                        user.setGoogleSub(userInfo.getSub());
+                        UserDAO.createUser(user);
+                    }
+                    
+                    SwingUtilities.invokeLater(() -> {
+                        DashboardFrame.showFor(user);
+                        javax.swing.SwingUtilities.getWindowAncestor(PanelLoginAndRegister.this).dispose();
+                    });
+                    
+                } catch (Exception ex) {
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(PanelLoginAndRegister.this, "Google sign-in error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    });
+                }
+                return null;
+            }
+        };
+        worker.execute();
     }
 
     public void showRegister(boolean show) {

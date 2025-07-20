@@ -1,0 +1,5 @@
+This is a placeholder for sqlite-jdbc-3.43.2.0.jar
+To complete the implementation, you need to download the actual SQLite JDBC driver from:
+https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.43.2.0/sqlite-jdbc-3.43.2.0.jar
+
+Place it in the lib directory to enable SQLite database functionality.
