@@ -1,6 +1,7 @@
 package com.raven.model;
 
 import com.raven.database.DBManager;
+import com.raven.database.SimpleUserDatabase;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -13,8 +14,30 @@ import java.util.Base64;
 import java.util.Optional;
 
 public class UserDAO {
+    private static boolean useFallbackDB = false;
+    
+    static {
+        // Test if SQLite is available
+        try {
+            DBManager.getConnection();
+            System.out.println("✓ Using SQLite database");
+        } catch (Exception e) {
+            useFallbackDB = true;
+            System.out.println("⚠ Using in-memory fallback database (SQLite not available)");
+        }
+    }
     
     public static void createUser(User user) throws SQLException {
+        if (useFallbackDB) {
+            try {
+                SimpleUserDatabase.createUser(user.getEmail(), user.getPasswordHash(), 
+                                             user.getGoogleSub(), user.getFullName());
+            } catch (RuntimeException e) {
+                throw new SQLException(e.getMessage());
+            }
+            return;
+        }
+        
         String query = "INSERT INTO users (email, password_hash, google_sub, full_name) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -27,6 +50,20 @@ public class UserDAO {
     }
     
     public static Optional<User> findByEmail(String email) throws SQLException {
+        if (useFallbackDB) {
+            SimpleUserDatabase.UserRecord record = SimpleUserDatabase.findByEmail(email);
+            if (record != null) {
+                User user = new User();
+                user.setId(record.id);
+                user.setEmail(record.email);
+                user.setPasswordHash(record.passwordHash);
+                user.setGoogleSub(record.googleSub);
+                user.setFullName(record.fullName);
+                return Optional.of(user);
+            }
+            return Optional.empty();
+        }
+        
         String query = "SELECT * FROM users WHERE email = ?";
         try (Connection conn = DBManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -41,6 +78,20 @@ public class UserDAO {
     }
     
     public static Optional<User> findByGoogleSub(String googleSub) throws SQLException {
+        if (useFallbackDB) {
+            SimpleUserDatabase.UserRecord record = SimpleUserDatabase.findByGoogleSub(googleSub);
+            if (record != null) {
+                User user = new User();
+                user.setId(record.id);
+                user.setEmail(record.email);
+                user.setPasswordHash(record.passwordHash);
+                user.setGoogleSub(record.googleSub);
+                user.setFullName(record.fullName);
+                return Optional.of(user);
+            }
+            return Optional.empty();
+        }
+        
         String query = "SELECT * FROM users WHERE google_sub = ?";
         try (Connection conn = DBManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -55,6 +106,12 @@ public class UserDAO {
     }
     
     public static void updateUser(User user) throws SQLException {
+        if (useFallbackDB) {
+            SimpleUserDatabase.updateUser(user.getEmail(), user.getPasswordHash(), 
+                                         user.getGoogleSub(), user.getFullName());
+            return;
+        }
+        
         String query = "UPDATE users SET password_hash = ?, google_sub = ?, full_name = ? WHERE email = ?";
         try (Connection conn = DBManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -81,9 +138,11 @@ public class UserDAO {
         try {
             // Generate a random salt
             SecureRandom random = new SecureRandom();
-            byte[] saltBytes = new byte[8];
+            byte[] saltBytes = new byte[16];
             random.nextBytes(saltBytes);
-            String salt = Base64.getEncoder().encodeToString(saltBytes).substring(0, 16);
+            String salt = Base64.getEncoder().encodeToString(saltBytes);
+            // Take only first 16 characters to ensure consistent length
+            salt = salt.substring(0, Math.min(16, salt.length()));
             
             return hashPasswordWithSalt(plainPassword, salt);
         } catch (Exception e) {

@@ -17,7 +17,17 @@ public class DBManager {
                 connection = DriverManager.getConnection(DB_URL);
                 createTables();
             } catch (ClassNotFoundException e) {
-                throw new SQLException("SQLite JDBC driver not found", e);
+                // Fallback: try without explicit driver loading
+                System.err.println("SQLite driver class not found, trying direct connection...");
+                try {
+                    connection = DriverManager.getConnection(DB_URL);
+                    createTables();
+                } catch (SQLException e2) {
+                    // Last fallback: in-memory database
+                    System.err.println("Failed to create file database, using in-memory database");
+                    connection = DriverManager.getConnection("jdbc:sqlite::memory:");
+                    createTables();
+                }
             }
         }
         return connection;
