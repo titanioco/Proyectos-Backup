@@ -182,7 +182,10 @@ public class Main extends javax.swing.JFrame {
         exitButton.setFocusPainted(false);
         exitButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         exitButton.setEffectColor(new java.awt.Color(255,255,255,60)); // subtle white ripple
-        exitButton.addActionListener(e -> System.exit(0));
+        exitButton.addActionListener(e -> {
+            System.out.println("🧹 Application closing - cleaning up OAuth credentials...");
+            System.exit(0); // This will trigger the shutdown hook
+        });
         // Highlight on hover
         exitButton.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -408,6 +411,9 @@ public class Main extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+
+        // Add shutdown hook for OAuth cleanup
+        com.raven.util.OAuthCleanup.registerShutdownHook();
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
