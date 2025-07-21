@@ -19,25 +19,56 @@ public class GoogleAuthService {
 
     private final GoogleAuthorizationCodeFlow flow;
     private final LocalServerReceiver receiver;
+    private final boolean isDesktopApp;
 
     public GoogleAuthService(String clientId, String clientSecret) throws Exception {
-        flow = new GoogleAuthorizationCodeFlow.Builder(
-                HTTP, JSON,
-                clientId, clientSecret,
-                Collections.singletonList("openid email profile"))
-            .setAccessType("offline")
-            .build();
-        receiver = new LocalServerReceiver.Builder()
-            .setHost("127.0.0.1")
-            .setPort(8080)
-            .setCallbackPath("/oauth2callback")
-            .build();
+        // Determine if this is a desktop app (empty client secret)
+        isDesktopApp = clientSecret == null || clientSecret.trim().isEmpty();
+        
+        if (isDesktopApp) {
+            // Desktop application - create flow without client secret
+            flow = new GoogleAuthorizationCodeFlow.Builder(
+                    HTTP, JSON,
+                    clientId, null, // No client secret for desktop apps
+                    Collections.singletonList("openid email profile"))
+                .setAccessType("offline")
+                .build();
+            receiver = null; // Desktop apps don't use local server
+        } else {
+            // Web application - create flow with client secret
+            flow = new GoogleAuthorizationCodeFlow.Builder(
+                    HTTP, JSON,
+                    clientId, clientSecret,
+                    Collections.singletonList("openid email profile"))
+                .setAccessType("offline")
+                .build();
+            receiver = new LocalServerReceiver.Builder()
+                .setHost("127.0.0.1")
+                .setPort(8080)
+                .setCallbackPath("/oauth2callback")
+                .build();
+        }
     }
 
     public GoogleUserInfo authorize() throws Exception {
         try {
-            Credential credential = new AuthorizationCodeInstalledApp(flow, receiver)
-                .authorize("user");
+            Credential credential;
+            
+            if (isDesktopApp) {
+                // Desktop application flow - use manual authorization
+                System.out.println("🖥️ Using Desktop Application OAuth flow");
+                credential = new AuthorizationCodeInstalledApp(flow, 
+                    new LocalServerReceiver.Builder()
+                        .setHost("localhost")
+                        .setPort(-1) // Use any available port
+                        .build())
+                    .authorize("user");
+            } else {
+                // Web application flow - use predefined receiver
+                System.out.println("🌐 Using Web Application OAuth flow");
+                credential = new AuthorizationCodeInstalledApp(flow, receiver)
+                    .authorize("user");
+            }
             
             System.out.println("🔑 OAuth credential obtained successfully");
             System.out.println("📧 Access token: " + (credential.getAccessToken() != null ? "Present" : "NULL"));
