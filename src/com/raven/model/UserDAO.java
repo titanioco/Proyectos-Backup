@@ -21,9 +21,10 @@ public class UserDAO {
         try {
             DBManager.getConnection();
             System.out.println("✓ Using SQLite database");
-        } catch (Exception e) {
+        } catch (Throwable t) {
+            // Catch any errors (including NoClassDefFoundError) and fallback
             useFallbackDB = true;
-            System.out.println("⚠ Using in-memory fallback database (SQLite not available)");
+            System.out.println("⚠ Using in-memory fallback database (SQLite not available): " + t.getMessage());
         }
     }
     

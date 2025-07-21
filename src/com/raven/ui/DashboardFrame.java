@@ -112,8 +112,11 @@ public class DashboardFrame extends JFrame {
         );
         
         if (result == JOptionPane.YES_OPTION) {
+            // Reset OAuth static state in login panel
+            com.raven.component.PanelLoginAndRegister.resetOAuthState();
+            // Close dashboard window
             dispose();
-            // Restart the main application
+            // Restart the main application to show login/register UI
             SwingUtilities.invokeLater(() -> {
                 try {
                     new com.raven.main.Main().setVisible(true);

@@ -41,6 +41,10 @@ public class OAuthConfig {
         return props.getProperty("google.oauth.client.id", "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com");
     }
     
+    public static String getClientSecret() {
+        return props.getProperty("google.oauth.client.secret", "");
+    }
+    
     public static String getRedirectUri() {
         return props.getProperty("google.oauth.redirect.uri", "http://localhost:8080/oauth/callback");
     }

@@ -27,6 +27,7 @@ import org.jdesktop.animation.timing.TimingTargetAdapter;
 
 public class Main extends javax.swing.JFrame {
 
+    private static Main instance; // Static reference to the main window
     private final DecimalFormat df = new DecimalFormat("##0.###", DecimalFormatSymbols.getInstance(Locale.US));
     private MigLayout layout;
     private PanelCover cover;
@@ -40,7 +41,38 @@ public class Main extends javax.swing.JFrame {
 
     public Main() {
         initComponents();
+        instance = this; // Set the static reference
         init();
+    }
+
+    /**
+     * Get the main window instance
+     */
+    public static Main getInstance() {
+        return instance;
+    }
+    
+    /**
+     * Close the main window from anywhere in the application
+     */
+    public static void closeMainWindow() {
+        if (instance != null) {
+            System.out.println("🔒 Closing Main window via static method...");
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    instance.setVisible(false);
+                    instance.dispose();
+                    System.out.println("✅ Main window closed successfully");
+                } catch (Exception e) {
+                    System.err.println("❌ Error closing main window: " + e.getMessage());
+                    e.printStackTrace();
+                    // Force exit as fallback
+                    System.exit(0);
+                }
+            });
+        } else {
+            System.out.println("⚠️ Main window instance is null, cannot close");
+        }
     }
 
     private void init() {
@@ -55,6 +87,8 @@ public class Main extends javax.swing.JFrame {
             }
         };
         
+        // Reset OAuth and dashboard state for a fresh login/register session
+        PanelLoginAndRegister.resetOAuthState();
         loginAndRegister = new PanelLoginAndRegister(eventRegister);
         TimingTarget target = new TimingTargetAdapter() {
             @Override

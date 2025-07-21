@@ -1,10 +1,10 @@
 package com.raven.component;
 
+import com.raven.config.OAuthConfig;
 import com.raven.model.ModelUser;
 import com.raven.model.User;
 import com.raven.model.UserDAO;
 import com.raven.service.GoogleAuthService;
-import com.raven.service.OAuth2CallbackHandler;
 import com.raven.swing.Button;
 import com.raven.swing.MyPasswordField;
 import com.raven.swing.MyTextField;
@@ -14,20 +14,26 @@ import com.raven.ui.PasswordStrengthLabel;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.Optional;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+// ...existing imports at top...
 import javax.swing.SwingWorker;
 import net.miginfocom.swing.MigLayout;
 
 public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
 
+    private static boolean oauthInProgress = false; // Prevent multiple OAuth attempts
+    // Prevent opening multiple dashboard instances
+    private static boolean dashboardOpened = false;
     public ModelUser getUser() {
         return user;
     }
@@ -180,56 +186,52 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
     }
     
     private void handleGoogleSignIn() {
-        System.out.println("🚀 Starting Google OAuth flow...");
+        // Prevent multiple OAuth attempts
+        if (oauthInProgress) {
+            System.out.println("⚠️ OAuth already in progress, ignoring additional attempts");
+            JOptionPane.showMessageDialog(this, 
+                "OAuth sign-in is already in progress.\nPlease wait for the current attempt to complete.", 
+                "OAuth In Progress", 
+                JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
         
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+        // Stop any existing OAuth servers/handlers first
+        System.out.println("🧹 Cleaning up any previous OAuth attempts...");
+        // No need to stop any servers - the Google OAuth client library handles this automatically
+        
+        oauthInProgress = true;
+        System.out.println("🚀 Starting fresh Google OAuth flow...");
+        
+        SwingWorker<GoogleAuthService.GoogleUserInfo, Void> worker = new SwingWorker<GoogleAuthService.GoogleUserInfo, Void>() {
             @Override
-            protected Void doInBackground() throws Exception {
+            protected GoogleAuthService.GoogleUserInfo doInBackground() throws Exception {
                 try {
-                    GoogleAuthService authService = new GoogleAuthService();
+                    System.out.println("� Starting Google OAuth flow...");
                     
-                    // Start OAuth flow
-                    System.out.println("📧 Initiating OAuth with Google...");
-                    authService.initiateOAuth();
-                    
-                    // Check if OAuth is properly configured after initiation
-                    if (authService.getCodeVerifier() == null) {
-                        System.out.println("⚠️ OAuth not configured or user dismissed setup, using demo mode");
-                        // Demo mode fallback
-                        Thread.sleep(1000); // Simulate processing time
-                        GoogleAuthService.GoogleUserInfo userInfo = authService.getMockUserInfo();
-                        SwingUtilities.invokeLater(() -> {
-                            System.out.println("🎮 Using demo mode with mock user: " + userInfo.getEmail());
-                            processGoogleUser(userInfo);
-                        });
-                        return null;
+                    // Check if OAuth is properly configured first
+                    if (!OAuthConfig.isConfigured()) {
+                        System.out.println("⚠️ OAuth not configured, using demo mode");
+                        // Demo mode fallback - return mock user
+                        return new GoogleAuthService.GoogleUserInfo("demo@example.com", "Demo User", "demo123");
                     }
                     
-                    // Real OAuth flow - start callback server
-                    System.out.println("🌐 Starting OAuth callback server...");
-                    OAuth2CallbackHandler callbackHandler = new OAuth2CallbackHandler(
-                        authService, 
-                        authService.getState()
+                    // Initialize the Google Auth Service with real OAuth
+                    String clientSecret = OAuthConfig.getClientSecret();
+                    System.out.println("🔧 Using client secret: " + (clientSecret.isEmpty() ? "EMPTY (Desktop App Mode)" : "PROVIDED (Web App Mode)"));
+                    
+                    GoogleAuthService authService = new GoogleAuthService(
+                        OAuthConfig.getClientId(), 
+                        clientSecret
                     );
                     
-                    callbackHandler.startServer();
-                    System.out.println("✓ OAuth callback server running on port 8080");
+                    // Simplified OAuth flow - the library handles everything
+                    System.out.println("🚀 Starting OAuth authorization...");
+                    GoogleAuthService.GoogleUserInfo userInfo = authService.authorize();
                     
-                    // Wait for OAuth callback (with timeout)
-                    System.out.println("⏳ Waiting for Google OAuth callback...");
-                    GoogleAuthService.GoogleUserInfo userInfo = callbackHandler.getUserInfoFuture()
-                        .get(5, java.util.concurrent.TimeUnit.MINUTES); // 5 minute timeout
+                    System.out.println("✅ OAuth completed successfully for: " + userInfo.getEmail());
+                    return userInfo;
                     
-                    System.out.println("✓ OAuth callback received, processing user...");
-                    SwingUtilities.invokeLater(() -> processGoogleUser(userInfo));
-                    
-                } catch (java.util.concurrent.TimeoutException e) {
-                    System.err.println("⏰ Google OAuth timed out");
-                    SwingUtilities.invokeLater(() -> {
-                        JOptionPane.showMessageDialog(PanelLoginAndRegister.this, 
-                            "Google sign-in timed out after 5 minutes.\n\nPlease try again or check your internet connection.", 
-                            "OAuth Timeout", JOptionPane.WARNING_MESSAGE);
-                    });
                 } catch (Exception ex) {
                     System.err.println("❌ Google OAuth error: " + ex.getMessage());
                     ex.printStackTrace();
@@ -239,13 +241,27 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
                             "\n\nPlease try again or contact support if the problem persists.", 
                             "OAuth Error", JOptionPane.ERROR_MESSAGE);
                     });
+                    throw ex;
                 }
-                return null;
             }
             
             @Override
             protected void done() {
-                System.out.println("🏁 Google OAuth worker completed");
+                try {
+                    GoogleAuthService.GoogleUserInfo userInfo = get();
+                    if (userInfo != null) {
+                        System.out.println("🔄 Processing Google user: " + userInfo.getEmail());
+                        SwingUtilities.invokeLater(() -> {
+                            processGoogleUser(userInfo);
+                            closeLoginAndShowDashboard(userInfo);
+                        });
+                    }
+                } catch (Exception e) {
+                    System.err.println("❌ Error getting OAuth result: " + e.getMessage());
+                } finally {
+                    System.out.println("🏁 Google OAuth worker completed");
+                    oauthInProgress = false;
+                }
             }
         };
         worker.execute();
@@ -258,71 +274,44 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
             User user;
             
             try {
-                // For demo mode, skip database and create temporary user
-                System.out.println("⚠️ Demo mode: using temporary user without database");
-                user = new User(userInfo.getEmail(), userInfo.getName());
-                user.setGoogleSub(userInfo.getSub());
-                System.out.println("✓ Temporary user created for demo: " + user.getEmail());
-                
-                // TODO: Enable database operations when SLF4J is available
-                /*
-                // Try database operations first
-                Optional<User> existingUser = UserDAO.findByEmail(userInfo.getEmail());
-                
-                if (existingUser.isPresent()) {
-                    user = existingUser.get();
-                    // Update Google sub if not set
-                    if (user.getGoogleSub() == null) {
-                        user.setGoogleSub(userInfo.getSub());
-                        UserDAO.updateUser(user);
+                // Try database operations first if OAuth is properly configured
+                if (OAuthConfig.isConfigured()) {
+                    System.out.println("🔍 Checking for existing user in database...");
+                    Optional<User> existingUser = UserDAO.findByEmail(userInfo.getEmail());
+                    
+                    if (existingUser.isPresent()) {
+                        user = existingUser.get();
+                        // Update Google sub if not set
+                        if (user.getGoogleSub() == null) {
+                            user.setGoogleSub(userInfo.getId());
+                            UserDAO.updateUser(user);
+                        }
+                        System.out.println("✅ Existing Google user found and updated: " + user.getEmail());
+                    } else {
+                        // Create new user
+                        user = new User(userInfo.getEmail(), userInfo.getName());
+                        user.setGoogleSub(userInfo.getId());
+                        UserDAO.createUser(user);
+                        System.out.println("✅ New Google user created: " + user.getEmail());
                     }
-                    System.out.println("✓ Existing Google user updated: " + user.getEmail());
                 } else {
-                    // Create new user
+                    // Fallback for demo mode
+                    System.out.println("⚠️ Demo mode: using temporary user without database");
                     user = new User(userInfo.getEmail(), userInfo.getName());
-                    user.setGoogleSub(userInfo.getSub());
-                    UserDAO.createUser(user);
-                    System.out.println("✓ New Google user created: " + user.getEmail());
+                    user.setGoogleSub(userInfo.getId());
+                    System.out.println("✓ Temporary user created for demo: " + user.getEmail());
                 }
-                */
-            } catch (Exception dbEx) {
-                System.err.println("⚠️ Database error, using temporary user: " + dbEx.getMessage());
+                
+            } catch (Throwable dbEx) {
+                System.err.println("⚠️ Database or DAO init error, falling back to temporary user: " + dbEx.getMessage());
                 // Fallback: create temporary user without database
                 user = new User(userInfo.getEmail(), userInfo.getName());
-                user.setGoogleSub(userInfo.getSub());
-                System.out.println("✓ Temporary user created for demo: " + user.getEmail());
+                user.setGoogleSub(userInfo.getId());
+                System.out.println("✓ Temporary user created as fallback: " + user.getEmail());
             }
             
-            // Ensure UI updates happen in EDT
-            final User finalUser = user;
-            SwingUtilities.invokeLater(() -> {
-                try {
-                    System.out.println("🚀 Opening Interactive Data Structures Learning Suite...");
-                    
-                    // Get the main window to close
-                    java.awt.Window window = SwingUtilities.getWindowAncestor(PanelLoginAndRegister.this);
-                    
-                    // Open the dashboard first
-                    DashboardFrame.showFor(finalUser);
-                    
-                    // Then close the login window
-                    if (window != null) {
-                        window.dispose();
-                        System.out.println("✓ Login window closed");
-                    }
-                    
-                    System.out.println("✅ Dashboard opened successfully for: " + finalUser.getFullName());
-                    
-                } catch (Exception uiEx) {
-                    System.err.println("❌ Error opening dashboard: " + uiEx.getMessage());
-                    uiEx.printStackTrace();
-                    
-                    JOptionPane.showMessageDialog(PanelLoginAndRegister.this, 
-                        "Error opening Dashboard:\n" + uiEx.getMessage() + 
-                        "\n\nPlease check the console for details.", 
-                        "Dashboard Error", JOptionPane.ERROR_MESSAGE);
-                }
-            });
+            // UI transition is handled by closeLoginAndShowDashboard
+            // No additional UI work here
             
         } catch (Exception ex) {
             System.err.println("✗ Error processing Google user: " + ex.getMessage());
@@ -346,7 +335,29 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Closes the login window and opens the dashboard after OAuth.
+     */
+    private void closeLoginAndShowDashboard(GoogleAuthService.GoogleUserInfo userInfo) {
+        if (dashboardOpened) {
+            return; // Already opened
+        }
+        // Locate and hide the login window
+        java.awt.Window loginWindow = SwingUtilities.getWindowAncestor(this);
+        if (loginWindow != null) {
+            loginWindow.dispose();
+            System.out.println("✅ Login window closed by helper");
+        }
+        // Map to internal User model and open Dashboard
+        com.raven.model.User user = new com.raven.model.User(userInfo.getEmail(), userInfo.getName());
+        com.raven.ui.DashboardFrame dashboard = new com.raven.ui.DashboardFrame(user);
+        dashboard.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
+        dashboard.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        dashboard.setVisible(true);
+        System.out.println("✅ Dashboard opened by helper for: " + userInfo.getEmail());
+        dashboardOpened = true;
+    }
+
 
     private void initComponents() {
 
@@ -388,5 +399,13 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
 
     private javax.swing.JPanel login;
     private javax.swing.JPanel register;
+
+    /**
+     * Reset static state for a fresh login session.
+     */
+    public static void resetOAuthState() {
+        oauthInProgress = false;
+        dashboardOpened = false;
+    }
 
 }
