@@ -67,6 +67,25 @@ public class OAuthConfig {
     
     public static boolean isConfigured() {
         String clientId = getClientId();
-        return loaded && clientId != null && !clientId.equals("YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com");
+        String clientSecret = getClientSecret();
+        
+        // Check if OAuth is properly configured with real credentials
+        boolean hasValidClientId = loaded && clientId != null && 
+            !clientId.equals("YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com") &&
+            !clientId.equals("YOUR_CLIENT_ID_HERE") &&
+            !clientId.equals("dev-test-client-id.apps.googleusercontent.com") &&
+            !clientId.startsWith("dev-test-") &&
+            !clientId.startsWith("test-") &&
+            clientId.contains(".apps.googleusercontent.com");
+            
+        boolean hasValidClientSecret = clientSecret != null && 
+            !clientSecret.isEmpty() &&
+            !clientSecret.equals("YOUR_GOOGLE_CLIENT_SECRET") &&
+            !clientSecret.equals("YOUR_CLIENT_SECRET_HERE") &&
+            !clientSecret.equals("dev-test-client-secret-placeholder") &&
+            !clientSecret.startsWith("dev-test-") &&
+            !clientSecret.startsWith("test-");
+        
+        return hasValidClientId && hasValidClientSecret;
     }
 }

@@ -5,6 +5,10 @@ import com.raven.ds.core.AnimationEngine;
 import com.raven.ds.core.PDFExporter;
 import com.raven.ds.modules.bst.BSTPanel;
 import com.raven.ds.modules.bst.BSTControls;
+import com.raven.ds.modules.graph.GraphPanel;
+import com.raven.ds.modules.graph.GraphControls;
+import com.raven.ds.modules.hashtable.HashTablePanel;
+import com.raven.ds.modules.hashtable.HashTableControls;
 
 import javax.swing.*;
 import java.awt.*;
@@ -131,9 +135,13 @@ public class DashboardFrame extends JFrame {
         // Tab 1: Binary Search Tree
         createBSTTab(tabbedPane);
         
-        // Tab 2-7: Placeholder tabs for other data structures
-        createPlaceholderTab(tabbedPane, "Graph (Dijkstra)", "Interactive graph shortest path visualization");
-        createPlaceholderTab(tabbedPane, "Hash Table", "Hash functions and collision resolution");
+        // Tab 2: Graph (Dijkstra)
+        createGraphTab(tabbedPane);
+        
+        // Tab 3: Hash Table
+        createHashTableTab(tabbedPane);
+        
+        // Tab 4-7: Placeholder tabs for other data structures
         createPlaceholderTab(tabbedPane, "Binary Heap", "Min/Max heap operations");
         createPlaceholderTab(tabbedPane, "Heapsort", "Heap-based sorting algorithm");
         createPlaceholderTab(tabbedPane, "AVL Tree", "Self-balancing binary search tree");
@@ -166,6 +174,62 @@ public class DashboardFrame extends JFrame {
         bstContainer.add(demoPanel, BorderLayout.NORTH);
         
         tabbedPane.addTab("BST", bstContainer);
+    }
+    
+    private void createGraphTab(JTabbedPane tabbedPane) {
+        // Create animation engine for Graph
+        AnimationEngine graphEngine = new AnimationEngine();
+        
+        // Create Graph panel and controls
+        GraphPanel graphPanel = new GraphPanel(graphEngine);
+        GraphControls graphControls = new GraphControls(graphPanel, graphEngine);
+        
+        // Create main Graph container
+        JPanel graphContainer = new JPanel(new BorderLayout());
+        graphContainer.add(graphPanel, BorderLayout.CENTER);
+        graphContainer.add(graphControls, BorderLayout.SOUTH);
+        
+        // Add demo button
+        JPanel demoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton demoBtn = new JButton("Load Demo Graph");
+        demoBtn.setBackground(new Color(7, 164, 121));
+        demoBtn.setForeground(Color.WHITE);
+        demoBtn.setFocusPainted(false);
+        demoBtn.addActionListener(e -> graphControls.loadDemo());
+        demoPanel.add(demoBtn);
+        demoPanel.setBackground(Color.WHITE);
+        
+        graphContainer.add(demoPanel, BorderLayout.NORTH);
+        
+        tabbedPane.addTab("Graph (Dijkstra)", graphContainer);
+    }
+    
+    private void createHashTableTab(JTabbedPane tabbedPane) {
+        // Create animation engine for Hash Table
+        AnimationEngine hashEngine = new AnimationEngine();
+        
+        // Create Hash Table panel and controls
+        HashTablePanel hashPanel = new HashTablePanel(hashEngine);
+        HashTableControls hashControls = new HashTableControls(hashPanel, hashEngine);
+        
+        // Create main Hash Table container
+        JPanel hashContainer = new JPanel(new BorderLayout());
+        hashContainer.add(hashPanel, BorderLayout.CENTER);
+        hashContainer.add(hashControls, BorderLayout.SOUTH);
+        
+        // Add demo button
+        JPanel demoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton demoBtn = new JButton("Load Demo Data");
+        demoBtn.setBackground(new Color(7, 164, 121));
+        demoBtn.setForeground(Color.WHITE);
+        demoBtn.setFocusPainted(false);
+        demoBtn.addActionListener(e -> hashControls.loadDemo());
+        demoPanel.add(demoBtn);
+        demoPanel.setBackground(Color.WHITE);
+        
+        hashContainer.add(demoPanel, BorderLayout.NORTH);
+        
+        tabbedPane.addTab("Hash Table", hashContainer);
     }
     
     private void createPlaceholderTab(JTabbedPane tabbedPane, String title, String description) {
