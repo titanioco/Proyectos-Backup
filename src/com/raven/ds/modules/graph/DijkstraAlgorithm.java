@@ -81,72 +81,203 @@ public class DijkstraAlgorithm {
         unvisitedNodes = new PriorityQueue<>(Comparator.comparingInt(GraphNode::getDistance));
         unvisitedNodes.addAll(nodes);
         
-        // Add initialization step
-        animationEngine.addStep(new SimpleAnimationStep("Initialize", () -> {
+        // Add initialization step with detailed explanation
+        animationEngine.addStep(new SimpleAnimationStep("Initialize Algorithm", () -> {
             startNode.setHighlighted(true);
-        }, "Set start node distance to 0"));
+            startNode.setColor(GraphNode.START_COLOR);
+            if (endNode != null) {
+                endNode.setColor(GraphNode.END_COLOR);
+            }
+        }, "🚀 <b>Dijkstra's Algorithm Initialization:</b> Starting from node '" + startNode.getId() + 
+           "' (distance = 0). Target: " + (endNode != null ? "node '" + endNode.getId() + "'" : "all nodes") + 
+           ". All other nodes start with distance ∞. Algorithm will process nodes in order of shortest distance found so far."));
+
+        int stepCount = 0;
+        boolean targetFound = false;
         
         while (!unvisitedNodes.isEmpty()) {
             GraphNode current = unvisitedNodes.poll();
             
             if (current.getDistance() == Integer.MAX_VALUE) {
+                animationEngine.addStep(new SimpleAnimationStep("No More Reachable Nodes", () -> {
+                    clearEdgeHighlights();
+                }, "⚠️ <b>Algorithm Termination:</b> No more nodes can be reached from the start node. " +
+                   "Remaining nodes in queue have infinite distance, meaning they are disconnected from the source."));
                 break; // No more reachable nodes
             }
             
+            stepCount++;
             final GraphNode currentNode = current;
-            animationEngine.addStep(new SimpleAnimationStep("Visit Node", () -> {
-                // Clear previous highlights
-                clearHighlights();
+            final int currentStep = stepCount;
+            
+            // Check if we've reached the target
+            if (current == endNode && !targetFound) {
+                targetFound = true;
+                animationEngine.addStep(new SimpleAnimationStep("Target Found!", () -> {
+                    clearEdgeHighlights();
+                    currentNode.setColor(GraphNode.END_COLOR);
+                    currentNode.setHighlighted(true);
+                }, "🎯 <b>TARGET REACHED!</b> Found node '" + currentNode.getId() + 
+                   "' with shortest distance: <b>" + currentNode.getDistance() + "</b>. " +
+                   "Will continue processing to show complete algorithm and find shortest paths to all remaining nodes."));
+            }
+            
+            animationEngine.addStep(new SimpleAnimationStep("Visit Node " + currentStep, () -> {
+                // Clear only edge highlights but preserve node visited states
+                clearEdgeHighlights();
+                // Set current node to processing color (unless it's start/end)
+                if (currentNode != startNode && currentNode != endNode) {
+                    currentNode.setColor(GraphNode.CURRENT_COLOR);
+                }
                 currentNode.setHighlighted(true);
                 currentNode.setVisited(true);
-            }, "Visiting node " + current.getId() + " (distance: " + current.getDistance() + ")"));
+            }, "🔍 <b>Step " + currentStep + " - Processing Node '" + currentNode.getId() + "':</b> " +
+               "Current shortest distance = " + currentNode.getDistance() + ". " +
+               "This node has the smallest unprocessed distance, so its shortest path is now finalized. " +
+               "Examining all neighbors to see if we can improve their distances."));
             
-            // Process each neighbor
+            // First, show all neighbors to illuminate the exploration
+            animationEngine.addStep(new SimpleAnimationStep("Show Neighbors", () -> {
+                // Highlight all unvisited neighbors and their connecting edges
+                for (GraphEdge edge : currentNode.getEdges()) {
+                    GraphNode neighbor = edge.getTarget();
+                    if (!neighbor.isVisited()) {
+                        // Illuminate neighbor with exploration color
+                        neighbor.setColor(GraphNode.EXPLORING_COLOR);
+                        neighbor.setHighlighted(true);
+                        // Highlight edge with exploration color
+                        edge.setColor(GraphEdge.EXPLORING_COLOR);
+                        edge.setHighlighted(true);
+                    }
+                }
+            }, "🔍 <b>Exploring Neighbors:</b> Highlighting all unvisited neighbors of '" + 
+               currentNode.getId() + "' to show algorithm's search progression."));
+            
+            // Process each neighbor with enhanced visualization
             for (GraphEdge edge : current.getEdges()) {
                 GraphNode neighbor = edge.getTarget();
                 
                 if (neighbor.isVisited()) continue;
                 
                 int newDistance = current.getDistance() + edge.getWeight();
+                final GraphNode finalNeighbor = neighbor;
+                final GraphEdge finalEdge = edge;
+                
+                // Show which edge/neighbor we're currently examining
+                animationEngine.addStep(new SimpleAnimationStep("Focus Edge", () -> {
+                    // Reset neighbor exploration colors first
+                    for (GraphEdge e : currentNode.getEdges()) {
+                        GraphNode n = e.getTarget();
+                        if (!n.isVisited() && n != finalNeighbor) {
+                            n.setColor(GraphNode.DEFAULT_COLOR);
+                            n.setHighlighted(false);
+                            e.setColor(GraphEdge.DEFAULT_COLOR);
+                            e.setHighlighted(false);
+                        }
+                    }
+                    // Highlight the current edge and neighbor being examined
+                    finalEdge.setColor(GraphEdge.RELAXING_COLOR);
+                    finalEdge.setHighlighted(true);
+                    finalNeighbor.setColor(GraphNode.RELAXING_COLOR);
+                    finalNeighbor.setHighlighted(true);
+                }, "🎯 <b>Examining Edge:</b> Focusing on path from '" + current.getId() + 
+                   "' to '" + neighbor.getId() + "' with weight " + edge.getWeight() + 
+                   ". Calculating total distance: " + current.getDistance() + " + " + edge.getWeight() + " = " + newDistance + "."));
                 
                 if (newDistance < neighbor.getDistance()) {
                     final int oldDistance = neighbor.getDistance();
                     animationEngine.addStep(new SimpleAnimationStep("Update Distance", () -> {
-                        edge.setHighlighted(true);
                         neighbor.setDistance(newDistance);
-                        neighbor.setPredecessor(currentNode);
+                        neighbor.setPredecessor(current);
+                        // Use improvement color to show successful relaxation
+                        neighbor.setColor(GraphNode.IMPROVEMENT_COLOR);
+                        edge.setColor(GraphEdge.IMPROVEMENT_COLOR);
                         // Update priority queue
                         unvisitedNodes.remove(neighbor);
                         unvisitedNodes.add(neighbor);
-                    }, "Update " + neighbor.getId() + " distance from " + 
-                       (oldDistance == Integer.MAX_VALUE ? "∞" : oldDistance) + 
-                       " to " + newDistance));
+                    }, "✅ <b>Path Improved!</b> Found shorter path to '" + neighbor.getId() + 
+                       "'. Distance updated from " + (oldDistance == Integer.MAX_VALUE ? "∞" : oldDistance) + 
+                       " to " + newDistance + " via node '" + current.getId() + "'."));
                 } else {
-                    animationEngine.addStep(new SimpleAnimationStep("No Update", () -> {
-                        edge.setHighlighted(true);
-                    }, "No update needed for " + neighbor.getId() + 
-                       " (current: " + neighbor.getDistance() + ", new: " + newDistance + ")"));
+                    animationEngine.addStep(new SimpleAnimationStep("No Improvement", () -> {
+                        // Show that this path doesn't improve distance
+                        finalNeighbor.setColor(GraphNode.NO_IMPROVEMENT_COLOR);
+                        finalEdge.setColor(GraphEdge.NO_IMPROVEMENT_COLOR);
+                    }, "❌ <b>No Improvement:</b> Path cost " + newDistance + 
+                       " ≥ current distance " + neighbor.getDistance() + ". Keeping existing path."));
+                    
+                    // Reset the edge and neighbor color after showing rejection
+                    animationEngine.addStep(new SimpleAnimationStep("Reset Colors", () -> {
+                        finalEdge.setColor(GraphEdge.DEFAULT_COLOR);
+                        finalEdge.setHighlighted(false);
+                        finalNeighbor.setColor(GraphNode.DEFAULT_COLOR);
+                        finalNeighbor.setHighlighted(false);
+                    }, ""));
                 }
             }
             
-            if (current == endNode) {
-                // Found shortest path to end node
-                buildShortestPath();
-                animationEngine.addStep(new SimpleAnimationStep("Path Found", () -> {
-                    highlightShortestPath();
-                }, "Shortest path found! Total distance: " + endNode.getDistance()));
-                break;
-            }
+            // Mark the current node as fully processed
+            animationEngine.addStep(new SimpleAnimationStep("Mark Processed", () -> {
+                currentNode.setColor(GraphNode.VISITED_COLOR);
+                currentNode.setHighlighted(false);
+                // Clean up any remaining neighbor highlights
+                for (GraphEdge edge : currentNode.getEdges()) {
+                    GraphNode neighbor = edge.getTarget();
+                    if (!neighbor.isVisited()) {
+                        neighbor.setHighlighted(false);
+                        if (neighbor.getPredecessor() != currentNode) {
+                            neighbor.setColor(GraphNode.DEFAULT_COLOR);
+                        }
+                        edge.setHighlighted(false);
+                        if (!edge.getColor().equals(GraphEdge.IMPROVEMENT_COLOR)) {
+                            edge.setColor(GraphEdge.DEFAULT_COLOR);
+                        }
+                    }
+                }
+            }, "✅ <b>Node '" + currentNode.getId() + "' Processed:</b> All outgoing edges examined. " +
+               "Shortest path to this node is now permanently established (distance = " + currentNode.getDistance() + "). " +
+               (targetFound ? "Target found but continuing to process remaining nodes for complete algorithm demonstration." : 
+                "Moving to next closest unvisited node.")));
         }
         
-        animationEngine.addStep(new SimpleAnimationStep("Complete", () -> {
-            clearHighlights();
-        }, "Algorithm completed"));
+        // Show final results and path highlighting
+        if (targetFound) {
+            buildShortestPath();
+            animationEngine.addStep(new SimpleAnimationStep("Highlight Shortest Path", () -> {
+                highlightShortestPath();
+            }, "🎯 <b>Shortest Path Complete!</b> Final path from '" + startNode.getId() + 
+               "' to '" + endNode.getId() + "' highlighted with total distance: <b>" + endNode.getDistance() + "</b>. " +
+               "This is guaranteed to be the optimal solution."));
+        }
+        
+        animationEngine.addStep(new SimpleAnimationStep("Algorithm Complete", () -> {
+            // Keep the shortest path highlighted but clear other highlights
+            for (GraphNode node : nodes) {
+                if (!shortestPath.contains(node)) {
+                    node.setHighlighted(false);
+                }
+                for (GraphEdge edge : node.getEdges()) {
+                    if (!isEdgeInShortestPath(edge)) {
+                        edge.setHighlighted(false);
+                    }
+                }
+            }
+        }, "🏁 <b>Dijkstra's Algorithm Complete!</b> All reachable nodes processed and shortest distances determined. " +
+           (targetFound ? "Optimal path is highlighted in the graph." : 
+            "Shortest paths from '" + startNode.getId() + "' to all reachable nodes have been computed.")));
     }
     
     private void clearHighlights() {
         for (GraphNode node : nodes) {
             node.setHighlighted(false);
+            for (GraphEdge edge : node.getEdges()) {
+                edge.setHighlighted(false);
+            }
+        }
+    }
+    
+    private void clearEdgeHighlights() {
+        for (GraphNode node : nodes) {
             for (GraphEdge edge : node.getEdges()) {
                 edge.setHighlighted(false);
             }
@@ -161,6 +292,21 @@ public class DijkstraAlgorithm {
             shortestPath.add(0, current);
             current = current.getPredecessor();
         }
+    }
+    
+    private boolean isEdgeInShortestPath(GraphEdge edge) {
+        if (shortestPath.size() < 2) return false;
+        
+        for (int i = 0; i < shortestPath.size() - 1; i++) {
+            GraphNode from = shortestPath.get(i);
+            GraphNode to = shortestPath.get(i + 1);
+            
+            if ((edge.getSource() == from && edge.getTarget() == to) ||
+                (edge.getSource() == to && edge.getTarget() == from)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     private void highlightShortestPath() {

@@ -68,9 +68,10 @@ public class BellmanFordAlgorithm {
         // Initialize distances
         startNode.setDistance(0);
         
-        animationEngine.addStep(new SimpleAnimationStep("Initialize", () -> {
+        animationEngine.addStep(new SimpleAnimationStep("Initialize Algorithm", () -> {
             startNode.setHighlighted(true);
-        }, "Initialize: Set start node distance to 0, all others to ∞"));
+        }, "🚀 <b>Bellman-Ford Initialization:</b> Set distance of start node '" + startNode.getId() + 
+           "' to 0, all others to infinity (∞). Will relax edges " + (nodes.size()-1) + " times."));
         
         // Relax edges |V| - 1 times
         int V = nodes.size();
@@ -79,7 +80,8 @@ public class BellmanFordAlgorithm {
             
             animationEngine.addStep(new SimpleAnimationStep("Iteration " + iteration, () -> {
                 clearHighlights();
-            }, "Starting iteration " + iteration + " of " + (V - 1) + " (relaxing all edges)"));
+            }, "🔄 <b>Iteration " + iteration + " of " + (V - 1) + ":</b> Process all edges to find shorter paths. " +
+               "Each iteration can improve distances by considering indirect routes."));
             
             boolean relaxed = false;
             for (GraphEdge edge : edges) {
@@ -91,11 +93,18 @@ public class BellmanFordAlgorithm {
                     
                     animationEngine.addStep(new SimpleAnimationStep("Check Edge", () -> {
                         clearHighlights();
+                        // Enhanced visualization: show exploration
+                        edge.setColor(GraphEdge.RELAXING_COLOR);
                         edge.setHighlighted(true);
+                        source.setColor(GraphNode.EXPLORING_COLOR);
                         source.setHighlighted(true);
+                        target.setColor(GraphNode.EXPLORING_COLOR);
                         target.setHighlighted(true);
-                    }, "Check edge " + source.getId() + " → " + target.getId() + 
-                       " (weight: " + edge.getWeight() + ")"));
+                    }, "🔍 <b>Examining Edge:</b> " + source.getId() + " → " + target.getId() + 
+                       " (weight: " + edge.getWeight() + "). Check if path through '" + source.getId() + 
+                       "' offers shorter route to '" + target.getId() + "'. Current distance: " + 
+                       (target.getDistance() == Integer.MAX_VALUE ? "∞" : target.getDistance()) + 
+                       ", New path cost: " + newDistance));
                     
                     if (newDistance < target.getDistance()) {
                         final int oldDistance = target.getDistance();
@@ -104,13 +113,19 @@ public class BellmanFordAlgorithm {
                         animationEngine.addStep(new SimpleAnimationStep("Relax Edge", () -> {
                             target.setDistance(newDistance);
                             target.setPredecessor(source);
-                        }, "Relax: Update " + target.getId() + " distance from " + 
-                           (oldDistance == Integer.MAX_VALUE ? "∞" : oldDistance) + 
-                           " to " + newDistance));
+                            // Show successful relaxation with green colors
+                            target.setColor(GraphNode.IMPROVEMENT_COLOR);
+                            edge.setColor(GraphEdge.IMPROVEMENT_COLOR);
+                        }, "✅ <b>Edge Relaxed:</b> Found shorter path! Update '" + target.getId() + 
+                           "' distance from " + (oldDistance == Integer.MAX_VALUE ? "∞" : oldDistance) + 
+                           " to " + newDistance + " via '" + source.getId() + "'"));
                     } else {
                         animationEngine.addStep(new SimpleAnimationStep("No Relaxation", () -> {
-                            // Keep highlights
-                        }, "No relaxation needed: " + newDistance + " ≥ " + target.getDistance()));
+                            // Show rejection with light red colors
+                            target.setColor(GraphNode.NO_IMPROVEMENT_COLOR);
+                            edge.setColor(GraphEdge.NO_IMPROVEMENT_COLOR);
+                        }, "❌ <b>No Improvement:</b> Current path cost " + newDistance + 
+                           " ≥ existing distance " + target.getDistance() + ". Keep current best path."));
                     }
                 }
             }
@@ -118,15 +133,17 @@ public class BellmanFordAlgorithm {
             if (!relaxed) {
                 animationEngine.addStep(new SimpleAnimationStep("Early Termination", () -> {
                     clearHighlights();
-                }, "No edges relaxed in iteration " + iteration + ". Algorithm can terminate early."));
+                }, "🏃‍♂️ <b>Early Termination:</b> No edges were relaxed in iteration " + iteration + 
+                   ". All shortest paths found! Skipping remaining iterations."));
                 break;
             }
         }
         
-        // Check for negative cycles
+        // Check for negative cycles with enhanced explanation
         animationEngine.addStep(new SimpleAnimationStep("Negative Cycle Check", () -> {
             clearHighlights();
-        }, "Checking for negative cycles by trying to relax edges one more time..."));
+        }, "🔍 <b>Negative Cycle Detection:</b> Final check - try relaxing edges once more. " +
+           "If any edge can still be relaxed, a negative cycle exists!"));
         
         for (GraphEdge edge : edges) {
             GraphNode source = edge.getSource();
@@ -142,12 +159,12 @@ public class BellmanFordAlgorithm {
                         edge.setHighlighted(true);
                         source.setHighlighted(true);
                         target.setHighlighted(true);
-                    }, "NEGATIVE CYCLE DETECTED! Edge " + source.getId() + " → " + target.getId() + 
-                       " can still be relaxed."));
+                    }, "⚠️ <b>Negative Cycle Detected!</b> Edge " + source.getId() + " → " + target.getId() + 
+                       " can still be relaxed. This graph contains a negative cycle!"));
                     
                     animationEngine.addStep(new SimpleAnimationStep("Algorithm Failed", () -> {
                         clearHighlights();
-                    }, "Bellman-Ford failed: Graph contains a negative cycle."));
+                    }, "🚫 <b>Algorithm Failed:</b> Bellman-Ford cannot find shortest paths in graphs with negative cycles."));
                     return;
                 }
             }
@@ -157,23 +174,47 @@ public class BellmanFordAlgorithm {
             buildShortestPath();
             animationEngine.addStep(new SimpleAnimationStep("Path Found", () -> {
                 highlightShortestPath();
-            }, "Shortest path found! Distance to " + endNode.getId() + ": " + endNode.getDistance()));
+            }, "🎯 <b>Shortest Path Complete!</b> Optimal distance from '" + startNode.getId() + 
+               "' to '" + endNode.getId() + "' is " + endNode.getDistance() + 
+               ". Path highlighted showing the sequence of edges that form the shortest route."));
         } else if (endNode != null) {
-            animationEngine.addStep(new SimpleAnimationStep("No Path", () -> {
-                clearHighlights();
-                if (endNode != null) {
-                    endNode.setHighlighted(true);
-                }
-            }, "No path exists from " + startNode.getId() + " to " + endNode.getId()));
+            animationEngine.addStep(new SimpleAnimationStep("No Path Found", () -> {
+                endNode.setHighlighted(true);
+                endNode.setColor(GraphNode.NO_IMPROVEMENT_COLOR);
+            }, "🚫 <b>No Path Available:</b> Target node '" + endNode.getId() + 
+               "' is not reachable from start node '" + startNode.getId() + "'. Distance remains ∞."));
         }
         
-        animationEngine.addStep(new SimpleAnimationStep("Complete", () -> {
-            if (!hasNegativeCycle && shortestPath.isEmpty()) {
-                clearHighlights();
+        animationEngine.addStep(new SimpleAnimationStep("Algorithm Complete", () -> {
+            // Keep shortest path highlighted but clear other highlights
+            for (GraphNode node : nodes) {
+                if (!shortestPath.contains(node)) {
+                    node.setHighlighted(false);
+                }
+                for (GraphEdge edge : node.getEdges()) {
+                    if (!isEdgeInShortestPath(edge)) {
+                        edge.setHighlighted(false);
+                    }
+                }
             }
-        }, hasNegativeCycle ? 
-           "Bellman-Ford completed with negative cycle detected." :
-           "Bellman-Ford completed successfully!"));
+        }, "🏁 <b>Bellman-Ford Algorithm Complete!</b> " +
+           "Successfully computed shortest paths from '" + startNode.getId() + "' to all reachable nodes. " +
+           "This algorithm can handle negative edge weights and detect negative cycles."));
+    }
+    
+    private boolean isEdgeInShortestPath(GraphEdge edge) {
+        if (shortestPath.size() < 2) return false;
+        
+        for (int i = 0; i < shortestPath.size() - 1; i++) {
+            GraphNode from = shortestPath.get(i);
+            GraphNode to = shortestPath.get(i + 1);
+            
+            if ((edge.getSource() == from && edge.getTarget() == to) ||
+                (edge.getSource() == to && edge.getTarget() == from)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     private void clearHighlights() {

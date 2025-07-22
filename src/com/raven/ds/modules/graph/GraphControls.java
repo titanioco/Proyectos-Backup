@@ -45,65 +45,103 @@ public class GraphControls extends JPanel {
         // Algorithm control buttons (50% bigger)
         runDijkstraBtn = new Button();
         runDijkstraBtn.setText("Run Dijkstra");
-        runDijkstraBtn.setBackground(new Color(7, 164, 121)); // Raven green
+        runDijkstraBtn.setBackground(new Color(53, 106, 230)); // #356AE6 - Primary blue
+        runDijkstraBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        runDijkstraBtn.setForeground(Color.WHITE);
         runDijkstraBtn.setPreferredSize(new Dimension(120, 40));
+        runDijkstraBtn.setToolTipText("Find shortest path using Dijkstra's algorithm");
         
         runBellmanFordBtn = new Button();
         runBellmanFordBtn.setText("Run Bellman-Ford");
-        runBellmanFordBtn.setBackground(new Color(142, 68, 173)); // Purple
+        runBellmanFordBtn.setBackground(new Color(55, 53, 230)); // #3735E6 - Purple-blue variant
+        runBellmanFordBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        runBellmanFordBtn.setForeground(Color.WHITE);
         runBellmanFordBtn.setPreferredSize(new Dimension(140, 40));
+        runBellmanFordBtn.setToolTipText("Find shortest path using Bellman-Ford algorithm");
         
         clearBtn = new Button();
         clearBtn.setText("Clear Graph");
         clearBtn.setBackground(new Color(231, 76, 60)); // Red
+        clearBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        clearBtn.setForeground(Color.WHITE);
         clearBtn.setPreferredSize(new Dimension(120, 40));
+        clearBtn.setToolTipText("Clear all nodes and edges");
         
         loadSampleBtn = new Button();
         loadSampleBtn.setText("Load Sample");
-        loadSampleBtn.setBackground(new Color(52, 152, 219)); // Blue
+        loadSampleBtn.setBackground(new Color(53, 162, 230)); // #35A2E6 - Lighter blue variant
+        loadSampleBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        loadSampleBtn.setForeground(Color.WHITE);
         loadSampleBtn.setPreferredSize(new Dimension(120, 40));
+        loadSampleBtn.setToolTipText("Load a sample graph for demonstration");
         
         // Graph customization buttons
         addNodeBtn = new Button();
         addNodeBtn.setText("Add Node Mode");
         addNodeBtn.setBackground(new Color(46, 204, 113)); // Green
+        addNodeBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        addNodeBtn.setForeground(Color.WHITE);
         addNodeBtn.setPreferredSize(new Dimension(130, 40));
+        addNodeBtn.setToolTipText("Click on empty space to add nodes");
+        
+        addNodeBtn.setToolTipText("Click on empty space to add nodes");
         
         addEdgeBtn = new Button();
         addEdgeBtn.setText("Add Edge Mode");
         addEdgeBtn.setBackground(new Color(155, 89, 182)); // Purple
+        addEdgeBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        addEdgeBtn.setForeground(Color.WHITE);
         addEdgeBtn.setPreferredSize(new Dimension(130, 40));
+        addEdgeBtn.setToolTipText("Click two nodes to connect them with an edge");
         
         customGraphBtn = new Button();
         customGraphBtn.setText("Custom Graph");
         customGraphBtn.setBackground(new Color(241, 196, 15)); // Yellow
+        customGraphBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        customGraphBtn.setForeground(Color.BLACK);
         customGraphBtn.setPreferredSize(new Dimension(130, 40));
+        customGraphBtn.setToolTipText("Generate a custom graph with specified parameters");
         
         exportHtmlBtn = new Button();
-        exportHtmlBtn.setText("Export HTML");
-        exportHtmlBtn.setBackground(new Color(230, 126, 34)); // Orange
-        exportHtmlBtn.setPreferredSize(new Dimension(120, 40));
+        exportHtmlBtn.setText("Export Analysis");
+        exportHtmlBtn.setBackground(new Color(53, 106, 230)); // #356AE6 - Primary blue
+        exportHtmlBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        exportHtmlBtn.setForeground(Color.WHITE);
+        exportHtmlBtn.setPreferredSize(new Dimension(130, 40));
+        exportHtmlBtn.setToolTipText("Export detailed algorithm analysis");
         
-        // Animation control buttons (50% bigger)
+        // Animation control buttons with enhanced styling and symbols
         playBtn = new Button();
-        playBtn.setText("Play");
+        playBtn.setText("▶ Play");
         playBtn.setBackground(new Color(46, 204, 113)); // Green
+        playBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        playBtn.setForeground(Color.WHITE);
         playBtn.setPreferredSize(new Dimension(80, 40));
+        playBtn.setToolTipText("Start algorithm animation");
         
         pauseBtn = new Button();
-        pauseBtn.setText("Pause");
-        pauseBtn.setBackground(new Color(230, 126, 34)); // Orange
+        pauseBtn.setText("⏸ Pause");
+        pauseBtn.setBackground(new Color(241, 196, 15)); // Yellow
+        pauseBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        pauseBtn.setForeground(Color.BLACK);
         pauseBtn.setPreferredSize(new Dimension(80, 40));
+        pauseBtn.setToolTipText("Pause current animation");
         
         stepBtn = new Button();
-        stepBtn.setText("Step");
-        stepBtn.setBackground(new Color(52, 73, 94)); // Dark blue
+        stepBtn.setText("⏭ Step");
+        stepBtn.setBackground(new Color(53, 106, 230)); // #356AE6 - Primary blue
+        stepBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        stepBtn.setForeground(Color.WHITE);
         stepBtn.setPreferredSize(new Dimension(80, 40));
+        stepBtn.setToolTipText("Execute next step in animation");
         
         resetBtn = new Button();
-        resetBtn.setText("Reset");
+        resetBtn.setText("🔄 Reset");
         resetBtn.setBackground(new Color(149, 165, 166)); // Gray
+        resetBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        resetBtn.setForeground(Color.WHITE);
         resetBtn.setPreferredSize(new Dimension(80, 40));
+        resetBtn.setToolTipText("Reset animation to beginning");
         
         // Speed control (8 times bigger)
         speedSlider = new JSlider(50, 3000, 1000);

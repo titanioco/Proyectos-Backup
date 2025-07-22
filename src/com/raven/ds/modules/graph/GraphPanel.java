@@ -71,13 +71,35 @@ public class GraphPanel extends JPanel {
     }
     
     private void setStartNode(GraphNode node) {
+        // Clear previous start node
+        for (GraphNode n : getNodes()) {
+            if (n != node && isStartNode(n)) {
+                n.updateColor();
+            }
+        }
         dijkstraAlgorithm.setStartNode(node);
         bellmanFordAlgorithm.setStartNode(node);
+        node.setAsStartNode();
     }
     
     private void setEndNode(GraphNode node) {
+        // Clear previous end node
+        for (GraphNode n : getNodes()) {
+            if (n != node && isEndNode(n)) {
+                n.updateColor();
+            }
+        }
         dijkstraAlgorithm.setEndNode(node);
         bellmanFordAlgorithm.setEndNode(node);
+        node.setAsEndNode();
+    }
+    
+    private boolean isStartNode(GraphNode node) {
+        return dijkstraAlgorithm.getStartNode() == node;
+    }
+    
+    private boolean isEndNode(GraphNode node) {
+        return dijkstraAlgorithm.getEndNode() == node;
     }
     
     private GraphNode getStartNode() {
@@ -259,30 +281,72 @@ public class GraphPanel extends JPanel {
         if (getStartNode() != null) {
             GraphNode start = getStartNode();
             g2d.setColor(new Color(46, 204, 113));
-            g2d.setFont(new Font("SansSerif", Font.BOLD, 10));
-            g2d.drawString("START", start.getX() - 15, start.getY() + GraphNode.NODE_RADIUS + 15);
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 12));
+            
+            // Enhanced start node label with background
+            String startText = "START";
+            FontMetrics fm = g2d.getFontMetrics();
+            int textWidth = fm.stringWidth(startText);
+            
+            g2d.setColor(Color.WHITE);
+            g2d.fillRoundRect(start.getX() - textWidth/2 - 3, start.getY() + GraphNode.NODE_RADIUS + 8, textWidth + 6, 16, 4, 4);
+            g2d.setColor(new Color(46, 204, 113));
+            g2d.setStroke(new BasicStroke(2));
+            g2d.drawRoundRect(start.getX() - textWidth/2 - 3, start.getY() + GraphNode.NODE_RADIUS + 8, textWidth + 6, 16, 4, 4);
+            g2d.drawString(startText, start.getX() - textWidth/2, start.getY() + GraphNode.NODE_RADIUS + 20);
         }
         
         if (getEndNode() != null) {
             GraphNode end = getEndNode();
             g2d.setColor(new Color(231, 76, 60));
-            g2d.setFont(new Font("SansSerif", Font.BOLD, 10));
-            g2d.drawString("END", end.getX() - 10, end.getY() + GraphNode.NODE_RADIUS + 15);
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 12));
+            
+            // Enhanced end node label with background
+            String endText = "END";
+            FontMetrics fm = g2d.getFontMetrics();
+            int textWidth = fm.stringWidth(endText);
+            
+            g2d.setColor(Color.WHITE);
+            g2d.fillRoundRect(end.getX() - textWidth/2 - 3, end.getY() + GraphNode.NODE_RADIUS + 8, textWidth + 6, 16, 4, 4);
+            g2d.setColor(new Color(231, 76, 60));
+            g2d.setStroke(new BasicStroke(2));
+            g2d.drawRoundRect(end.getX() - textWidth/2 - 3, end.getY() + GraphNode.NODE_RADIUS + 8, textWidth + 6, 16, 4, 4);
+            g2d.drawString(endText, end.getX() - textWidth/2, end.getY() + GraphNode.NODE_RADIUS + 20);
         }
     }
     
     private void drawInstructions(Graphics2D g2d) {
-        g2d.setColor(Color.GRAY);
-        g2d.setFont(infoFont);
+        g2d.setColor(new Color(52, 73, 94));
+        g2d.setFont(new Font("SansSerif", Font.BOLD, 13));
         
         String[] instructions = {
-            "Right-click: Context menu",
-            "Left-click: Select/drag node",
-            "Use controls below to run algorithm"
+            "🖱️ Right-click: Node context menu (set start/end, delete)",
+            "🖱️ Left-click: Select and drag nodes around",
+            "🎮 Use controls below to run Dijkstra or Bellman-Ford algorithms",
+            "📊 Watch the step-by-step algorithm animation with explanations"
         };
         
+        // Enhanced instruction panel with background
+        int maxWidth = 0;
+        FontMetrics fm = g2d.getFontMetrics();
+        for (String instruction : instructions) {
+            maxWidth = Math.max(maxWidth, fm.stringWidth(instruction));
+        }
+        
+        int panelHeight = instructions.length * 18 + 20;
+        int panelY = getHeight() - panelHeight - 10;
+        
+        // Draw instruction panel background
+        g2d.setColor(new Color(248, 249, 250, 230));
+        g2d.fillRoundRect(10, panelY, maxWidth + 20, panelHeight, 10, 10);
+        
+        g2d.setColor(new Color(52, 73, 94));
+        g2d.setStroke(new BasicStroke(2));
+        g2d.drawRoundRect(10, panelY, maxWidth + 20, panelHeight, 10, 10);
+        
+        // Draw instructions
         for (int i = 0; i < instructions.length; i++) {
-            g2d.drawString(instructions[i], 10, getHeight() - 60 + (i * 15));
+            g2d.drawString(instructions[i], 20, panelY + 25 + (i * 18));
         }
     }
     

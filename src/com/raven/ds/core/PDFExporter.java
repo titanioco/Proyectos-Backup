@@ -1,16 +1,20 @@
 package com.raven.ds.core;
 
+import com.raven.ds.modules.bst.BSTPanel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
- * PDF Exporter for data structure visualizations
- * Note: This is a lightweight implementation without iText dependency
- * In production, you would add iText 7 dependency and use proper PDF generation
+ * Enhanced PDF Exporter for data structure visualizations
+ * Generates comprehensive HTML analysis reports with detailed explanations
  */
 public class PDFExporter {
     private static final String EXPORT_DIR = "exported";
@@ -20,56 +24,25 @@ public class PDFExporter {
             // Create export directory if it doesn't exist
             Files.createDirectories(Paths.get(EXPORT_DIR));
             
-            // Generate filename
-            String filename = title.replaceAll("[^a-zA-Z0-9]", "_") + "_" + 
-                             System.currentTimeMillis() + ".html";
+            // Generate filename with timestamp
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+            String filename = title.replaceAll("[^a-zA-Z0-9]", "_") + "_" + timestamp + ".html";
             String filepath = EXPORT_DIR + File.separator + filename;
             
-            // For now, export as HTML (in production, use iText 7 for PDF)
+            // Generate comprehensive HTML report
             StringBuilder html = new StringBuilder();
             html.append("<!DOCTYPE html><html><head>");
-            html.append("<title>").append(title).append("</title>");
-            html.append("<style>");
-            html.append("body { font-family: Arial, sans-serif; margin: 40px; }");
-            html.append("h1 { color: #07A479; border-bottom: 2px solid #07A479; }");
-            html.append("h2 { color: #333; margin-top: 30px; }");
-            html.append("pre { background: #f5f5f5; padding: 15px; border-left: 4px solid #07A479; }");
-            html.append("img { max-width: 100%; border: 1px solid #ddd; margin: 10px 0; }");
-            html.append(".complexity { background: #fff3cd; padding: 10px; border: 1px solid #ffeaa7; }");
-            html.append("</style>");
+            html.append("<meta charset=\"UTF-8\">");
+            html.append("<title>").append(title).append(" - Analysis Report</title>");
+            html.append(generateCSS());
             html.append("</head><body>");
             
-            // Title page
-            html.append("<h1>").append(title).append("</h1>");
-            html.append("<p><strong>Generated on:</strong> ").append(new java.util.Date()).append("</p>");
-            
-            // Content
-            html.append("<h2>Algorithm Overview</h2>");
-            html.append("<p>").append(content).append("</p>");
-            
-            // Capture panel screenshot
-            String imageFile = capturePanel(panel, title);
-            if (imageFile != null) {
-                html.append("<h2>Visualization</h2>");
-                html.append("<img src=\"").append(imageFile).append("\" alt=\"Visualization Screenshot\"/>");
+            // Generate content based on panel type
+            if (panel instanceof BSTPanel) {
+                html.append(generateBSTReport((BSTPanel) panel, title));
+            } else {
+                html.append(generateGenericReport(panel, title, content));
             }
-            
-            // Complexity analysis placeholder
-            html.append("<h2>Complexity Analysis</h2>");
-            html.append("<div class=\"complexity\">");
-            html.append("<p><strong>Time Complexity:</strong> Varies by algorithm</p>");
-            html.append("<p><strong>Space Complexity:</strong> Varies by algorithm</p>");
-            html.append("</div>");
-            
-            // Pseudo-code placeholder
-            html.append("<h2>Pseudo-code</h2>");
-            html.append("<pre>");
-            html.append("// Algorithm pseudo-code would go here\n");
-            html.append("// This is generated based on the specific algorithm\n");
-            html.append("function algorithm(input):\n");
-            html.append("    // Implementation steps\n");
-            html.append("    return result");
-            html.append("</pre>");
             
             html.append("</body></html>");
             
@@ -78,13 +51,22 @@ public class PDFExporter {
                 writer.write(html.toString());
             }
             
-            // Show success message
-            JOptionPane.showMessageDialog(null, 
-                "Export successful!\n\nFile saved as: " + filepath + "\n\n" +
-                "Note: This is an HTML export. In production version,\n" +
-                "this would generate a proper PDF using iText 7.",
-                "Export Complete", 
-                JOptionPane.INFORMATION_MESSAGE);
+            // Show success message with option to open file
+            int result = JOptionPane.showOptionDialog(null,
+                "Analysis report generated successfully!\n\n" +
+                "File: " + filename + "\n" +
+                "Location: " + new File(filepath).getAbsolutePath() + "\n\n" +
+                "Would you like to open the report?",
+                "Export Complete",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                new String[]{"Open Report", "Close"},
+                "Open Report");
+            
+            if (result == JOptionPane.YES_OPTION) {
+                Desktop.getDesktop().open(new File(filepath));
+            }
             
             return true;
             
@@ -93,8 +75,248 @@ public class PDFExporter {
                 "Export failed: " + e.getMessage(),
                 "Export Error", 
                 JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
             return false;
         }
+    }
+    
+    private static String generateCSS() {
+        return "<style>" +
+            "body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: #f8f9fa; }" +
+            ".container { max-width: 1200px; margin: 0 auto; padding: 20px; }" +
+            ".header { background: linear-gradient(135deg, #2c3e50, #3498db); color: white; padding: 30px; text-align: center; margin-bottom: 30px; border-radius: 10px; }" +
+            ".header h1 { margin: 0; font-size: 2.5em; font-weight: 300; }" +
+            ".header .subtitle { margin: 10px 0 0 0; font-size: 1.1em; opacity: 0.9; }" +
+            ".section { background: white; margin: 20px 0; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }" +
+            ".section h2 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; margin-top: 0; }" +
+            ".section h3 { color: #34495e; margin-top: 25px; }" +
+            ".visualization { text-align: center; margin: 20px 0; }" +
+            ".visualization img { max-width: 100%; border: 2px solid #bdc3c7; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }" +
+            ".complexity-table { width: 100%; border-collapse: collapse; margin: 20px 0; }" +
+            ".complexity-table th, .complexity-table td { border: 1px solid #bdc3c7; padding: 12px; text-align: left; }" +
+            ".complexity-table th { background: #ecf0f1; font-weight: bold; color: #2c3e50; }" +
+            ".complexity-table tr:nth-child(even) { background: #f8f9fa; }" +
+            ".algorithm-box { background: #f8f9fa; border-left: 5px solid #3498db; padding: 20px; margin: 15px 0; }" +
+            ".code-block { background: #2c3e50; color: #ecf0f1; padding: 20px; border-radius: 5px; overflow-x: auto; font-family: 'Courier New', monospace; }" +
+            ".highlight { background: #f39c12; color: white; padding: 2px 6px; border-radius: 3px; }" +
+            ".operation-history { background: #e8f5e8; border: 1px solid #27ae60; border-radius: 5px; padding: 15px; }" +
+            ".step-explanation { background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 15px; margin: 10px 0; }" +
+            ".footer { text-align: center; margin-top: 40px; padding: 20px; color: #7f8c8d; border-top: 1px solid #bdc3c7; }" +
+            "</style>";
+    }
+    
+    private static String generateBSTReport(BSTPanel bstPanel, String title) {
+        StringBuilder html = new StringBuilder();
+        
+        // Header
+        html.append("<div class=\"container\">");
+        html.append("<div class=\"header\">");
+        html.append("<h1>Binary Search Tree Analysis</h1>");
+        html.append("<div class=\"subtitle\">Interactive Data Structures Learning Suite</div>");
+        html.append("<div class=\"subtitle\">Generated on: ").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' HH:mm"))).append("</div>");
+        html.append("</div>");
+        
+        // Overview Section
+        html.append("<div class=\"section\">");
+        html.append("<h2>📊 Tree Overview</h2>");
+        html.append("<div class=\"algorithm-box\">");
+        html.append("<h3>Current Tree Statistics</h3>");
+        html.append("<ul>");
+        html.append("<li><strong>Total Nodes:</strong> ").append(bstPanel.getBSTAlgorithm().size()).append("</li>");
+        html.append("<li><strong>Tree Height:</strong> ").append(bstPanel.getBSTAlgorithm().height()).append("</li>");
+        html.append("<li><strong>Is Empty:</strong> ").append(bstPanel.getBSTAlgorithm().getRoot() == null ? "Yes" : "No").append("</li>");
+        html.append("</ul>");
+        html.append("</div>");
+        html.append("</div>");
+        
+        // Visualization Section
+        html.append("<div class=\"section\">");
+        html.append("<h2>🌳 Tree Visualization</h2>");
+        String imageFile = capturePanel(bstPanel, title);
+        if (imageFile != null) {
+            html.append("<div class=\"visualization\">");
+            html.append("<img src=\"").append(imageFile).append("\" alt=\"BST Visualization\" />");
+            html.append("<p><em>Current state of the Binary Search Tree</em></p>");
+            html.append("</div>");
+        }
+        html.append("</div>");
+        
+        // Operation History
+        List<String> history = bstPanel.getOperationHistory();
+        if (!history.isEmpty()) {
+            html.append("<div class=\"section\">");
+            html.append("<h2>📋 Operation History</h2>");
+            html.append("<div class=\"operation-history\">");
+            html.append("<h3>Performed Operations:</h3>");
+            html.append("<ol>");
+            for (String operation : history) {
+                html.append("<li>").append(operation).append("</li>");
+            }
+            html.append("</ol>");
+            html.append("</div>");
+            html.append("</div>");
+        }
+        
+        // Current Step Explanation
+        String explanation = bstPanel.getCurrentExplanation();
+        if (!explanation.isEmpty()) {
+            html.append("<div class=\"section\">");
+            html.append("<h2>💡 Current Step Analysis</h2>");
+            html.append("<div class=\"step-explanation\">");
+            html.append("<pre>").append(explanation.replace("\n", "<br>")).append("</pre>");
+            html.append("</div>");
+            html.append("</div>");
+        }
+        
+        // Algorithm Complexity Analysis
+        html.append("<div class=\"section\">");
+        html.append("<h2>⚡ Complexity Analysis</h2>");
+        html.append("<table class=\"complexity-table\">");
+        html.append("<thead>");
+        html.append("<tr><th>Operation</th><th>Best Case</th><th>Average Case</th><th>Worst Case</th><th>Space Complexity</th></tr>");
+        html.append("</thead>");
+        html.append("<tbody>");
+        html.append("<tr><td>Search</td><td>O(log n)</td><td>O(log n)</td><td>O(n)</td><td>O(1)</td></tr>");
+        html.append("<tr><td>Insertion</td><td>O(log n)</td><td>O(log n)</td><td>O(n)</td><td>O(1)</td></tr>");
+        html.append("<tr><td>Deletion</td><td>O(log n)</td><td>O(log n)</td><td>O(n)</td><td>O(1)</td></tr>");
+        html.append("<tr><td>Traversal</td><td>O(n)</td><td>O(n)</td><td>O(n)</td><td>O(n)</td></tr>");
+        html.append("</tbody>");
+        html.append("</table>");
+        html.append("<p><strong>Note:</strong> Worst case occurs when the tree becomes skewed (like a linked list). Best and average cases assume a balanced tree.</p>");
+        html.append("</div>");
+        
+        // BST Properties and Theory
+        html.append("<div class=\"section\">");
+        html.append("<h2>📚 BST Properties & Theory</h2>");
+        html.append("<div class=\"algorithm-box\">");
+        html.append("<h3>Binary Search Tree Properties:</h3>");
+        html.append("<ul>");
+        html.append("<li><strong>Left Subtree Property:</strong> All nodes in the left subtree have values less than the root</li>");
+        html.append("<li><strong>Right Subtree Property:</strong> All nodes in the right subtree have values greater than the root</li>");
+        html.append("<li><strong>Recursive Property:</strong> Both left and right subtrees are also binary search trees</li>");
+        html.append("<li><strong>No Duplicates:</strong> Traditional BST implementation does not allow duplicate values</li>");
+        html.append("<li><strong>In-Order Traversal:</strong> Produces values in sorted (ascending) order</li>");
+        html.append("</ul>");
+        html.append("</div>");
+        
+        html.append("<h3>Common Operations Explained:</h3>");
+        html.append("<div class=\"algorithm-box\">");
+        html.append("<h4>🔍 Search Operation:</h4>");
+        html.append("<p>Starting from root, compare target with current node. Go left if target is smaller, right if larger. Continue until found or reach null.</p>");
+        html.append("</div>");
+        
+        html.append("<div class=\"algorithm-box\">");
+        html.append("<h4>➕ Insertion Operation:</h4>");
+        html.append("<p>Find the correct position using search logic, then create a new node at the empty position. Maintains BST property automatically.</p>");
+        html.append("</div>");
+        
+        html.append("<div class=\"algorithm-box\">");
+        html.append("<h4>❌ Deletion Operation:</h4>");
+        html.append("<p>Three cases: (1) Leaf node - simply remove, (2) One child - replace with child, (3) Two children - replace with inorder successor.</p>");
+        html.append("</div>");
+        html.append("</div>");
+        
+        // Pseudocode Section
+        html.append("<div class=\"section\">");
+        html.append("<h2>💻 Algorithm Pseudocode</h2>");
+        
+        html.append("<h3>Search Algorithm:</h3>");
+        html.append("<div class=\"code-block\">");
+        html.append("function search(root, target):<br>");
+        html.append("&nbsp;&nbsp;&nbsp;&nbsp;if root is null or root.value == target:<br>");
+        html.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return root<br>");
+        html.append("&nbsp;&nbsp;&nbsp;&nbsp;if target &lt; root.value:<br>");
+        html.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return search(root.left, target)<br>");
+        html.append("&nbsp;&nbsp;&nbsp;&nbsp;else:<br>");
+        html.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return search(root.right, target)");
+        html.append("</div>");
+        
+        html.append("<h3>Insertion Algorithm:</h3>");
+        html.append("<div class=\"code-block\">");
+        html.append("function insert(root, value):<br>");
+        html.append("&nbsp;&nbsp;&nbsp;&nbsp;if root is null:<br>");
+        html.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return new Node(value)<br>");
+        html.append("&nbsp;&nbsp;&nbsp;&nbsp;if value &lt; root.value:<br>");
+        html.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;root.left = insert(root.left, value)<br>");
+        html.append("&nbsp;&nbsp;&nbsp;&nbsp;else if value &gt; root.value:<br>");
+        html.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;root.right = insert(root.right, value)<br>");
+        html.append("&nbsp;&nbsp;&nbsp;&nbsp;return root");
+        html.append("</div>");
+        html.append("</div>");
+        
+        // Applications Section
+        html.append("<div class=\"section\">");
+        html.append("<h2>🚀 Real-World Applications</h2>");
+        html.append("<div class=\"algorithm-box\">");
+        html.append("<ul>");
+        html.append("<li><strong>Database Indexing:</strong> B-trees (variants of BST) are used in database systems for efficient data retrieval</li>");
+        html.append("<li><strong>Expression Parsing:</strong> Syntax trees in compilers use BST-like structures</li>");
+        html.append("<li><strong>File Systems:</strong> Directory structures often use tree-based organization</li>");
+        html.append("<li><strong>Priority Queues:</strong> Heap data structures (specialized trees) implement priority queues</li>");
+        html.append("<li><strong>Auto-complete:</strong> Trie data structures (prefix trees) power search suggestions</li>");
+        html.append("<li><strong>Game AI:</strong> Decision trees and game trees use similar concepts</li>");
+        html.append("</ul>");
+        html.append("</div>");
+        html.append("</div>");
+        
+        // Footer
+        html.append("<div class=\"footer\">");
+        html.append("<p>Report generated by Interactive Data Structures Learning Suite</p>");
+        html.append("<p>College Edition - Educational Purpose</p>");
+        html.append("</div>");
+        
+        html.append("</div>"); // Close container
+        
+        return html.toString();
+    }
+    
+    private static String generateGenericReport(JPanel panel, String title, String content) {
+        StringBuilder html = new StringBuilder();
+        
+        // Header
+        html.append("<div class=\"container\">");
+        html.append("<div class=\"header\">");
+        html.append("<h1>").append(title).append(" Analysis</h1>");
+        html.append("<div class=\"subtitle\">Interactive Data Structures Learning Suite</div>");
+        html.append("<div class=\"subtitle\">Generated on: ").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' HH:mm"))).append("</div>");
+        html.append("</div>");
+        
+        // Overview Section
+        html.append("<div class=\"section\">");
+        html.append("<h2>📊 Overview</h2>");
+        html.append("<p>").append(content).append("</p>");
+        html.append("</div>");
+        
+        // Visualization Section
+        html.append("<div class=\"section\">");
+        html.append("<h2>🎯 Visualization</h2>");
+        String imageFile = capturePanel(panel, title);
+        if (imageFile != null) {
+            html.append("<div class=\"visualization\">");
+            html.append("<img src=\"").append(imageFile).append("\" alt=\"Data Structure Visualization\" />");
+            html.append("<p><em>Current state of the data structure</em></p>");
+            html.append("</div>");
+        }
+        html.append("</div>");
+        
+        // Complexity Section (Generic)
+        html.append("<div class=\"section\">");
+        html.append("<h2>⚡ Complexity Analysis</h2>");
+        html.append("<div class=\"algorithm-box\">");
+        html.append("<p>Complexity analysis varies by algorithm and implementation.</p>");
+        html.append("<p>Refer to the specific algorithm documentation for detailed complexity information.</p>");
+        html.append("</div>");
+        html.append("</div>");
+        
+        // Footer
+        html.append("<div class=\"footer\">");
+        html.append("<p>Report generated by Interactive Data Structures Learning Suite</p>");
+        html.append("<p>College Edition - Educational Purpose</p>");
+        html.append("</div>");
+        
+        html.append("</div>"); // Close container
+        
+        return html.toString();
     }
     
     private static String capturePanel(JPanel panel, String title) {
@@ -135,48 +357,55 @@ public class PDFExporter {
             StringBuilder html = new StringBuilder();
             html.append("<!DOCTYPE html><html><head>");
             html.append("<title>Interactive Data Structures Guide</title>");
-            html.append("<style>");
-            html.append("body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }");
-            html.append("h1 { color: #07A479; text-align: center; }");
-            html.append("h2 { color: #333; border-bottom: 1px solid #ddd; }");
-            html.append(".toc { background: #f9f9f9; padding: 20px; margin: 20px 0; }");
-            html.append(".algorithm { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }");
-            html.append("</style>");
+            html.append(generateCSS());
             html.append("</head><body>");
             
+            html.append("<div class=\"container\">");
+            html.append("<div class=\"header\">");
             html.append("<h1>Interactive Data Structures Learning Guide</h1>");
+            html.append("<div class=\"subtitle\">Comprehensive Educational Resource</div>");
+            html.append("</div>");
             
-            html.append("<div class=\"toc\">");
-            html.append("<h2>Table of Contents</h2>");
+            html.append("<div class=\"section\">");
+            html.append("<h2>📚 Table of Contents</h2>");
             html.append("<ol>");
-            html.append("<li>Graph - Shortest Path (Dijkstra)</li>");
-            html.append("<li>Hashing & Hash Functions</li>");
-            html.append("<li>Binary Heap</li>");
-            html.append("<li>Heapsort</li>");
             html.append("<li>Binary Search Tree (BST)</li>");
-            html.append("<li>AVL Tree</li>");
+            html.append("<li>Graph - Shortest Path (Dijkstra)</li>");
+            html.append("<li>Hash Table & Hash Functions</li>");
+            html.append("<li>Binary Heap</li>");
+            html.append("<li>Heapsort Algorithm</li>");
+            html.append("<li>AVL Tree (Self-Balancing BST)</li>");
             html.append("<li>Dynamic Array (ArrayList)</li>");
             html.append("</ol>");
             html.append("</div>");
             
-            // Add content for each algorithm
+            // Add detailed content for each data structure
             String[] topics = {
-                "Graph - Shortest Path (Dijkstra)",
-                "Hashing & Hash Functions", 
-                "Binary Heap",
-                "Heapsort",
                 "Binary Search Tree (BST)",
-                "AVL Tree",
+                "Graph - Shortest Path (Dijkstra)",
+                "Hash Table & Hash Functions", 
+                "Binary Heap",
+                "Heapsort Algorithm",
+                "AVL Tree (Self-Balancing BST)",
                 "Dynamic Array (ArrayList)"
             };
             
             for (String topic : topics) {
-                html.append("<div class=\"algorithm\">");
+                html.append("<div class=\"section\">");
                 html.append("<h2>").append(topic).append("</h2>");
-                html.append("<p>Detailed explanation of ").append(topic).append(" would go here.</p>");
+                html.append("<div class=\"algorithm-box\">");
+                html.append("<p>This section covers the fundamental concepts, implementation details, ");
+                html.append("and practical applications of ").append(topic).append(".</p>");
+                html.append("<p>Students can explore this data structure interactively using the ");
+                html.append("visualization tools provided in the learning suite.</p>");
+                html.append("</div>");
                 html.append("</div>");
             }
             
+            html.append("<div class=\"footer\">");
+            html.append("<p>Interactive Data Structures Learning Suite - College Edition</p>");
+            html.append("</div>");
+            html.append("</div>");
             html.append("</body></html>");
             
             try (FileWriter writer = new FileWriter(filepath)) {

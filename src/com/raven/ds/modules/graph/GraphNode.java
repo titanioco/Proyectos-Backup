@@ -19,11 +19,18 @@ public class GraphNode {
     private List<GraphEdge> edges;
     
     public static final int NODE_RADIUS = 25;
-    // High contrast color scheme using shades of blue for consistency
-    public static final Color DEFAULT_COLOR = new Color(58, 123, 176);      // Medium blue
-    public static final Color VISITED_COLOR = new Color(106, 168, 210);     // Light blue
-    public static final Color CURRENT_COLOR = new Color(33, 84, 124);       // Dark blue
-    public static final Color PATH_COLOR = new Color(255, 215, 0);          // Gold for high contrast path
+    // Enhanced high contrast color scheme for better visibility during animation
+    public static final Color DEFAULT_COLOR = new Color(240, 240, 240);      // Light gray for unprocessed
+    public static final Color VISITED_COLOR = new Color(100, 149, 237);      // Cornflower blue for visited
+    public static final Color CURRENT_COLOR = new Color(255, 165, 0);        // Orange for current processing
+    public static final Color PATH_COLOR = new Color(50, 205, 50);           // Lime green for final path
+    public static final Color START_COLOR = new Color(34, 139, 34);          // Forest green for start
+    public static final Color END_COLOR = new Color(220, 20, 60);            // Crimson red for end
+    public static final Color RELAXING_COLOR = new Color(255, 255, 0);       // Bright yellow for edge relaxation
+    // Additional colors for enhanced neighbor exploration animation
+    public static final Color EXPLORING_COLOR = new Color(255, 255, 200);    // Light yellow for exploration
+    public static final Color IMPROVEMENT_COLOR = new Color(144, 238, 144);  // Light green for improvement
+    public static final Color NO_IMPROVEMENT_COLOR = new Color(255, 200, 200); // Light red for no improvement
     
     public GraphNode(String id, int x, int y) {
         this.id = id;
@@ -43,46 +50,56 @@ public class GraphNode {
     }
     
     public void draw(Graphics2D g2d) {
-        // Draw node circle
+        // Draw enhanced shadow for better depth perception
+        g2d.setColor(new Color(0, 0, 0, 80));
+        g2d.fillOval(x - NODE_RADIUS + 4, y - NODE_RADIUS + 4, NODE_RADIUS * 2, NODE_RADIUS * 2);
+        
+        // Draw node circle with enhanced colors
         g2d.setColor(color);
         g2d.fillOval(x - NODE_RADIUS, y - NODE_RADIUS, NODE_RADIUS * 2, NODE_RADIUS * 2);
         
-        // Draw border with high contrast
+        // Draw border with high contrast - thicker for better visibility
         g2d.setColor(Color.BLACK);
-        g2d.setStroke(new BasicStroke(3)); // Thicker border for better visibility
+        g2d.setStroke(new BasicStroke(3)); // Black border for definition
         g2d.drawOval(x - NODE_RADIUS, y - NODE_RADIUS, NODE_RADIUS * 2, NODE_RADIUS * 2);
         
-        // Draw node ID with high contrast
+        // Add white inner highlight for extra contrast
         g2d.setColor(Color.WHITE);
-        g2d.setFont(new Font("SansSerif", Font.BOLD, 14)); // Larger, bolder font
+        g2d.setStroke(new BasicStroke(1));
+        g2d.drawOval(x - NODE_RADIUS + 2, y - NODE_RADIUS + 2, NODE_RADIUS * 2 - 4, NODE_RADIUS * 2 - 4);
+        
+        // Draw node ID with enhanced contrast
+        g2d.setFont(new Font("SansSerif", Font.BOLD, 18)); // Larger, bolder font
         FontMetrics fm = g2d.getFontMetrics();
         int textWidth = fm.stringWidth(id);
         int textHeight = fm.getHeight();
         
         // Add black outline for better readability
         g2d.setColor(Color.BLACK);
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dy = -2; dy <= 2; dy++) {
                 if (dx != 0 || dy != 0) {
                     g2d.drawString(id, x - textWidth/2 + dx, y + textHeight/4 + dy);
                 }
             }
         }
+        
+        // Draw white text
         g2d.setColor(Color.WHITE);
         g2d.drawString(id, x - textWidth/2, y + textHeight/4);
         
-        // Draw distance label with high contrast background
-        g2d.setFont(new Font("SansSerif", Font.BOLD, 11));
+        // Draw distance label with enhanced contrast background
+        g2d.setFont(new Font("SansSerif", Font.BOLD, 12));
         String distText = distance == Integer.MAX_VALUE ? "∞" : String.valueOf(distance);
         FontMetrics distFm = g2d.getFontMetrics();
         int distWidth = distFm.stringWidth(distText);
         
-        // Background for distance label
+        // Enhanced background for distance label with border
         g2d.setColor(Color.WHITE);
-        g2d.fillRoundRect(x - distWidth/2 - 3, y - NODE_RADIUS - 18, distWidth + 6, 14, 4, 4);
+        g2d.fillRoundRect(x - distWidth/2 - 4, y - NODE_RADIUS - 20, distWidth + 8, 16, 6, 6);
         g2d.setColor(Color.BLACK);
-        g2d.setStroke(new BasicStroke(1));
-        g2d.drawRoundRect(x - distWidth/2 - 3, y - NODE_RADIUS - 18, distWidth + 6, 14, 4, 4);
+        g2d.setStroke(new BasicStroke(2));
+        g2d.drawRoundRect(x - distWidth/2 - 4, y - NODE_RADIUS - 20, distWidth + 8, 16, 6, 6);
         g2d.drawString(distText, x - distWidth/2, y - NODE_RADIUS - 7);
     }
     
@@ -122,7 +139,7 @@ public class GraphNode {
     
     public List<GraphEdge> getEdges() { return edges; }
     
-    private void updateColor() {
+    public void updateColor() {
         if (highlighted) {
             color = CURRENT_COLOR;
         } else if (inPath) {
@@ -132,6 +149,18 @@ public class GraphNode {
         } else {
             color = DEFAULT_COLOR;
         }
+    }
+    
+    public void setColor(Color newColor) {
+        this.color = newColor;
+    }
+    
+    public void setAsStartNode() {
+        color = START_COLOR;
+    }
+    
+    public void setAsEndNode() {
+        color = END_COLOR;
     }
     
     public void reset() {

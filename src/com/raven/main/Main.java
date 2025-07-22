@@ -87,9 +87,9 @@ public class Main extends javax.swing.JFrame {
             }
         };
         
-        // Reset OAuth and dashboard state for a fresh login/register session
-        PanelLoginAndRegister.resetOAuthState();
+        // Create the login panel first, then reset its state
         loginAndRegister = new PanelLoginAndRegister(eventRegister);
+        loginAndRegister.resetOAuthState(); // Reset OAuth state for fresh session
         TimingTarget target = new TimingTargetAdapter() {
             @Override
             public void timingEvent(float fraction) {

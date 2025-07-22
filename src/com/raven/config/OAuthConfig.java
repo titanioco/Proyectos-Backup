@@ -78,14 +78,28 @@ public class OAuthConfig {
             !clientId.startsWith("test-") &&
             clientId.contains(".apps.googleusercontent.com");
             
-        boolean hasValidClientSecret = clientSecret != null && 
-            !clientSecret.isEmpty() &&
-            !clientSecret.equals("YOUR_GOOGLE_CLIENT_SECRET") &&
-            !clientSecret.equals("YOUR_CLIENT_SECRET_HERE") &&
-            !clientSecret.equals("dev-test-client-secret-placeholder") &&
-            !clientSecret.startsWith("dev-test-") &&
-            !clientSecret.startsWith("test-");
+        // For desktop applications, client secret can be empty
+        // Only validate client secret if it's provided
+        boolean hasValidClientSecret = clientSecret == null || clientSecret.trim().isEmpty() ||
+            (!clientSecret.equals("YOUR_GOOGLE_CLIENT_SECRET") &&
+             !clientSecret.equals("YOUR_CLIENT_SECRET_HERE") &&
+             !clientSecret.equals("dev-test-client-secret-placeholder") &&
+             !clientSecret.startsWith("dev-test-") &&
+             !clientSecret.startsWith("test-"));
         
         return hasValidClientId && hasValidClientSecret;
+    }
+    
+    /**
+     * Print diagnostic information about OAuth configuration
+     */
+    public static void printDiagnostics() {
+        System.out.println("🔍 OAuth Configuration Diagnostics:");
+        System.out.println("  - Properties file loaded: " + loaded);
+        System.out.println("  - Client ID: " + getClientId());
+        System.out.println("  - Client Secret: " + (getClientSecret().isEmpty() ? "EMPTY (Desktop App)" : "PROVIDED (Web App)"));
+        System.out.println("  - Redirect URI: " + getRedirectUri());
+        System.out.println("  - Is Configured: " + isConfigured());
+        System.out.println("  - Configuration Status: " + (isConfigured() ? "✅ Ready for OAuth" : "⚠️ Needs setup"));
     }
 }

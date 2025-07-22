@@ -31,9 +31,11 @@ import net.miginfocom.swing.MigLayout;
 
 public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
 
-    private static boolean oauthInProgress = false; // Prevent multiple OAuth attempts
-    // Prevent opening multiple dashboard instances
-    private static boolean dashboardOpened = false;
+    // Remove static variables to prevent race conditions
+    private volatile boolean oauthInProgress = false; // Instance-level flag
+    private volatile boolean dashboardOpened = false; // Instance-level flag
+    private GoogleAuthService currentAuthService = null; // Track current auth service
+    
     public ModelUser getUser() {
         return user;
     }
@@ -78,6 +80,7 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         Button cmd = new Button();
         cmd.setBackground(new Color(7, 164, 121));
         cmd.setForeground(new Color(250, 250, 250));
+        cmd.setFont(new Font("sansserif", Font.BOLD, 14)); // Explicit bold font for register button
         cmd.addActionListener(eventRegister);
         cmd.setText("SIGN UP");
         register.add(cmd, "w 40%, h 40");
@@ -103,10 +106,13 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         labelLogo.setFont(new Font("sansserif", 1, 30));
         labelLogo.setForeground(new Color(7, 163, 121));
         login.add(labelLogo);
-        JLabel labelDescription = new JLabel("Registrate con tu Correo Institucional");
-        labelDescription.setFont(new Font("sansserif", 1, 15));
+        JLabel labelDescription = new JLabel("Acceso con tu Cuenta de Google");
+        labelDescription.setFont(new Font("sansserif", 1, 18));
         labelDescription.setForeground(new Color(29, 99, 81));
         login.add(labelDescription);
+        
+        // Comment out email/password fields to focus on Google authentication
+        /*
         MyTextField txtEmail = new MyTextField();
         txtEmail.setPrefixIcon(new ImageIcon(getClass().getResource("/com/raven/icon/mail.png")));
         txtEmail.setHint("Email");
@@ -125,6 +131,7 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         Button cmd = new Button();
         cmd.setBackground(new Color(29, 99, 81));
         cmd.setForeground(new Color(250, 250, 250));
+        cmd.setFont(new Font("sansserif", Font.BOLD, 14)); // Explicit bold font for login button
         cmd.setText("SIGN IN");
         cmd.addActionListener(new ActionListener() {
             @Override
@@ -133,8 +140,9 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
             }
         });
         login.add(cmd, "w 40%, h 40");
+        */
         
-        // Add Google Sign-In Button
+        // Centered Google Sign-In Button with enhanced styling
         GoogleSignInButton googleBtn = new GoogleSignInButton();
         googleBtn.addActionListener(new ActionListener() {
             @Override
@@ -142,7 +150,13 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
                 handleGoogleSignIn();
             }
         });
-        login.add(googleBtn, "w 60%, h 45");
+        login.add(googleBtn, "w 70%, h 50, gaptop 20");
+        
+        // Add informational label
+        JLabel infoLabel = new JLabel("Utiliza tu cuenta institucional para acceder");
+        infoLabel.setFont(new Font("sansserif", Font.ITALIC, 14));
+        infoLabel.setForeground(new Color(100, 100, 100));
+        login.add(infoLabel, "gaptop 10");
     }
     
     private void handleLogin(String email, String password) {
@@ -196,9 +210,12 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
             return;
         }
         
-        // Stop any existing OAuth servers/handlers first
-        System.out.println("🧹 Cleaning up any previous OAuth attempts...");
-        // No need to stop any servers - the Google OAuth client library handles this automatically
+        // Cleanup any previous auth service
+        if (currentAuthService != null) {
+            System.out.println("🧹 Cleaning up previous OAuth service...");
+            currentAuthService.cleanup();
+            currentAuthService = null;
+        }
         
         oauthInProgress = true;
         System.out.println("🚀 Starting fresh Google OAuth flow...");
@@ -207,27 +224,45 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
             @Override
             protected GoogleAuthService.GoogleUserInfo doInBackground() throws Exception {
                 try {
-                    System.out.println("� Starting Google OAuth flow...");
+                    System.out.println("🚀 Starting Google OAuth flow...");
                     
                     // Check if OAuth is properly configured first
                     if (!OAuthConfig.isConfigured()) {
-                        System.out.println("⚠️ OAuth not configured, using demo mode");
-                        // Demo mode fallback - return mock user
-                        return new GoogleAuthService.GoogleUserInfo("demo@example.com", "Demo User", "demo123");
+                        System.out.println("⚠️ OAuth not properly configured - missing valid Client ID");
+                        OAuthConfig.printDiagnostics();
+                        System.out.println("💡 Please configure oauth.properties with your Google OAuth credentials");
+                        System.out.println("📖 See GOOGLE_OAUTH_SETUP_GUIDE.md for detailed setup instructions");
+                        
+                        // Inform user about the missing configuration and stop the process
+                        SwingUtilities.invokeLater(() -> {
+                            JOptionPane.showMessageDialog(PanelLoginAndRegister.this, 
+                                "Google OAuth is not configured properly.\n\n" +
+                                "To use Google Sign-In:\n" +
+                                "1. Run setup-oauth.bat for guided setup\n" +
+                                "2. Get OAuth credentials from Google Cloud Console\n" +
+                                "3. Update oauth.properties with your Client ID\n" +
+                                "4. Restart the application\n\n" +
+                                "See GOOGLE_OAUTH_SETUP_GUIDE.md for details.", 
+                                "OAuth Configuration Required", 
+                                JOptionPane.ERROR_MESSAGE);
+                        });
+                        
+                        // Throw exception instead of returning demo user
+                        throw new RuntimeException("OAuth not configured properly. Please set up oauth.properties with valid credentials.");
                     }
                     
                     // Initialize the Google Auth Service with real OAuth
                     String clientSecret = OAuthConfig.getClientSecret();
                     System.out.println("🔧 Using client secret: " + (clientSecret.isEmpty() ? "EMPTY (Desktop App Mode)" : "PROVIDED (Web App Mode)"));
                     
-                    GoogleAuthService authService = new GoogleAuthService(
+                    currentAuthService = new GoogleAuthService(
                         OAuthConfig.getClientId(), 
                         clientSecret
                     );
                     
-                    // Simplified OAuth flow - the library handles everything
+                    // Start OAuth authorization flow
                     System.out.println("🚀 Starting OAuth authorization...");
-                    GoogleAuthService.GoogleUserInfo userInfo = authService.authorize();
+                    GoogleAuthService.GoogleUserInfo userInfo = currentAuthService.authorize();
                     
                     System.out.println("✅ OAuth completed successfully for: " + userInfo.getEmail());
                     return userInfo;
@@ -261,6 +296,12 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
                 } finally {
                     System.out.println("🏁 Google OAuth worker completed");
                     oauthInProgress = false;
+                    
+                    // Cleanup auth service
+                    if (currentAuthService != null) {
+                        currentAuthService.cleanup();
+                        currentAuthService = null;
+                    }
                 }
             }
         };
@@ -274,32 +315,24 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
             User user;
             
             try {
-                // Try database operations first if OAuth is properly configured
-                if (OAuthConfig.isConfigured()) {
-                    System.out.println("🔍 Checking for existing user in database...");
-                    Optional<User> existingUser = UserDAO.findByEmail(userInfo.getEmail());
-                    
-                    if (existingUser.isPresent()) {
-                        user = existingUser.get();
-                        // Update Google sub if not set
-                        if (user.getGoogleSub() == null) {
-                            user.setGoogleSub(userInfo.getId());
-                            UserDAO.updateUser(user);
-                        }
-                        System.out.println("✅ Existing Google user found and updated: " + user.getEmail());
-                    } else {
-                        // Create new user
-                        user = new User(userInfo.getEmail(), userInfo.getName());
+                // Process OAuth user with database operations
+                System.out.println("🔍 Checking for existing user in database...");
+                Optional<User> existingUser = UserDAO.findByEmail(userInfo.getEmail());
+                
+                if (existingUser.isPresent()) {
+                    user = existingUser.get();
+                    // Update Google sub if not set
+                    if (user.getGoogleSub() == null) {
                         user.setGoogleSub(userInfo.getId());
-                        UserDAO.createUser(user);
-                        System.out.println("✅ New Google user created: " + user.getEmail());
+                        UserDAO.updateUser(user);
                     }
+                    System.out.println("✅ Existing Google user found and updated: " + user.getEmail());
                 } else {
-                    // Fallback for demo mode
-                    System.out.println("⚠️ Demo mode: using temporary user without database");
+                    // Create new user
                     user = new User(userInfo.getEmail(), userInfo.getName());
                     user.setGoogleSub(userInfo.getId());
-                    System.out.println("✓ Temporary user created for demo: " + user.getEmail());
+                    UserDAO.createUser(user);
+                    System.out.println("✅ New Google user created: " + user.getEmail());
                 }
                 
             } catch (Throwable dbEx) {
@@ -401,11 +434,17 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
     private javax.swing.JPanel register;
 
     /**
-     * Reset static state for a fresh login session.
+     * Reset OAuth state for a fresh login session.
      */
-    public static void resetOAuthState() {
+    public void resetOAuthState() {
         oauthInProgress = false;
         dashboardOpened = false;
+        
+        // Cleanup auth service
+        if (currentAuthService != null) {
+            currentAuthService.cleanup();
+            currentAuthService = null;
+        }
     }
 
 }

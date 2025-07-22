@@ -11,157 +11,157 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 import com.google.api.client.auth.oauth2.TokenResponse;
 
 public class GoogleAuthService {
     private static final NetHttpTransport HTTP = new NetHttpTransport();
     private static final GsonFactory JSON = new GsonFactory();
-
+    private static final int TIMEOUT_SECONDS = 30;
+    
     private final GoogleAuthorizationCodeFlow flow;
-    private final LocalServerReceiver receiver;
-    private final boolean isDesktopApp;
+    private LocalServerReceiver receiver;
+    private volatile boolean isAuthorizing = false;
 
     public GoogleAuthService(String clientId, String clientSecret) throws Exception {
-        // Determine if this is a desktop app (empty client secret)
-        isDesktopApp = clientSecret == null || clientSecret.trim().isEmpty();
+        // Always use desktop app mode for Swing applications - simpler and more stable
+        System.out.println("🔧 Initializing Google Auth Service for Desktop Application");
         
-        if (isDesktopApp) {
-            // Desktop application - create flow without client secret
-            flow = new GoogleAuthorizationCodeFlow.Builder(
-                    HTTP, JSON,
-                    clientId, null, // No client secret for desktop apps
-                    Collections.singletonList("openid email profile"))
-                .setAccessType("offline")
-                .build();
-            receiver = null; // Desktop apps don't use local server
-        } else {
-            // Web application - create flow with client secret
-            flow = new GoogleAuthorizationCodeFlow.Builder(
-                    HTTP, JSON,
-                    clientId, clientSecret,
-                    Collections.singletonList("openid email profile"))
-                .setAccessType("offline")
-                .build();
-            receiver = new LocalServerReceiver.Builder()
-                .setHost("127.0.0.1")
-                .setPort(8080)
-                .setCallbackPath("/oauth2callback")
-                .build();
-        }
+        this.flow = new GoogleAuthorizationCodeFlow.Builder(
+                HTTP, JSON,
+                clientId, clientSecret,
+                Collections.singletonList("openid email profile"))
+            .setAccessType("offline")
+            .setApprovalPrompt("force")  // Always force consent screen
+            .build();
+            
+        // Create receiver with fixed port for stability
+        this.receiver = new LocalServerReceiver.Builder()
+            .setHost("127.0.0.1")
+            .setPort(8080)
+            .setCallbackPath("/oauth2callback")
+            .build();
+            
+        System.out.println("✅ Google Auth Service initialized successfully");
+        System.out.println("📍 Callback URL: http://127.0.0.1:8080/oauth2callback");
     }
 
-    public GoogleUserInfo authorize() throws Exception {
+    public synchronized GoogleUserInfo authorize() throws Exception {
+        if (isAuthorizing) {
+            throw new IllegalStateException("Authorization already in progress");
+        }
+        
+        isAuthorizing = true;
         try {
-            Credential credential;
+            System.out.println("🚀 Starting OAuth authorization flow...");
             
-            if (isDesktopApp) {
-                // Desktop application flow - use manual authorization
-                System.out.println("🖥️ Using Desktop Application OAuth flow");
-                credential = new AuthorizationCodeInstalledApp(flow, 
-                    new LocalServerReceiver.Builder()
-                        .setHost("localhost")
-                        .setPort(-1) // Use any available port
-                        .build())
-                    .authorize("user");
-            } else {
-                // Web application flow - use predefined receiver
-                System.out.println("🌐 Using Web Application OAuth flow");
-                credential = new AuthorizationCodeInstalledApp(flow, receiver)
-                    .authorize("user");
-            }
+            // Use the standard installed app flow - most reliable for desktop apps
+            AuthorizationCodeInstalledApp installedApp = new AuthorizationCodeInstalledApp(flow, receiver);
             
-            System.out.println("🔑 OAuth credential obtained successfully");
-            System.out.println("📧 Access token: " + (credential.getAccessToken() != null ? "Present" : "NULL"));
-            
-            if (credential.getAccessToken() == null) {
-                throw new Exception("Access token is null - authorization failed");
-            }
-            
-            HttpRequestFactory requestFactory = HTTP.createRequestFactory(request -> {
-                request.getHeaders().setAuthorization("Bearer " + credential.getAccessToken());
-                // Set JSON parser for response parsing
-                request.setParser(new JsonObjectParser(JSON));
+            // Set timeout for authorization
+            CompletableFuture<Credential> credentialFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return installedApp.authorize("user");
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             });
             
-            GenericUrl url = new GenericUrl(
-                "https://www.googleapis.com/oauth2/v2/userinfo");
+            Credential credential = credentialFuture.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
             
-            System.out.println("🌐 Making request to: " + url.toString());
-            
-            com.google.api.client.http.HttpResponse response = requestFactory.buildGetRequest(url).execute();
-            
-            System.out.println("📡 Response status: " + response.getStatusCode());
-            System.out.println("📡 Response content type: " + response.getContentType());
-            
-            if (response.getStatusCode() != 200) {
-                throw new Exception("HTTP " + response.getStatusCode() + ": " + response.getStatusMessage());
+            if (credential == null || credential.getAccessToken() == null) {
+                throw new Exception("Failed to obtain valid access token");
             }
             
-            String responseContent = response.parseAsString();
-            System.out.println("📡 Response content: " + responseContent);
+            System.out.println("✅ OAuth credential obtained successfully");
             
-            // Reset the response for parsing
-            response = requestFactory.buildGetRequest(url).execute();
-            
-            @SuppressWarnings("unchecked")
-            Map<String, Object> data = (Map<String, Object>) response.parseAs(Map.class);
-            
-            if (data == null) {
-                throw new Exception("Failed to parse user info response");
-            }
-            
-            String email = (String) data.get("email");
-            String name = (String) data.get("name");
-            String id = (String) data.get("id");
-            
-            System.out.println("👤 User info - Email: " + email + ", Name: " + name + ", ID: " + id);
-            
-            if (email == null) {
-                throw new Exception("Email not found in OAuth response");
-            }
-            
-            return new GoogleUserInfo(email, name, id);
+            // Get user info from Google API
+            return getUserInfo(credential);
             
         } catch (Exception e) {
-            System.err.println("❌ OAuth authorization error: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("❌ OAuth authorization failed: " + e.getMessage());
             throw e;
+        } finally {
+            isAuthorizing = false;
         }
     }
-    /**
-     * Exchange an authorization code manually for user info.
-     */
-    public GoogleUserInfo exchangeCodeForUserInfo(String code) throws Exception {
-        // Exchange authorization code for tokens
-        TokenResponse tokenResponse = flow.newTokenRequest(code)
-            .setRedirectUri("http://127.0.0.1:" + receiver.getPort() + receiver.getCallbackPath())
-            .execute();
-        Credential credential = flow.createAndStoreCredential(tokenResponse, "user");
-
-        if (credential.getAccessToken() == null) {
-            throw new Exception("Access token is null - code exchange failed");
-        }
+    
+    private GoogleUserInfo getUserInfo(Credential credential) throws Exception {
         HttpRequestFactory requestFactory = HTTP.createRequestFactory(request -> {
             request.getHeaders().setAuthorization("Bearer " + credential.getAccessToken());
             request.setParser(new JsonObjectParser(JSON));
         });
+        
         GenericUrl url = new GenericUrl("https://www.googleapis.com/oauth2/v2/userinfo");
+        
+        System.out.println("🌐 Fetching user info from Google API...");
+        
         com.google.api.client.http.HttpResponse response = requestFactory.buildGetRequest(url).execute();
+        
         if (response.getStatusCode() != 200) {
-            throw new Exception("HTTP " + response.getStatusCode() + ": " + response.getStatusMessage());
+            throw new Exception("Failed to get user info: HTTP " + response.getStatusCode());
         }
+        
         @SuppressWarnings("unchecked")
         Map<String, Object> data = (Map<String, Object>) response.parseAs(Map.class);
+        
         if (data == null) {
             throw new Exception("Failed to parse user info response");
         }
+        
         String email = (String) data.get("email");
         String name = (String) data.get("name");
         String id = (String) data.get("id");
+        
         if (email == null) {
             throw new Exception("Email not found in OAuth response");
         }
+        
+        System.out.println("✅ User info retrieved: " + name + " (" + email + ")");
         return new GoogleUserInfo(email, name, id);
+    }
+    /**
+     * Exchange an authorization code for user info.
+     * This method is used when manual callback handling is needed.
+     */
+    public GoogleUserInfo exchangeCodeForUserInfo(String code) throws Exception {
+        try {
+            System.out.println("🔄 Exchanging authorization code for tokens...");
+            
+            // Exchange authorization code for tokens
+            TokenResponse tokenResponse = flow.newTokenRequest(code)
+                .setRedirectUri("http://127.0.0.1:" + receiver.getPort() + receiver.getCallbackPath())
+                .execute();
+                
+            Credential credential = flow.createAndStoreCredential(tokenResponse, "user");
+
+            if (credential.getAccessToken() == null) {
+                throw new Exception("Access token is null - code exchange failed");
+            }
+            
+            System.out.println("✅ Token exchange successful");
+            return getUserInfo(credential);
+            
+        } catch (Exception e) {
+            System.err.println("❌ Code exchange failed: " + e.getMessage());
+            throw e;
+        }
+    }
+    
+    /**
+     * Cleanup method to stop any running receivers
+     */
+    public void cleanup() {
+        if (receiver != null) {
+            try {
+                receiver.stop();
+                System.out.println("✅ OAuth receiver stopped");
+            } catch (Exception e) {
+                System.out.println("ℹ️ Receiver cleanup: " + e.getMessage());
+            }
+        }
+        isAuthorizing = false;
     }
 
     public static class GoogleUserInfo {

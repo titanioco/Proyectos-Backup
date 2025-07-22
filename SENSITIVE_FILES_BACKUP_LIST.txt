@@ -1,0 +1,26 @@
+# Sensitive Files Backup List
+# Files that contain OAuth credentials and should NOT be committed to repository
+# These files should be manually backed up and restored on new machines
+
+## Critical OAuth Configuration Files:
+oauth.properties                    # Main OAuth configuration with real credentials
+temp.properties                     # Temporary file with credentials (can be deleted)
+
+## Files with embedded credentials in documentation/scripts:
+OAUTH_CREDENTIALS_CONFIGURED.md     # Contains actual credentials in documentation
+setup-oauth-simple.bat             # Contains default credentials in batch script
+
+## Source code files with hardcoded credential checks:
+src/com/raven/config/OAuthVerifier.java  # Contains credential validation logic (partial client ID)
+
+## Instructions for new machine setup:
+1. Copy this backup folder to new machine
+2. Place oauth.properties in project root  
+3. Verify setup-oauth-simple.bat has correct default values
+4. Run verification: java -cp "build/classes;lib/*;*.jar" com.raven.config.OAuthVerifier
+
+## Safe to commit template files:
+oauth.properties.template           # Template with placeholders - SAFE
+oauth.properties.example            # Example with placeholders - SAFE
+GOOGLE_OAUTH_SETUP_GUIDE.md        # Setup instructions - SAFE
+.gitignore                          # Protects sensitive files - SAFE
