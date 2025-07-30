@@ -26,6 +26,7 @@ public class BSTControls extends JPanel {
     private Button stepBtn;
     private Button resetBtn;
     private Button downloadBtn;
+    private Button loadSampleBtn;
     private JSlider speedSlider;
     private JLabel statusLabel;
     private JLabel speedLabel;
@@ -99,6 +100,12 @@ public class BSTControls extends JPanel {
         downloadBtn.setBackground(new Color(155, 89, 182)); // Purple
         downloadBtn.setToolTipText("Download detailed analysis report");
         
+        // Load Sample button
+        loadSampleBtn = new Button();
+        loadSampleBtn.setText("📚 Load Sample");
+        loadSampleBtn.setBackground(new Color(230, 126, 34)); // Orange
+        loadSampleBtn.setToolTipText("Load a sample BST for demonstration");
+        
         // Speed control with labels
         speedSlider = new JSlider(100, 3000, 1000);
         speedSlider.setMajorTickSpacing(500);
@@ -156,9 +163,10 @@ public class BSTControls extends JPanel {
         add(resetBtn, "growx");
         add(traversalCombo, "growx");
         
-        // Speed control and download row
+        // Speed control and actions row
         add(speedLabel, "");
-        add(speedSlider, "span 4, growx");
+        add(speedSlider, "span 3, growx");
+        add(loadSampleBtn, "growx");
         add(downloadBtn, "growx");
         
         // Progress and status row
@@ -182,6 +190,9 @@ public class BSTControls extends JPanel {
         
         // Enhanced download functionality
         downloadBtn.addActionListener(e -> downloadAnalysis());
+        
+        // Load sample functionality
+        loadSampleBtn.addActionListener(e -> loadDemo());
         
         speedSlider.addChangeListener(e -> {
             int speed = 3100 - speedSlider.getValue(); // Invert so right = faster
@@ -368,42 +379,32 @@ public class BSTControls extends JPanel {
     
     // Enhanced demo with more comprehensive tree
     public void loadDemo() {
+        // Check if tree already has content
+        if (visualizer.getBSTAlgorithm().getRoot() != null) {
+            int result = JOptionPane.showConfirmDialog(
+                this,
+                "The BST already contains data.\nWould you like to clear it and load the sample?",
+                "Load Sample Tree",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+            );
+            
+            if (result != JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+        
         visualizer.clear();
         
         // Create a more interesting demo tree
         int[] demoValues = {50, 30, 70, 20, 40, 60, 80, 10, 25, 35, 45, 55, 65, 75, 90};
         
-        // Show progress dialog for demo loading
-        JDialog progressDialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(this), 
-            "Loading Demo Tree", true);
-        JProgressBar progressBar = new JProgressBar(0, demoValues.length);
-        progressBar.setStringPainted(true);
-        progressDialog.add(progressBar);
-        progressDialog.setSize(300, 100);
-        progressDialog.setLocationRelativeTo(this);
+        // Load demo values instantly for better user experience
+        for (int value : demoValues) {
+            visualizer.insertValueInstant(value);
+        }
         
-        // Load demo values with a small delay for visual effect
-        Timer demoTimer = new Timer(200, null);
-        final int[] index = {0};
-        
-        demoTimer.addActionListener(e -> {
-            if (index[0] < demoValues.length) {
-                visualizer.insertValueInstant(demoValues[index[0]]);
-                progressBar.setValue(index[0] + 1);
-                progressBar.setString("Inserting " + demoValues[index[0]] + "...");
-                index[0]++;
-            } else {
-                demoTimer.stop();
-                progressDialog.dispose();
-                updateStatus("Demo tree loaded with " + demoValues.length + " nodes");
-                animationProgress.setString("Demo loaded");
-            }
-        });
-        
-        // Show progress dialog and start loading
-        SwingUtilities.invokeLater(() -> {
-            progressDialog.setVisible(true);
-        });
-        demoTimer.start();
+        updateStatus("Sample tree loaded with " + demoValues.length + " nodes - Ready for operations!");
+        animationProgress.setString("Sample loaded");
     }
 }

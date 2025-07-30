@@ -1,6 +1,7 @@
 package com.raven.ds.modules.graph;
 
 import com.raven.ds.core.AnimationEngine;
+import com.raven.ds.core.SimpleAnimationStep;
 import com.raven.swing.Button;
 import net.miginfocom.swing.MigLayout;
 
@@ -27,6 +28,7 @@ public class GraphControls extends JPanel {
     private Button playBtn;
     private Button pauseBtn;
     private Button stepBtn;
+    private Button prevStepBtn;
     private Button resetBtn;
     private JSlider speedSlider;
     private JLabel statusLabel;
@@ -135,6 +137,14 @@ public class GraphControls extends JPanel {
         stepBtn.setPreferredSize(new Dimension(80, 40));
         stepBtn.setToolTipText("Execute next step in animation");
         
+        prevStepBtn = new Button();
+        prevStepBtn.setText("⏮ Prev");
+        prevStepBtn.setBackground(new Color(108, 92, 231)); // Purple
+        prevStepBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        prevStepBtn.setForeground(Color.WHITE);
+        prevStepBtn.setPreferredSize(new Dimension(80, 40));
+        prevStepBtn.setToolTipText("Go back to previous step");
+        
         resetBtn = new Button();
         resetBtn.setText("🔄 Reset");
         resetBtn.setBackground(new Color(149, 165, 166)); // Gray
@@ -183,6 +193,7 @@ public class GraphControls extends JPanel {
         add(new JLabel("Animation:"), "cell 0 2");
         add(playBtn, "cell 1 2");
         add(pauseBtn, "cell 1 2");
+        add(prevStepBtn, "cell 1 2");
         add(stepBtn, "cell 1 2");
         add(resetBtn, "cell 1 2");
         
@@ -276,6 +287,11 @@ public class GraphControls extends JPanel {
             statusLabel.setText("Step executed");
         });
         
+        prevStepBtn.addActionListener(e -> {
+            animationEngine.previousStep();
+            statusLabel.setText("Previous step executed");
+        });
+        
         resetBtn.addActionListener(e -> {
             animationEngine.reset();
             statusLabel.setText("Animation reset");
@@ -296,6 +312,21 @@ public class GraphControls extends JPanel {
                 if (currentStep < totalSteps) {
                     statusLabel.setText("Step " + currentStep + " executed");
                 }
+                
+                // Update step explanation in GraphPanel
+                if (currentStep > 0 && currentStep <= animationEngine.getTotalSteps()) {
+                    // Get the current step (AnimationEngine is 0-indexed, but currentStep is 1-indexed here)
+                    AnimationEngine.AnimationStep step = animationEngine.getStep(currentStep - 1);
+                    if (step != null) {
+                        String stepName = (step instanceof SimpleAnimationStep) ? 
+                            ((SimpleAnimationStep) step).getName() : "Step " + currentStep;
+                        String description = step.getDescription();
+                        visualizer.updateStepExplanation(stepName, description);
+                    }
+                } else {
+                    visualizer.clearStepExplanation();
+                }
+                
                 visualizer.repaint();
             }
             
@@ -310,11 +341,13 @@ public class GraphControls extends JPanel {
                 statusLabel.setText("Algorithm completed!");
                 runDijkstraBtn.setEnabled(true);
                 runBellmanFordBtn.setEnabled(true);
+                visualizer.clearStepExplanation(); // Clear explanations when animation completes
             }
             
             @Override
             public void onReset() {
                 stepLabel.setText("Step: 0/0");
+                visualizer.clearStepExplanation(); // Clear explanations on reset
                 visualizer.repaint();
             }
         });
@@ -322,9 +355,13 @@ public class GraphControls extends JPanel {
     
     private void updateAnimationControls() {
         boolean hasSteps = animationEngine.getTotalSteps() > 0;
+        boolean canGoBack = hasSteps && animationEngine.getCurrentStep() > 0;
+        boolean canGoForward = hasSteps && animationEngine.getCurrentStep() < animationEngine.getTotalSteps();
+        
         playBtn.setEnabled(hasSteps && !animationEngine.isPlaying());
         pauseBtn.setEnabled(hasSteps && animationEngine.isPlaying());
-        stepBtn.setEnabled(hasSteps);
+        stepBtn.setEnabled(canGoForward);
+        prevStepBtn.setEnabled(canGoBack);
         resetBtn.setEnabled(hasSteps);
         
         if (!hasSteps) {

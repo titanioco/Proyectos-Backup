@@ -1,0 +1,28 @@
+# AI Services Properties Template
+# Copy this file to ai.properties and fill in your actual credentials
+
+# OpenAI Configuration (ChatGPT PRO API)
+# Get your API key from: https://platform.openai.com/api-keys
+openai.api.key=sk-your-actual-openai-api-key-here
+openai.model=gpt-4o
+openai.base.url=https://api.openai.com/v1
+openai.max.tokens=2000
+openai.temperature=0.7
+
+# GitHub Models API Configuration (Copilot PRO)
+# Get your token from: https://github.com/settings/tokens
+# Requires: Fine-grained personal access token with Models permission
+github.api.token=github_pat_your-actual-token-here
+github.model=gpt-4o
+github.base.url=https://models.inference.ai.azure.com
+github.max.tokens=2000
+
+# AI Assistant Configuration
+ai.system.prompt=You are an academic assistant specialized in helping university students with their projects, research methodologies, and academic writing. Provide clear, educational responses with practical examples.
+ai.response.timeout=30
+ai.retry.attempts=3
+
+# Feature Toggles
+ai.openai.enabled=false
+ai.github.enabled=false
+ai.fallback.enabled=true

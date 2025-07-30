@@ -154,6 +154,13 @@ public class AnimationEngine {
         return animationSpeed;
     }
     
+    public AnimationStep getStep(int index) {
+        if (index >= 0 && index < steps.size()) {
+            return steps.get(index);
+        }
+        return null;
+    }
+    
     // Interfaces
     public interface AnimationStep {
         void execute();

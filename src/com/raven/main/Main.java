@@ -260,9 +260,9 @@ public class Main extends javax.swing.JFrame {
                         User user = userOpt.get();
                         loading.setVisible(false);
                         
-                        // Open dashboard and close main window
+                        // Open main selection menu and close main window
                         SwingUtilities.invokeLater(() -> {
-                            DashboardFrame.showFor(user);
+                            new com.raven.ui.MainSelectionFrame(user).setVisible(true);
                             Main.this.dispose();
                         });
                     } else {

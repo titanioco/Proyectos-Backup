@@ -8,7 +8,6 @@ import com.raven.service.GoogleAuthService;
 import com.raven.swing.Button;
 import com.raven.swing.MyPasswordField;
 import com.raven.swing.MyTextField;
-import com.raven.ui.DashboardFrame;
 import com.raven.ui.GoogleSignInButton;
 import com.raven.ui.PasswordStrengthLabel;
 import java.awt.Color;
@@ -175,7 +174,10 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
                         if (UserDAO.verifyPassword(password, user.getPasswordHash())) {
                             // Login successful
                             SwingUtilities.invokeLater(() -> {
-                                DashboardFrame.showFor(user);
+                                // Open Main Selection Frame instead of Dashboard directly
+                                com.raven.ui.MainSelectionFrame mainSelection = new com.raven.ui.MainSelectionFrame(user);
+                                mainSelection.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
+                                mainSelection.setVisible(true);
                                 javax.swing.SwingUtilities.getWindowAncestor(PanelLoginAndRegister.this).dispose();
                             });
                         } else {
@@ -381,13 +383,12 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
             loginWindow.dispose();
             System.out.println("✅ Login window closed by helper");
         }
-        // Map to internal User model and open Dashboard
+        // Map to internal User model and open Main Selection Frame
         com.raven.model.User user = new com.raven.model.User(userInfo.getEmail(), userInfo.getName());
-        com.raven.ui.DashboardFrame dashboard = new com.raven.ui.DashboardFrame(user);
-        dashboard.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
-        dashboard.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
-        dashboard.setVisible(true);
-        System.out.println("✅ Dashboard opened by helper for: " + userInfo.getEmail());
+        com.raven.ui.MainSelectionFrame mainSelection = new com.raven.ui.MainSelectionFrame(user);
+        mainSelection.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
+        mainSelection.setVisible(true);
+        System.out.println("✅ Main Selection Frame opened by helper for: " + userInfo.getEmail());
         dashboardOpened = true;
     }
 

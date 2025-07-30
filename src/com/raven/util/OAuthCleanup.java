@@ -35,6 +35,13 @@ public class OAuthCleanup {
      */
     public static boolean cleanupOAuthFiles() {
         System.out.println("🧹 Starting OAuth credential cleanup...");
+        
+        // Check if valid OAuth credentials are configured
+        if (isOAuthProperlyConfigured()) {
+            System.out.println("✅ OAuth is properly configured - skipping cleanup to preserve credentials");
+            return true;
+        }
+        
         boolean success = true;
         int filesRemoved = 0;
         
@@ -116,6 +123,46 @@ public class OAuthCleanup {
             return fileName.startsWith(prefix);
         } else {
             return fileName.equals(pattern);
+        }
+    }
+    
+    /**
+     * Check if OAuth is properly configured with valid credentials
+     * @return true if OAuth credentials are valid, false otherwise
+     */
+    private static boolean isOAuthProperlyConfigured() {
+        try {
+            java.util.Properties props = new java.util.Properties();
+            String currentDir = System.getProperty("user.dir");
+            Path oauthFile = Paths.get(currentDir, "oauth.properties");
+            
+            if (!Files.exists(oauthFile)) {
+                return false;
+            }
+            
+            try (java.io.FileInputStream fis = new java.io.FileInputStream(oauthFile.toFile())) {
+                props.load(fis);
+            }
+            
+            String clientId = props.getProperty("google.oauth.client.id", "").trim();
+            String clientSecret = props.getProperty("google.oauth.client.secret", "").trim();
+            
+            // Check if credentials are not placeholder values
+            boolean hasValidClientId = !clientId.isEmpty() && 
+                                     !clientId.equals("YOUR_CLIENT_ID_HERE") &&
+                                     !clientId.equals("YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com") &&
+                                     clientId.contains(".apps.googleusercontent.com");
+            
+            boolean hasValidClientSecret = !clientSecret.isEmpty() && 
+                                         !clientSecret.equals("YOUR_CLIENT_SECRET_HERE") &&
+                                         !clientSecret.equals("EMPTY (Desktop App)") &&
+                                         clientSecret.startsWith("GOCSPX-");
+            
+            return hasValidClientId && hasValidClientSecret;
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error checking OAuth configuration: " + e.getMessage());
+            return false;
         }
     }
     

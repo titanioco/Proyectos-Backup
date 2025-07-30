@@ -2,14 +2,14 @@ package com.raven.ui;
 
 import com.raven.model.User;
 import com.raven.ds.core.AnimationEngine;
-import com.raven.ds.core.PDFExporter;
 import com.raven.ds.modules.bst.BSTPanel;
 import com.raven.ds.modules.bst.BSTControls;
 import com.raven.ds.modules.graph.GraphPanel;
 import com.raven.ds.modules.graph.GraphControls;
 import com.raven.ds.modules.hashtable.HashTablePanel;
 import com.raven.ds.modules.hashtable.HashTableControls;
-
+import com.raven.ds.modules.heap.BinaryHeapPanel;
+import com.raven.ds.modules.heap.BinaryHeapControls;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -19,6 +19,10 @@ public class DashboardFrame extends JFrame {
     private User currentUser;
     private JTabbedPane mainTabbedPane;
     
+    public DashboardFrame() {
+        this(null);
+    }
+    
     public DashboardFrame(User user) {
         this.currentUser = user;
         initComponents();
@@ -27,8 +31,8 @@ public class DashboardFrame extends JFrame {
     
     private void initComponents() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setTitle("Dashboard - " + currentUser.getFullName());
-        setSize(800, 600);
+        setTitle("Learning Dashboard - " + (currentUser != null ? currentUser.getFullName() : "Guest"));
+        setSize(1000, 700);
         setLocationRelativeTo(null);
         setResizable(true);
     }
@@ -36,30 +40,29 @@ public class DashboardFrame extends JFrame {
     private void setupUI() {
         setLayout(new BorderLayout());
         
-        // Header Panel
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(new Color(52, 73, 94));
         headerPanel.setPreferredSize(new Dimension(0, 80));
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         
-        JLabel titleLabel = new JLabel("Interactive Data Structures Learning Suite");
-        titleLabel.setFont(new Font("sansserif", Font.BOLD, 24));
+        JLabel titleLabel = new JLabel("🎓 LEARNING DASHBOARD", SwingConstants.LEFT);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         titleLabel.setForeground(Color.WHITE);
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
         
         JPanel userPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         userPanel.setOpaque(false);
         
-        JLabel userLabel = new JLabel("Hello, " + currentUser.getFullName());
-        userLabel.setFont(new Font("sansserif", Font.PLAIN, 14));
+        JLabel userLabel = new JLabel("Hello, " + (currentUser != null ? currentUser.getFullName() : "Guest"));
+        userLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         userLabel.setForeground(Color.WHITE);
         
-        JButton exportBtn = new JButton("Export PDF");
-        exportBtn.setBackground(new Color(7, 164, 121)); // Raven green
-        exportBtn.setForeground(Color.WHITE);
-        exportBtn.setFocusPainted(false);
-        exportBtn.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
-        exportBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        exportBtn.addActionListener(e -> exportCurrentTab());
+        JButton backButton = new JButton("← Back to Menu");
+        backButton.setBackground(new Color(231, 76, 60));
+        backButton.setForeground(Color.WHITE);
+        backButton.setFocusPainted(false);
+        backButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        backButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        backButton.addActionListener(e -> goBackToMenu());
         
         JButton logoutButton = new JButton("Logout");
         logoutButton.setBackground(new Color(231, 76, 60));
@@ -76,7 +79,7 @@ public class DashboardFrame extends JFrame {
         
         userPanel.add(userLabel);
         userPanel.add(Box.createHorizontalStrut(15));
-        userPanel.add(exportBtn);
+        userPanel.add(backButton);
         userPanel.add(Box.createHorizontalStrut(10));
         userPanel.add(logoutButton);
         userPanel.add(Box.createHorizontalStrut(20));
@@ -86,7 +89,7 @@ public class DashboardFrame extends JFrame {
         
         // Create tabbed pane for data structures
         mainTabbedPane = new JTabbedPane();
-        mainTabbedPane.setFont(new Font("sansserif", Font.PLAIN, 14));
+        mainTabbedPane.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         
         // Create data structure tabs
         createDataStructureTabs(mainTabbedPane);
@@ -98,7 +101,7 @@ public class DashboardFrame extends JFrame {
         
         JLabel footerLabel = new JLabel("Interactive Data Structures Learning Suite - College Edition");
         footerLabel.setForeground(Color.WHITE);
-        footerLabel.setFont(new Font("sansserif", Font.PLAIN, 12));
+        footerLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         footerPanel.add(footerLabel);
         
         add(headerPanel, BorderLayout.NORTH);
@@ -129,6 +132,14 @@ public class DashboardFrame extends JFrame {
         }
     }
     
+    private void goBackToMenu() {
+        SwingUtilities.invokeLater(() -> {
+            MainSelectionFrame mainMenu = new MainSelectionFrame(currentUser);
+            mainMenu.setVisible(true);
+            this.dispose();
+        });
+    }
+    
     private void createDataStructureTabs(JTabbedPane tabbedPane) {
         // Tab 1: Binary Search Tree
         createBSTTab(tabbedPane);
@@ -147,130 +158,181 @@ public class DashboardFrame extends JFrame {
     }
     
     private void createBSTTab(JTabbedPane tabbedPane) {
-        // Create animation engine for BST
-        AnimationEngine bstEngine = new AnimationEngine();
-        
-        // Create BST panel and controls
-        BSTPanel bstPanel = new BSTPanel(bstEngine);
-        BSTControls bstControls = new BSTControls(bstPanel, bstEngine);
-        
-        // Create main BST container
-        JPanel bstContainer = new JPanel(new BorderLayout());
-        bstContainer.add(bstPanel, BorderLayout.CENTER);
-        bstContainer.add(bstControls, BorderLayout.SOUTH);
-        
-        // Add demo button
-        JPanel demoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton demoBtn = new JButton("Load Demo Tree");
-        demoBtn.setBackground(new Color(7, 164, 121));
-        demoBtn.setForeground(Color.WHITE);
-        demoBtn.setFocusPainted(false);
-        demoBtn.addActionListener(e -> bstControls.loadDemo());
-        demoPanel.add(demoBtn);
-        demoPanel.setBackground(Color.WHITE);
-        
-        bstContainer.add(demoPanel, BorderLayout.NORTH);
-        
-        tabbedPane.addTab("BST", bstContainer);
-    }
-    
-    private void createGraphTab(JTabbedPane tabbedPane) {
-        // Create animation engine for Graph
-        AnimationEngine graphEngine = new AnimationEngine();
-        
-        // Create Graph panel and controls
-        GraphPanel graphPanel = new GraphPanel(graphEngine);
-        GraphControls graphControls = new GraphControls(graphPanel, graphEngine);
-        
-        // Create main Graph container
-        JPanel graphContainer = new JPanel(new BorderLayout());
-        graphContainer.add(graphPanel, BorderLayout.CENTER);
-        graphContainer.add(graphControls, BorderLayout.SOUTH);
-        
-        // Add demo button
-        JPanel demoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton demoBtn = new JButton("Load Demo Graph");
-        demoBtn.setBackground(new Color(7, 164, 121));
-        demoBtn.setForeground(Color.WHITE);
-        demoBtn.setFocusPainted(false);
-        demoBtn.addActionListener(e -> graphControls.loadDemo());
-        demoPanel.add(demoBtn);
-        demoPanel.setBackground(Color.WHITE);
-        
-        graphContainer.add(demoPanel, BorderLayout.NORTH);
-        
-        tabbedPane.addTab("Graph (Dijkstra)", graphContainer);
-    }
-    
-    private void createHashTableTab(JTabbedPane tabbedPane) {
-        // Create animation engine for Hash Table
-        AnimationEngine hashEngine = new AnimationEngine();
-        
-        // Create Hash Table panel and controls
-        HashTablePanel hashPanel = new HashTablePanel(hashEngine);
-        HashTableControls hashControls = new HashTableControls(hashPanel, hashEngine);
-        
-        // Create main Hash Table container
-        JPanel hashContainer = new JPanel(new BorderLayout());
-        hashContainer.add(hashPanel, BorderLayout.CENTER);
-        hashContainer.add(hashControls, BorderLayout.SOUTH);
-        
-        // Add demo button
-        JPanel demoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton demoBtn = new JButton("Load Demo Data");
-        demoBtn.setBackground(new Color(7, 164, 121));
-        demoBtn.setForeground(Color.WHITE);
-        demoBtn.setFocusPainted(false);
-        demoBtn.addActionListener(e -> hashControls.loadDemo());
-        demoPanel.add(demoBtn);
-        demoPanel.setBackground(Color.WHITE);
-        
-        hashContainer.add(demoPanel, BorderLayout.NORTH);
-        
-        tabbedPane.addTab("Hash Table", hashContainer);
-    }
-    
-    private void createPlaceholderTab(JTabbedPane tabbedPane, String title, String description) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
         
-        JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
-        titleLabel.setFont(new Font("sansserif", Font.BOLD, 24));
-        titleLabel.setForeground(new Color(52, 73, 94));
+        // Create animation engine for BST
+        AnimationEngine animationEngine = new AnimationEngine();
         
-        JLabel descLabel = new JLabel("<html><center>" + description + "<br><br>Coming soon!</center></html>", SwingConstants.CENTER);
-        descLabel.setFont(new Font("sansserif", Font.PLAIN, 16));
-        descLabel.setForeground(new Color(85, 85, 85));
+        // Create BST visualization components
+        BSTPanel bstPanel = new BSTPanel(animationEngine);
+        BSTControls bstControls = new BSTControls(bstPanel, animationEngine);
         
-        panel.add(titleLabel, BorderLayout.CENTER);
-        panel.add(descLabel, BorderLayout.SOUTH);
+        // Create bottom panel to hold controls and info
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBackground(Color.WHITE);
         
-        tabbedPane.addTab(title, panel);
+        // Add info panel
+        JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        infoPanel.setBackground(Color.WHITE);
+        JLabel infoLabel = new JLabel("<html><center><b>🌳 Binary Search Tree - Interactive Learning</b><br>" +
+            "Use the controls below to insert, delete, search, and traverse the tree.<br>" +
+            "Click 'Play' to see step-by-step animations!</center></html>");
+        infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        infoLabel.setForeground(new Color(85, 85, 85));
+        infoPanel.add(infoLabel);
+        
+        // Setup layout - main content at center, controls at bottom
+        bottomPanel.add(infoPanel, BorderLayout.NORTH);
+        bottomPanel.add(bstControls, BorderLayout.SOUTH);
+        
+        panel.add(bstPanel, BorderLayout.CENTER);
+        panel.add(bottomPanel, BorderLayout.SOUTH);
+        
+        tabbedPane.addTab("BST", panel);
     }
     
-    private void exportCurrentTab() {
-        int selectedIndex = mainTabbedPane.getSelectedIndex();
-        String tabTitle = mainTabbedPane.getTitleAt(selectedIndex);
-        Component selectedComponent = mainTabbedPane.getSelectedComponent();
+    private void createGraphTab(JTabbedPane tabbedPane) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
         
-        if (selectedComponent instanceof JPanel) {
-            JPanel panel = (JPanel) selectedComponent;
-            String content = "This PDF contains the visualization and explanation for " + tabTitle + 
-                           ". The interactive data structures learning suite helps college students " +
-                           "understand algorithms through step-by-step animations.";
+        // Create animation engine for Graph
+        AnimationEngine animationEngine = new AnimationEngine();
+        
+        // Create Graph visualization components
+        GraphPanel graphPanel = new GraphPanel(animationEngine);
+        GraphControls graphControls = new GraphControls(graphPanel, animationEngine);
+        
+        // Create bottom panel to hold controls and info
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBackground(Color.WHITE);
+        
+        // Add info panel
+        JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        infoPanel.setBackground(Color.WHITE);
+        JLabel infoLabel = new JLabel("<html><center><b>🕸️ Graph (Dijkstra) - Interactive Learning</b><br>" +
+            "Use the controls below to create graphs and run Dijkstra's shortest path algorithm.<br>" +
+            "Click 'Play' to see step-by-step path finding animations!</center></html>");
+        infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        infoLabel.setForeground(new Color(85, 85, 85));
+        infoPanel.add(infoLabel);
+        
+        // Setup layout - main content at center, controls at bottom
+        bottomPanel.add(infoPanel, BorderLayout.NORTH);
+        bottomPanel.add(graphControls, BorderLayout.SOUTH);
+        
+        panel.add(graphPanel, BorderLayout.CENTER);
+        panel.add(bottomPanel, BorderLayout.SOUTH);
+        
+        tabbedPane.addTab("Graph (Dijkstra)", panel);
+    }
+    
+    private void createHashTableTab(JTabbedPane tabbedPane) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+        
+        // Create animation engine for Hash Table
+        AnimationEngine animationEngine = new AnimationEngine();
+        
+        // Create Hash Table visualization components
+        HashTablePanel hashTablePanel = new HashTablePanel(animationEngine);
+        HashTableControls hashTableControls = new HashTableControls(hashTablePanel, animationEngine);
+        
+        // Create bottom panel to hold controls and info
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setBackground(Color.WHITE);
+        
+        // Add info panel
+        JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        infoPanel.setBackground(Color.WHITE);
+        JLabel infoLabel = new JLabel("<html><center><b>📊 Hash Table - Interactive Learning</b><br>" +
+            "Use the controls below to insert, search, and delete key-value pairs.<br>" +
+            "Explore different hash functions and collision resolution strategies!</center></html>");
+        infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        infoLabel.setForeground(new Color(85, 85, 85));
+        infoPanel.add(infoLabel);
+        
+        // Setup layout - main content at center, controls at bottom
+        bottomPanel.add(infoPanel, BorderLayout.NORTH);
+        bottomPanel.add(hashTableControls, BorderLayout.SOUTH);
+        
+        panel.add(hashTablePanel, BorderLayout.CENTER);
+        panel.add(bottomPanel, BorderLayout.SOUTH);
+        
+        tabbedPane.addTab("Hash Table", panel);
+    }
+    
+    private void createPlaceholderTab(JTabbedPane tabbedPane, String title, String description) {
+        if (title.equals("Binary Heap")) {
+            // Create full implementation for Binary Heap
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.setBackground(Color.WHITE);
             
-            PDFExporter.exportToPDF(panel, tabTitle, content);
+            // Create animation engine for Binary Heap
+            AnimationEngine animationEngine = new AnimationEngine();
+            
+            // Create Binary Heap visualization components
+            BinaryHeapPanel heapPanel = new BinaryHeapPanel(animationEngine);
+            BinaryHeapControls heapControls = new BinaryHeapControls(heapPanel, animationEngine);
+            
+            // Create bottom panel to hold controls and info
+            JPanel bottomPanel = new JPanel(new BorderLayout());
+            bottomPanel.setBackground(Color.WHITE);
+            
+            // Add info panel
+            JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            infoPanel.setBackground(Color.WHITE);
+            JLabel infoLabel = new JLabel("<html><center><b>🌲 Binary Heap - Interactive Learning</b><br>" +
+                "Use the controls below to insert, extract, and build heaps with visualization.<br>" +
+                "Toggle between Min and Max heap modes!</center></html>");
+            infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            infoLabel.setForeground(new Color(85, 85, 85));
+            infoPanel.add(infoLabel);
+            
+            // Setup layout - main content at center, controls at bottom
+            bottomPanel.add(infoPanel, BorderLayout.NORTH);
+            bottomPanel.add(heapControls, BorderLayout.SOUTH);
+            
+            panel.add(heapPanel, BorderLayout.CENTER);
+            panel.add(bottomPanel, BorderLayout.SOUTH);
+            
+            tabbedPane.addTab(title, panel);
         } else {
-            JOptionPane.showMessageDialog(this, 
-                "Cannot export this tab to PDF", 
-                "Export Error", 
-                JOptionPane.WARNING_MESSAGE);
+            // Create placeholder for other data structures
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.setBackground(Color.WHITE);
+            panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+            
+            JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
+            titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+            titleLabel.setForeground(new Color(52, 73, 94));
+            
+            JLabel descLabel = new JLabel("<html><center>" + description + "<br><br><b>Implementation coming soon!</b><br><br>" +
+                "This data structure will include:<br>" +
+                "• Interactive visualization<br>" +
+                "• Step-by-step animations<br>" +
+                "• Educational explanations<br>" +
+                "• Export capabilities</center></html>", SwingConstants.CENTER);
+            descLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+            descLabel.setForeground(new Color(85, 85, 85));
+            
+            panel.add(titleLabel, BorderLayout.CENTER);
+            panel.add(descLabel, BorderLayout.SOUTH);
+            
+            tabbedPane.addTab(title, panel);
         }
     }
     
     public static void showFor(User user) {
         SwingUtilities.invokeLater(() -> {
             new DashboardFrame(user).setVisible(true);
+        });
+    }
+    
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            DashboardFrame frame = new DashboardFrame();
+            frame.setVisible(true);
         });
     }
 }
