@@ -26,7 +26,7 @@ public class GoogleAuthService {
 
     public GoogleAuthService(String clientId, String clientSecret) throws Exception {
         // Always use desktop app mode for Swing applications - simpler and more stable
-        System.out.println("🔧 Initializing Google Auth Service for Desktop Application");
+        System.out.println("INIT: Initializing Google Auth Service for Desktop Application");
         
         this.flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP, JSON,
@@ -43,8 +43,8 @@ public class GoogleAuthService {
             .setCallbackPath("/oauth2callback")
             .build();
             
-        System.out.println("✅ Google Auth Service initialized successfully");
-        System.out.println("📍 Callback URL: http://127.0.0.1:8080/oauth2callback");
+        System.out.println("SUCCESS: Google Auth Service initialized successfully");
+        System.out.println("CALLBACK: Callback URL: http://127.0.0.1:8080/oauth2callback");
     }
 
     public synchronized GoogleUserInfo authorize() throws Exception {
@@ -54,7 +54,7 @@ public class GoogleAuthService {
         
         isAuthorizing = true;
         try {
-            System.out.println("🚀 Starting OAuth authorization flow...");
+            System.out.println("START: Starting OAuth authorization flow...");
             
             // Use the standard installed app flow - most reliable for desktop apps
             AuthorizationCodeInstalledApp installedApp = new AuthorizationCodeInstalledApp(flow, receiver);
@@ -74,13 +74,13 @@ public class GoogleAuthService {
                 throw new Exception("Failed to obtain valid access token");
             }
             
-            System.out.println("✅ OAuth credential obtained successfully");
+            System.out.println("SUCCESS: OAuth credential obtained successfully");
             
             // Get user info from Google API
             return getUserInfo(credential);
             
         } catch (Exception e) {
-            System.err.println("❌ OAuth authorization failed: " + e.getMessage());
+            System.err.println("ERROR: OAuth authorization failed: " + e.getMessage());
             throw e;
         } finally {
             isAuthorizing = false;
@@ -95,7 +95,7 @@ public class GoogleAuthService {
         
         GenericUrl url = new GenericUrl("https://www.googleapis.com/oauth2/v2/userinfo");
         
-        System.out.println("🌐 Fetching user info from Google API...");
+        System.out.println("API: Fetching user info from Google API...");
         
         com.google.api.client.http.HttpResponse response = requestFactory.buildGetRequest(url).execute();
         
@@ -118,7 +118,7 @@ public class GoogleAuthService {
             throw new Exception("Email not found in OAuth response");
         }
         
-        System.out.println("✅ User info retrieved: " + name + " (" + email + ")");
+        System.out.println("SUCCESS: User info retrieved: " + name + " (" + email + ")");
         return new GoogleUserInfo(email, name, id);
     }
     /**
@@ -127,7 +127,7 @@ public class GoogleAuthService {
      */
     public GoogleUserInfo exchangeCodeForUserInfo(String code) throws Exception {
         try {
-            System.out.println("🔄 Exchanging authorization code for tokens...");
+            System.out.println("EXCHANGE: Exchanging authorization code for tokens...");
             
             // Exchange authorization code for tokens
             TokenResponse tokenResponse = flow.newTokenRequest(code)
@@ -140,11 +140,11 @@ public class GoogleAuthService {
                 throw new Exception("Access token is null - code exchange failed");
             }
             
-            System.out.println("✅ Token exchange successful");
+            System.out.println("SUCCESS: Token exchange successful");
             return getUserInfo(credential);
             
         } catch (Exception e) {
-            System.err.println("❌ Code exchange failed: " + e.getMessage());
+            System.err.println("ERROR: Code exchange failed: " + e.getMessage());
             throw e;
         }
     }
@@ -156,9 +156,9 @@ public class GoogleAuthService {
         if (receiver != null) {
             try {
                 receiver.stop();
-                System.out.println("✅ OAuth receiver stopped");
+                System.out.println("SUCCESS: OAuth receiver stopped");
             } catch (Exception e) {
-                System.out.println("ℹ️ Receiver cleanup: " + e.getMessage());
+                System.out.println("INFO: Receiver cleanup: " + e.getMessage());
             }
         }
         isAuthorizing = false;

@@ -53,6 +53,14 @@ public class DashboardFrame extends JFrame {
         userLabel.setFont(new Font("sansserif", Font.PLAIN, 14));
         userLabel.setForeground(Color.WHITE);
         
+        JButton backButton = new JButton("← Back to Menu");
+        backButton.setBackground(new Color(46, 204, 113));
+        backButton.setForeground(Color.WHITE);
+        backButton.setFocusPainted(false);
+        backButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        backButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        backButton.addActionListener(e -> goBackToMenu());
+        
         JButton exportBtn = new JButton("Export PDF");
         exportBtn.setBackground(new Color(7, 164, 121)); // Raven green
         exportBtn.setForeground(Color.WHITE);
@@ -76,6 +84,8 @@ public class DashboardFrame extends JFrame {
         
         userPanel.add(userLabel);
         userPanel.add(Box.createHorizontalStrut(15));
+        userPanel.add(backButton);
+        userPanel.add(Box.createHorizontalStrut(10));
         userPanel.add(exportBtn);
         userPanel.add(Box.createHorizontalStrut(10));
         userPanel.add(logoutButton);
@@ -116,17 +126,19 @@ public class DashboardFrame extends JFrame {
         );
         
         if (result == JOptionPane.YES_OPTION) {
-            // Close dashboard window
+            // Close current window
             dispose();
-            // Restart the main application to show login/register UI
-            SwingUtilities.invokeLater(() -> {
-                try {
-                    new com.raven.main.Main().setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+            // Use SessionManager to return to original login screen
+            com.raven.service.SessionManager.getInstance().logout();
         }
+    }
+    
+    private void goBackToMenu() {
+        SwingUtilities.invokeLater(() -> {
+            this.dispose();
+            // Use SessionManager to return to existing MainSelectionFrame
+            com.raven.service.SessionManager.getInstance().showMainSelectionFrame();
+        });
     }
     
     private void createDataStructureTabs(JTabbedPane tabbedPane) {

@@ -74,6 +74,13 @@ public class Main extends javax.swing.JFrame {
             System.out.println("⚠️ Main window instance is null, cannot close");
         }
     }
+    
+    /**
+     * Get the login panel for OAuth state management
+     */
+    public PanelLoginAndRegister getLoginPanel() {
+        return loginAndRegister;
+    }
 
     private void init() {
         layout = new MigLayout("fill, insets 0");
