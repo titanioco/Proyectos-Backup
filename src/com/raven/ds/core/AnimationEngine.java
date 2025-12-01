@@ -154,6 +154,13 @@ public class AnimationEngine {
         return animationSpeed;
     }
     
+    public String getCurrentStepDescription() {
+        if (currentStep > 0 && currentStep <= steps.size()) {
+            return steps.get(currentStep - 1).getDescription();
+        }
+        return "";
+    }
+    
     // Interfaces
     public interface AnimationStep {
         void execute();

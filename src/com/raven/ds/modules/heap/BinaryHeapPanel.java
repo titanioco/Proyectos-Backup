@@ -24,19 +24,6 @@ public class BinaryHeapPanel extends JPanel {
         setPreferredSize(new Dimension(800, 600));
         setBorder(BorderFactory.createTitledBorder("Binary Heap Visualization"));
     }
-    
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        
-        drawTitle(g2d);
-        drawHeap(g2d);
-        drawArrayRepresentation(g2d);
-        drawInstructions(g2d);
-    }
-    
     private void drawTitle(Graphics2D g2d) {
         g2d.setColor(new Color(52, 73, 94));
         g2d.setFont(titleFont);

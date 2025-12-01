@@ -1,4 +1,4 @@
-package com.raven.ds.modules.hashtable;
+package com.raven.ds.modules.dynamicarray;
 
 import com.raven.ds.core.AnimationEngine;
 import com.raven.swing.Button;
@@ -8,16 +8,15 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Control panel for Hash Table operations
+ * Control panel for Dynamic Array operations
  */
-public class HashTableControls extends JPanel {
-    private HashTablePanel visualizer;
+public class DynamicArrayControls extends JPanel {
+    private DynamicArrayPanel visualizer;
     private AnimationEngine animationEngine;
     
-    private JTextField keyField;
     private JTextField valueField;
-    private Button insertBtn;
-    private Button searchBtn;
+    private JTextField indexField;
+    private Button addBtn;
     private Button removeBtn;
     private Button clearBtn;
     private Button loadSampleBtn;
@@ -28,11 +27,9 @@ public class HashTableControls extends JPanel {
     private JSlider speedSlider;
     private JLabel statusLabel;
     private JLabel stepLabel;
-    private JComboBox<HashTableAlgorithm.HashFunction> hashFunctionCombo;
-    private JSpinner capacitySpinner;
-    private Button resizeBtn;
+    private JProgressBar animationProgress;
     
-    public HashTableControls(HashTablePanel visualizer, AnimationEngine animationEngine) {
+    public DynamicArrayControls(DynamicArrayPanel visualizer, AnimationEngine animationEngine) {
         this.visualizer = visualizer;
         this.animationEngine = animationEngine;
         
@@ -43,42 +40,37 @@ public class HashTableControls extends JPanel {
     
     private void initComponents() {
         // Input fields
-        keyField = new JTextField(10);
-        keyField.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        keyField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(52, 73, 94), 1),
-            BorderFactory.createEmptyBorder(5, 8, 5, 8)
-        ));
-        keyField.setToolTipText("Enter key");
-        
         valueField = new JTextField(10);
         valueField.setFont(new Font("SansSerif", Font.PLAIN, 14));
         valueField.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(52, 73, 94), 1),
             BorderFactory.createEmptyBorder(5, 8, 5, 8)
         ));
-        valueField.setToolTipText("Enter value");
+        valueField.setToolTipText("Enter value to add");
+        
+        indexField = new JTextField(5);
+        indexField.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        indexField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(52, 73, 94), 1),
+            BorderFactory.createEmptyBorder(5, 8, 5, 8)
+        ));
+        indexField.setToolTipText("Enter index to remove");
         
         // Operation buttons
-        insertBtn = new Button();
-        insertBtn.setText("Insert");
-        insertBtn.setBackground(new Color(7, 164, 121)); // Raven green
-        insertBtn.setToolTipText("Insert key-value pair");
-        
-        searchBtn = new Button();
-        searchBtn.setText("Search");
-        searchBtn.setBackground(new Color(52, 152, 219)); // Blue
-        searchBtn.setToolTipText("Search by key");
+        addBtn = new Button();
+        addBtn.setText("Add");
+        addBtn.setBackground(new Color(39, 174, 96)); // Green
+        addBtn.setToolTipText("Add value to array");
         
         removeBtn = new Button();
         removeBtn.setText("Remove");
         removeBtn.setBackground(new Color(231, 76, 60)); // Red
-        removeBtn.setToolTipText("Remove by key");
+        removeBtn.setToolTipText("Remove value at index");
         
         clearBtn = new Button();
         clearBtn.setText("Clear");
         clearBtn.setBackground(new Color(149, 165, 166)); // Gray
-        clearBtn.setToolTipText("Clear hash table");
+        clearBtn.setToolTipText("Clear entire array");
         
         loadSampleBtn = new Button();
         loadSampleBtn.setText("Sample");
@@ -89,18 +81,22 @@ public class HashTableControls extends JPanel {
         playBtn = new Button();
         playBtn.setText("▶ Play");
         playBtn.setBackground(new Color(46, 204, 113)); // Green
+        playBtn.setToolTipText("Play animation sequence");
         
         pauseBtn = new Button();
         pauseBtn.setText("⏸ Pause");
         pauseBtn.setBackground(new Color(241, 196, 15)); // Yellow
+        pauseBtn.setToolTipText("Pause current animation");
         
         stepBtn = new Button();
         stepBtn.setText("⏭ Step");
         stepBtn.setBackground(new Color(52, 152, 219)); // Blue
+        stepBtn.setToolTipText("Execute next animation step");
         
         resetBtn = new Button();
         resetBtn.setText("🔄 Reset");
         resetBtn.setBackground(new Color(149, 165, 166)); // Gray
+        resetBtn.setToolTipText("Reset animation to beginning");
         
         // Speed control
         speedSlider = new JSlider(50, 3000, 1000);
@@ -110,33 +106,25 @@ public class HashTableControls extends JPanel {
         speedSlider.setPaintLabels(true);
         speedSlider.setBackground(Color.WHITE);
         
-        // Hash function selector
-        hashFunctionCombo = new JComboBox<>(HashTableAlgorithm.HashFunction.values());
-        hashFunctionCombo.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        hashFunctionCombo.setToolTipText("Select hash function");
-        
-        // Capacity control
-        capacitySpinner = new JSpinner(new SpinnerNumberModel(16, 4, 64, 4));
-        capacitySpinner.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        capacitySpinner.setToolTipText("Initial capacity");
-        
-        resizeBtn = new Button();
-        resizeBtn.setText("Resize");
-        resizeBtn.setBackground(new Color(241, 196, 15)); // Yellow
-        resizeBtn.setToolTipText("Resize table");
-        
         // Status labels
-        statusLabel = new JLabel("Ready for hash table operations");
+        statusLabel = new JLabel("Ready for array operations");
         statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
         statusLabel.setForeground(new Color(52, 73, 94));
         
         stepLabel = new JLabel("Step: 0/0");
         stepLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
         
+        // Animation progress bar
+        animationProgress = new JProgressBar(0, 100);
+        animationProgress.setStringPainted(true);
+        animationProgress.setString("Ready");
+        animationProgress.setBackground(Color.WHITE);
+        animationProgress.setForeground(new Color(52, 152, 219));
+        
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createTitledBorder(
             BorderFactory.createLineBorder(new Color(52, 73, 94), 2),
-            "Hash Table Controls",
+            "Dynamic Array Controls",
             0, 0, new Font("SansSerif", Font.BOLD, 14),
             new Color(52, 73, 94)
         ));
@@ -146,31 +134,29 @@ public class HashTableControls extends JPanel {
         setLayout(new MigLayout("fillx, wrap 6", "[grow][grow][grow][grow][grow][grow]", "[]5[]5[]5[]"));
         
         // Input row
-        add(new JLabel("Key:"), "");
-        add(keyField, "growx");
         add(new JLabel("Value:"), "");
         add(valueField, "growx");
-        add(insertBtn, "growx");
-        add(searchBtn, "growx");
-        
-        // Operation buttons row
+        add(new JLabel("Index:"), "");
+        add(indexField, "growx");
+        add(addBtn, "growx");
         add(removeBtn, "growx");
-        add(clearBtn, "growx");
-        add(loadSampleBtn, "growx");
+        
+        // Animation controls row
+        add(new JLabel("Animation:"), "");
         add(playBtn, "growx");
         add(pauseBtn, "growx");
         add(stepBtn, "growx");
-        
-        // Config row
         add(resetBtn, "growx");
-        add(hashFunctionCombo, "span 2, growx");
-        add(capacitySpinner, "growx");
-        add(resizeBtn, "growx");
-        add(new JLabel(""), "growx"); // Spacer
+        add(clearBtn, "growx");
         
-        // Speed row
-        add(new JLabel("Speed:"), "");
-        add(speedSlider, "span 5, growx");
+        // Speed control row
+        add(loadSampleBtn, "growx");
+        add(new JLabel("Speed:"), "right");
+        add(speedSlider, "span 4, growx");
+        
+        // Progress row
+        add(new JLabel("Progress:"), "");
+        add(animationProgress, "span 5, growx");
         
         // Status row
         add(statusLabel, "span 4, growx");
@@ -178,96 +164,62 @@ public class HashTableControls extends JPanel {
     }
     
     private void setupListeners() {
-        insertBtn.addActionListener(e -> {
-            String key = keyField.getText().trim();
-            String value = valueField.getText().trim();
+        addBtn.addActionListener(e -> {
+            String valueStr = valueField.getText().trim();
+            if (valueStr.isEmpty()) return;
             
-            if (key.isEmpty() || value.isEmpty()) {
-                JOptionPane.showMessageDialog(this, 
-                    "Please enter both key and value", 
-                    "Input Required", 
-                    JOptionPane.WARNING_MESSAGE);
-                return;
+            try {
+                int value = Integer.parseInt(valueStr);
+                visualizer.add(value);
+                statusLabel.setText("Adding: " + value);
+                updateAnimationControls();
+                valueField.setText("");
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid integer");
             }
-            
-            visualizer.insert(key, value);
-            statusLabel.setText("Inserting: " + key + " → " + value);
-            updateAnimationControls();
-            
-            // Clear fields after successful insert
-            keyField.setText("");
-            valueField.setText("");
-        });
-        
-        searchBtn.addActionListener(e -> {
-            String key = keyField.getText().trim();
-            
-            if (key.isEmpty()) {
-                JOptionPane.showMessageDialog(this, 
-                    "Please enter a key to search", 
-                    "Input Required", 
-                    JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            
-            visualizer.search(key);
-            statusLabel.setText("Searching for key: " + key);
-            updateAnimationControls();
         });
         
         removeBtn.addActionListener(e -> {
-            String key = keyField.getText().trim();
+            String indexStr = indexField.getText().trim();
+            if (indexStr.isEmpty()) return;
             
-            if (key.isEmpty()) {
-                JOptionPane.showMessageDialog(this, 
-                    "Please enter a key to remove", 
-                    "Input Required", 
-                    JOptionPane.WARNING_MESSAGE);
-                return;
+            try {
+                int index = Integer.parseInt(indexStr);
+                if (index < 0 || index >= visualizer.getArraySize()) {
+                     JOptionPane.showMessageDialog(this, "Index out of bounds");
+                     return;
+                }
+                visualizer.remove(index);
+                statusLabel.setText("Removing at index: " + index);
+                updateAnimationControls();
+                indexField.setText("");
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid index");
             }
-            
-            visualizer.remove(key);
-            statusLabel.setText("Removing key: " + key);
-            updateAnimationControls();
-            
-            keyField.setText("");
         });
         
         clearBtn.addActionListener(e -> {
             visualizer.clear();
             animationEngine.clearSteps();
-            statusLabel.setText("Hash table cleared");
+            statusLabel.setText("Array cleared");
             updateAnimationControls();
         });
         
         loadSampleBtn.addActionListener(e -> {
             visualizer.loadSample();
-            statusLabel.setText("Sample data loaded");
+            statusLabel.setText("Sample loaded");
             updateAnimationControls();
-        });
-        
-        hashFunctionCombo.addActionListener(e -> {
-            HashTableAlgorithm.HashFunction selected = 
-                (HashTableAlgorithm.HashFunction) hashFunctionCombo.getSelectedItem();
-            visualizer.setHashFunction(selected);
-            statusLabel.setText("Hash function changed to: " + selected.name());
-        });
-        
-        resizeBtn.addActionListener(e -> {
-            int newCapacity = (Integer) capacitySpinner.getValue();
-            visualizer.resize(newCapacity);
-            statusLabel.setText("Resized to capacity: " + newCapacity);
         });
         
         // Animation controls
         playBtn.addActionListener(e -> {
             animationEngine.play();
-            statusLabel.setText("Playing animation...");
+            statusLabel.setText("Playing...");
         });
         
         pauseBtn.addActionListener(e -> {
             animationEngine.pause();
-            statusLabel.setText("Animation paused");
+            statusLabel.setText("Paused");
         });
         
         stepBtn.addActionListener(e -> {
@@ -277,7 +229,7 @@ public class HashTableControls extends JPanel {
         
         resetBtn.addActionListener(e -> {
             animationEngine.reset();
-            statusLabel.setText("Animation reset");
+            statusLabel.setText("Reset");
             updateAnimationControls();
         });
         
@@ -285,22 +237,17 @@ public class HashTableControls extends JPanel {
             animationEngine.setSpeed(speedSlider.getValue());
         });
         
-        // Enter key support for input fields
-        keyField.addActionListener(e -> {
-            if (!valueField.getText().trim().isEmpty()) {
-                insertBtn.doClick();
-            } else {
-                valueField.requestFocus();
-            }
-        });
+        valueField.addActionListener(e -> addBtn.doClick());
         
-        valueField.addActionListener(e -> insertBtn.doClick());
-        
-        // Animation engine listeners
         animationEngine.addListener(new AnimationEngine.AnimationListener() {
             @Override
             public void onStepChanged(int currentStep, int totalSteps) {
                 stepLabel.setText("Step: " + currentStep + "/" + totalSteps);
+                if (totalSteps > 0) {
+                    int progress = (int) ((double) currentStep / totalSteps * 100);
+                    animationProgress.setValue(progress);
+                    animationProgress.setString("Step " + currentStep + "/" + totalSteps + " (" + progress + "%)");
+                }
                 visualizer.repaint();
             }
             
@@ -308,16 +255,26 @@ public class HashTableControls extends JPanel {
             public void onPlayStateChanged(boolean isPlaying) {
                 playBtn.setEnabled(!isPlaying);
                 pauseBtn.setEnabled(isPlaying);
+                stepBtn.setEnabled(!isPlaying);
+                
+                addBtn.setEnabled(!isPlaying);
+                removeBtn.setEnabled(!isPlaying);
+                clearBtn.setEnabled(!isPlaying);
+                loadSampleBtn.setEnabled(!isPlaying);
             }
             
             @Override
             public void onAnimationComplete() {
                 statusLabel.setText("Operation completed!");
+                animationProgress.setValue(100);
+                animationProgress.setString("Complete");
             }
             
             @Override
             public void onReset() {
                 stepLabel.setText("Step: 0/0");
+                animationProgress.setValue(0);
+                animationProgress.setString("Ready");
                 visualizer.repaint();
             }
         });
@@ -333,6 +290,6 @@ public class HashTableControls extends JPanel {
     
     public void loadDemo() {
         visualizer.loadSample();
-        statusLabel.setText("Demo data loaded - try different operations!");
+        statusLabel.setText("Demo data loaded");
     }
 }

@@ -27,6 +27,11 @@ public class MainSelectionFrame extends JFrame {
     private JLabel titleLabel;
     private User currentUser;
     
+    // Singleton references to sub-frames
+    private com.raven.accountability.ui.AccountabilityManagementFrame accountabilityFrame;
+    private DashboardFrame dashboardFrame;
+    private com.raven.ui.AIAssistantFrame aiFrame;
+    
     public MainSelectionFrame() {
         this(null);
     }
@@ -57,9 +62,10 @@ public class MainSelectionFrame extends JFrame {
         JPanel mainContainer = new JPanel(new BorderLayout());
         mainContainer.setBackground(new Color(245, 245, 245));
         
-        JPanel titlePanel = new JPanel();
+        JPanel titlePanel = new JPanel(new BorderLayout()); // Changed to BorderLayout for better positioning
         titlePanel.setBackground(new Color(52, 73, 94));
         titlePanel.setPreferredSize(new Dimension(1200, 100));
+        titlePanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
         
         titleLabel = new JLabel("Universidad Nacional - Proyectos", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
@@ -67,14 +73,39 @@ public class MainSelectionFrame extends JFrame {
         titleLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         titleLabel.setToolTipText(currentUser != null && currentUser.getUserType() == User.UserType.ADMIN ? 
                                 "Click for Admin Panel" : "Welcome to the University Project Manager");
-        titlePanel.add(titleLabel);
+        
+        // Center the title
+        titlePanel.add(titleLabel, BorderLayout.CENTER);
+        
+        // User info and logout button panel
+        JPanel rightHeaderPanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 15, 35));
+        rightHeaderPanel.setOpaque(false);
         
         if (currentUser != null) {
-            JLabel userLabel = new JLabel("Welcome: " + currentUser.getFullName(), SwingConstants.RIGHT);
+            JLabel userLabel = new JLabel("Welcome: " + currentUser.getFullName());
             userLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
             userLabel.setForeground(Color.WHITE);
-            titlePanel.add(userLabel, BorderLayout.EAST);
+            rightHeaderPanel.add(userLabel);
         }
+        
+        // Add Logout / Back to Login button
+        javax.swing.JButton logoutButton = new javax.swing.JButton("← Back to Login");
+        logoutButton.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        logoutButton.setBackground(new Color(231, 76, 60));
+        logoutButton.setForeground(Color.WHITE);
+        logoutButton.setFocusPainted(false);
+        logoutButton.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
+        logoutButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        logoutButton.addActionListener(e -> handleLogout());
+        
+        rightHeaderPanel.add(logoutButton);
+        titlePanel.add(rightHeaderPanel, BorderLayout.EAST);
+        
+        // Placeholder for left side to ensure center alignment of title
+        JPanel leftHeaderPanel = new JPanel();
+        leftHeaderPanel.setOpaque(false);
+        leftHeaderPanel.setPreferredSize(rightHeaderPanel.getPreferredSize());
+        titlePanel.add(leftHeaderPanel, BorderLayout.WEST);
         
         JPanel selectionContainer = new JPanel();
         selectionContainer.setLayout(new java.awt.GridLayout(1, 3, 30, 0));
@@ -134,6 +165,24 @@ public class MainSelectionFrame extends JFrame {
                 handleRightPanelClick();
             }
         });
+    }
+    
+    private void handleLogout() {
+        int option = JOptionPane.showConfirmDialog(
+            this,
+            "Are you sure you want to return to the login screen?",
+            "Confirm Logout",
+            JOptionPane.YES_NO_OPTION
+        );
+        
+        if (option == JOptionPane.YES_OPTION) {
+            // Dispose current frame
+            this.dispose();
+            
+            // Use SessionManager to logout and show login screen
+            com.raven.service.SessionManager.getInstance().logout();
+            System.out.println("LOGOUT: User returned to login screen from Main Menu");
+        }
     }
     
     private JPanel createSelectionPanel(String title, String description, Color accentColor) {
@@ -245,15 +294,23 @@ public class MainSelectionFrame extends JFrame {
                 JOptionPane.WARNING_MESSAGE);
         }
     }
-    
+
     private void handleLeftPanelClick() {
         System.out.println("CLICK: Left panel clicked - Business Accountability Software");
+        
+        // Check if frame already exists and is displayable
+        if (accountabilityFrame != null && accountabilityFrame.isDisplayable()) {
+            System.out.println("DEBUG: Accountability frame already open, bringing to front");
+            accountabilityFrame.setVisible(true);
+            accountabilityFrame.toFront();
+            this.setVisible(false);
+            return;
+        }
         
         // Then open the AccountabilityManagementFrame
         try {
             System.out.println("DEBUG: Creating AccountabilityManagementFrame...");
-            com.raven.accountability.ui.AccountabilityManagementFrame accountabilityFrame = 
-                new com.raven.accountability.ui.AccountabilityManagementFrame(currentUser);
+            accountabilityFrame = new com.raven.accountability.ui.AccountabilityManagementFrame(currentUser);
             
             System.out.println("DEBUG: Setting AccountabilityManagementFrame visible...");
             accountabilityFrame.setVisible(true);
@@ -270,15 +327,26 @@ public class MainSelectionFrame extends JFrame {
                 "Error: " + e.getMessage() + "\n\nPlease try again later.", 
                 "Service Unavailable", 
                 javax.swing.JOptionPane.WARNING_MESSAGE);
+            accountabilityFrame = null;
         }
     }
     
     private void handleCenterPanelClick() {
         System.out.println("CLICK: Center panel clicked - Code Examples");
+        
+        // Check if frame already exists and is displayable
+        if (dashboardFrame != null && dashboardFrame.isDisplayable()) {
+            System.out.println("DEBUG: Dashboard frame already open, bringing to front");
+            dashboardFrame.setVisible(true);
+            dashboardFrame.toFront();
+            this.setVisible(false);
+            return;
+        }
+        
         try {
             // Open DashboardFrame for code examples
             SwingUtilities.invokeLater(() -> {
-                DashboardFrame dashboardFrame = new DashboardFrame(currentUser);
+                dashboardFrame = new DashboardFrame(currentUser);
                 dashboardFrame.setVisible(true);
                 this.setVisible(false); // Hide instead of dispose to avoid triggering logout
             });
@@ -288,15 +356,26 @@ public class MainSelectionFrame extends JFrame {
                 "Code Examples Dashboard is temporarily unavailable.\nPlease try again later.", 
                 "Service Unavailable", 
                 javax.swing.JOptionPane.WARNING_MESSAGE);
+            dashboardFrame = null;
         }
     }
     
     private void handleRightPanelClick() {
         System.out.println("CLICK: Right panel clicked - AI Assistant");
+        
+        // Check if frame already exists and is displayable
+        if (aiFrame != null && aiFrame.isDisplayable()) {
+            System.out.println("DEBUG: AI Assistant frame already open, bringing to front");
+            aiFrame.setVisible(true);
+            aiFrame.toFront();
+            this.setVisible(false);
+            return;
+        }
+        
         try {
             // Open AI Assistant Frame
             SwingUtilities.invokeLater(() -> {
-                com.raven.ui.AIAssistantFrame aiFrame = new com.raven.ui.AIAssistantFrame(currentUser);
+                aiFrame = new com.raven.ui.AIAssistantFrame(currentUser);
                 aiFrame.setVisible(true);
                 this.setVisible(false); // Hide instead of dispose to avoid triggering logout
             });
@@ -306,6 +385,7 @@ public class MainSelectionFrame extends JFrame {
                 "AI Assistant is temporarily unavailable.\nPlease try again later.", 
                 "Service Unavailable", 
                 javax.swing.JOptionPane.WARNING_MESSAGE);
+            aiFrame = null;
         }
     }
     /**

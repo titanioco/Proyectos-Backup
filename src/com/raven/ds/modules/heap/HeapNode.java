@@ -10,6 +10,7 @@ public class HeapNode {
     private int x, y;
     private boolean highlighted;
     private boolean isBeingSwapped;
+    private boolean isSorted;
     private Color color;
     
     public static final int NODE_RADIUS = 20;
@@ -17,11 +18,13 @@ public class HeapNode {
     public static final Color HIGHLIGHTED_COLOR = new Color(231, 76, 60);
     public static final Color SWAP_COLOR = new Color(241, 196, 15);
     public static final Color PARENT_COLOR = new Color(52, 152, 219);
+    public static final Color SORTED_COLOR = new Color(46, 204, 113); // Lighter green or different shade
     
     public HeapNode(int value) {
         this.value = value;
         this.highlighted = false;
         this.isBeingSwapped = false;
+        this.isSorted = false;
         this.color = DEFAULT_COLOR;
     }
     
@@ -46,7 +49,9 @@ public class HeapNode {
     }
     
     public void updateColor() {
-        if (isBeingSwapped) {
+        if (isSorted) {
+            color = SORTED_COLOR;
+        } else if (isBeingSwapped) {
             color = SWAP_COLOR;
         } else if (highlighted) {
             color = HIGHLIGHTED_COLOR;
@@ -78,9 +83,16 @@ public class HeapNode {
         updateColor();
     }
     
+    public boolean isSorted() { return isSorted; }
+    public void setSorted(boolean sorted) {
+        this.isSorted = sorted;
+        updateColor();
+    }
+    
     public void reset() {
         highlighted = false;
         isBeingSwapped = false;
+        // Do not reset sorted state here usually, unless full reset
         updateColor();
     }
 }

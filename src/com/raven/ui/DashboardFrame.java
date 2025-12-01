@@ -10,6 +10,15 @@ import com.raven.ds.modules.graph.GraphControls;
 import com.raven.ds.modules.hashtable.HashTablePanel;
 import com.raven.ds.modules.hashtable.HashTableControls;
 
+import com.raven.ds.modules.heap.BinaryHeapPanel;
+import com.raven.ds.modules.heap.BinaryHeapControls;
+import com.raven.ds.modules.heapsort.HeapsortPanel;
+import com.raven.ds.modules.heapsort.HeapsortControls;
+import com.raven.ds.modules.avl.AVLTreePanel;
+import com.raven.ds.modules.avl.AVLTreeControls;
+import com.raven.ds.modules.dynamicarray.DynamicArrayPanel;
+import com.raven.ds.modules.dynamicarray.DynamicArrayControls;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -151,11 +160,113 @@ public class DashboardFrame extends JFrame {
         // Tab 3: Hash Table
         createHashTableTab(tabbedPane);
         
-        // Tab 4-7: Placeholder tabs for other data structures
-        createPlaceholderTab(tabbedPane, "Binary Heap", "Min/Max heap operations");
-        createPlaceholderTab(tabbedPane, "Heapsort", "Heap-based sorting algorithm");
-        createPlaceholderTab(tabbedPane, "AVL Tree", "Self-balancing binary search tree");
-        createPlaceholderTab(tabbedPane, "Dynamic Array", "ArrayList implementation with resizing");
+        // Tab 4: Binary Heap
+        createBinaryHeapTab(tabbedPane);
+        
+        // Tab 5: Heapsort
+        createHeapsortTab(tabbedPane);
+        
+        // Tab 6: AVL Tree
+        createAVLTreeTab(tabbedPane);
+        
+        // Tab 7: Dynamic Array
+        createDynamicArrayTab(tabbedPane);
+    }
+    
+    private void createBinaryHeapTab(JTabbedPane tabbedPane) {
+        AnimationEngine engine = new AnimationEngine();
+        BinaryHeapPanel panel = new BinaryHeapPanel(engine);
+        BinaryHeapControls controls = new BinaryHeapControls(panel, engine);
+        
+        JPanel container = new JPanel(new BorderLayout());
+        container.add(panel, BorderLayout.CENTER);
+        container.add(controls, BorderLayout.SOUTH);
+        
+        // Add demo button
+        JPanel demoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton demoBtn = new JButton("Load Demo Heap");
+        demoBtn.setBackground(new Color(7, 164, 121));
+        demoBtn.setForeground(Color.WHITE);
+        demoBtn.setFocusPainted(false);
+        demoBtn.addActionListener(e -> controls.loadDemo());
+        demoPanel.add(demoBtn);
+        demoPanel.setBackground(Color.WHITE);
+        
+        container.add(demoPanel, BorderLayout.NORTH);
+        
+        tabbedPane.addTab("Binary Heap", container);
+    }
+    
+    private void createHeapsortTab(JTabbedPane tabbedPane) {
+        AnimationEngine engine = new AnimationEngine();
+        HeapsortPanel panel = new HeapsortPanel(engine);
+        HeapsortControls controls = new HeapsortControls(panel, engine);
+        
+        JPanel container = new JPanel(new BorderLayout());
+        container.add(panel, BorderLayout.CENTER);
+        container.add(controls, BorderLayout.SOUTH);
+        
+        // Add demo button
+        JPanel demoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton demoBtn = new JButton("Load Random Data");
+        demoBtn.setBackground(new Color(7, 164, 121));
+        demoBtn.setForeground(Color.WHITE);
+        demoBtn.setFocusPainted(false);
+        demoBtn.addActionListener(e -> controls.loadDemo());
+        demoPanel.add(demoBtn);
+        demoPanel.setBackground(Color.WHITE);
+        
+        container.add(demoPanel, BorderLayout.NORTH);
+        
+        tabbedPane.addTab("Heapsort", container);
+    }
+    
+    private void createAVLTreeTab(JTabbedPane tabbedPane) {
+        AnimationEngine engine = new AnimationEngine();
+        AVLTreePanel panel = new AVLTreePanel(engine);
+        AVLTreeControls controls = new AVLTreeControls(panel, engine);
+        
+        JPanel container = new JPanel(new BorderLayout());
+        container.add(panel, BorderLayout.CENTER);
+        container.add(controls, BorderLayout.SOUTH);
+        
+        // Add demo button
+        JPanel demoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton demoBtn = new JButton("Load Demo Tree");
+        demoBtn.setBackground(new Color(7, 164, 121));
+        demoBtn.setForeground(Color.WHITE);
+        demoBtn.setFocusPainted(false);
+        demoBtn.addActionListener(e -> controls.loadDemo());
+        demoPanel.add(demoBtn);
+        demoPanel.setBackground(Color.WHITE);
+        
+        container.add(demoPanel, BorderLayout.NORTH);
+        
+        tabbedPane.addTab("AVL Tree", container);
+    }
+    
+    private void createDynamicArrayTab(JTabbedPane tabbedPane) {
+        AnimationEngine engine = new AnimationEngine();
+        DynamicArrayPanel panel = new DynamicArrayPanel(engine);
+        DynamicArrayControls controls = new DynamicArrayControls(panel, engine);
+        
+        JPanel container = new JPanel(new BorderLayout());
+        container.add(panel, BorderLayout.CENTER);
+        container.add(controls, BorderLayout.SOUTH);
+        
+        // Add demo button
+        JPanel demoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton demoBtn = new JButton("Load Demo Array");
+        demoBtn.setBackground(new Color(7, 164, 121));
+        demoBtn.setForeground(Color.WHITE);
+        demoBtn.setFocusPainted(false);
+        demoBtn.addActionListener(e -> controls.loadDemo());
+        demoPanel.add(demoBtn);
+        demoPanel.setBackground(Color.WHITE);
+        
+        container.add(demoPanel, BorderLayout.NORTH);
+        
+        tabbedPane.addTab("Dynamic Array", container);
     }
     
     private void createBSTTab(JTabbedPane tabbedPane) {
