@@ -185,7 +185,7 @@ public class Main extends javax.swing.JFrame {
             @Override
             protected void paintComponent(java.awt.Graphics g) {
                 java.awt.Graphics2D g2 = (java.awt.Graphics2D) g;
-                java.awt.GradientPaint gra = new java.awt.GradientPaint(0, 0, new Color(29, 99, 81), getWidth(), 0, new Color(35, 166, 97));
+                java.awt.GradientPaint gra = new java.awt.GradientPaint(0, getHeight(), new Color(29, 99, 81), getWidth(), 0, new Color(35, 166, 97));
                 g2.setPaint(gra);
                 g2.fillRect(0, 0, getWidth(), getHeight());
                 super.paintComponent(g);
