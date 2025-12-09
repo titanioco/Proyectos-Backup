@@ -136,22 +136,6 @@ public class AccountabilityManagementFrame extends JFrame {
             
             // Add some spacing
             userPanel.add(Box.createRigidArea(new Dimension(15, 0)));
-            
-            // Logout button
-            JButton logoutButton = new JButton("🚪 Logout");
-            logoutButton.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-            logoutButton.setBackground(new Color(231, 76, 60));
-            logoutButton.setForeground(Color.WHITE);
-            logoutButton.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
-            logoutButton.setFocusPainted(false);
-            logoutButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            logoutButton.setToolTipText("Logout and return to login screen");
-            
-            logoutButton.addActionListener(e -> handleLogout());
-            userPanel.add(logoutButton);
-            
-            // Add some spacing
-            userPanel.add(Box.createRigidArea(new Dimension(10, 0)));
         }
         
         JButton backButton = new JButton("← Main Menu");
@@ -164,6 +148,24 @@ public class AccountabilityManagementFrame extends JFrame {
         
         backButton.addActionListener(e -> returnToMainMenu());
         userPanel.add(backButton);
+        
+        if (currentUser != null) {
+            // Add some spacing
+            userPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+            
+            // Logout button
+            JButton logoutButton = new JButton(" Logout");
+            logoutButton.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+            logoutButton.setBackground(new Color(231, 76, 60));
+            logoutButton.setForeground(Color.WHITE);
+            logoutButton.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
+            logoutButton.setFocusPainted(false);
+            logoutButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            logoutButton.setToolTipText("Logout and return to login screen");
+            
+            logoutButton.addActionListener(e -> handleLogout());
+            userPanel.add(logoutButton);
+        }
         
         headerPanel.add(titlePanel, BorderLayout.WEST);
         headerPanel.add(userPanel, BorderLayout.EAST);
@@ -183,25 +185,78 @@ public class AccountabilityManagementFrame extends JFrame {
         sidebarTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         sidebarTitle.setForeground(new Color(189, 195, 199));
         sidebarTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-        sidebarTitle.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+        sidebarTitle.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 10));
         sidebar.add(sidebarTitle);
         
         // Navigation buttons
-        sidebar.add(createNavButton("📊 Dashboard", "dashboard", true));
+        sidebar.add(createNavButton(" Dashboard", "dashboard", true));
         sidebar.add(Box.createRigidArea(new Dimension(0, 5)));
-        sidebar.add(createNavButton("💰 Financial Accounting", "financial", false));
+        sidebar.add(createNavButton(" Financial Accounting", "financial", false));
         sidebar.add(Box.createRigidArea(new Dimension(0, 5)));
-        sidebar.add(createNavButton("📋 Compliance Management", "compliance", false));
+        sidebar.add(createNavButton(" Compliance Management", "compliance", false));
         sidebar.add(Box.createRigidArea(new Dimension(0, 5)));
-        sidebar.add(createNavButton("📈 Reporting & Analytics", "reporting", false));
+        sidebar.add(createNavButton(" Reporting & Analytics", "reporting", false));
         sidebar.add(Box.createRigidArea(new Dimension(0, 5)));
-        sidebar.add(createNavButton("🔍 Audit Trail", "audit", false));
+        sidebar.add(createNavButton(" Audit Trail", "audit", false));
         sidebar.add(Box.createRigidArea(new Dimension(0, 5)));
-        sidebar.add(createNavButton("🧾 Billing & Invoicing", "billing", false));
+        sidebar.add(createNavButton(" Billing & Invoicing", "billing", false));
         sidebar.add(Box.createRigidArea(new Dimension(0, 5)));
-        sidebar.add(createNavButton("🏛️ Tax Management", "tax", false));
+        sidebar.add(createNavButton(" Tax Management", "tax", false));
         
         sidebar.add(Box.createVerticalGlue());
+        
+        // Siigo Login button
+        JButton siigoButton = new JButton("🔗 Siigo Login");
+        siigoButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        siigoButton.setHorizontalAlignment(SwingConstants.CENTER);
+        siigoButton.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        siigoButton.setMaximumSize(new Dimension(220, 40));
+        siigoButton.setFocusPainted(false);
+        siigoButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        siigoButton.setBackground(new Color(46, 204, 113));
+        siigoButton.setForeground(Color.WHITE);
+        siigoButton.setToolTipText("Open Siigo login page in browser");
+        
+        siigoButton.addActionListener(e -> {
+            try {
+                Desktop.getDesktop().browse(new java.net.URI("https://account.siigo.com/siigob2cco.onmicrosoft.com/b2c_1a_col_pd_ssosiigo/oauth2/v2.0/authorize?client_id=c0f95d00-a5b7-4cfc-a84c-7fc1be2a6720&redirect_uri=https%3A%2F%2Fsiigonube.siigo.com%2Fopenid-callback&response_type=code&scope=openid+profile+https%3A%2F%2Fsiigob2cco.onmicrosoft.com%2Fshell-pd-col%2Fbasic+offline_access&state=5b95a3da80174ef388d362dc0e46310d&code_challenge=BAd1vV8wSQSZGMfTb6bRcwjZr8PW35fxMFoGORuf9JI&code_challenge_method=S256&response_mode=fragment"));
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                    "Could not open browser. Please visit Siigo login page manually.",
+                    "Browser Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
+        sidebar.add(siigoButton);
+        sidebar.add(Box.createRigidArea(new Dimension(0, 5)));
+        
+        // LEVVY Login button at the bottom
+        JButton levvyButton = new JButton("🔗 LEVVY Login");
+        levvyButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        levvyButton.setHorizontalAlignment(SwingConstants.CENTER);
+        levvyButton.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        levvyButton.setMaximumSize(new Dimension(220, 40));
+        levvyButton.setFocusPainted(false);
+        levvyButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        levvyButton.setBackground(new Color(52, 152, 219));
+        levvyButton.setForeground(Color.WHITE);
+        levvyButton.setToolTipText("Open LEVVY login page in browser");
+        
+        levvyButton.addActionListener(e -> {
+            try {
+                Desktop.getDesktop().browse(new java.net.URI("https://app.levvy.com/login"));
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                    "Could not open browser. Please visit: https://app.levvy.com/login",
+                    "Browser Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        sidebar.add(levvyButton);
+        sidebar.add(Box.createRigidArea(new Dimension(0, 10)));
         
         return sidebar;
     }
@@ -210,8 +265,8 @@ public class AccountabilityManagementFrame extends JFrame {
         JButton button = new JButton(text);
         button.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         button.setHorizontalAlignment(SwingConstants.LEFT);
-        button.setBorder(BorderFactory.createEmptyBorder(12, 20, 12, 20));
-        button.setMaximumSize(new Dimension(280, 45));
+        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 10));
+        button.setMaximumSize(new Dimension(220, 40));
         button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         

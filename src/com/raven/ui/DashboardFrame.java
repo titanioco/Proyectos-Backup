@@ -37,7 +37,7 @@ public class DashboardFrame extends JFrame {
     private void initComponents() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Dashboard - " + currentUser.getFullName());
-        setSize(800, 600);
+        setSize(1000, 800);
         setLocationRelativeTo(null);
         setResizable(true);
     }
@@ -47,23 +47,24 @@ public class DashboardFrame extends JFrame {
         
         // Header Panel
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(52, 73, 94));
+        headerPanel.setBackground(new Color(5, 130, 97));
         headerPanel.setPreferredSize(new Dimension(0, 80));
         
         JLabel titleLabel = new JLabel("Interactive Data Structures Learning Suite");
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(40, 10, 10, 0));
         titleLabel.setFont(new Font("sansserif", Font.BOLD, 24));
         titleLabel.setForeground(Color.WHITE);
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
         
         JPanel userPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         userPanel.setOpaque(false);
+        userPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         
         JLabel userLabel = new JLabel("Hello, " + currentUser.getFullName());
         userLabel.setFont(new Font("sansserif", Font.PLAIN, 14));
         userLabel.setForeground(Color.WHITE);
         
         JButton backButton = new JButton("← Back to Menu");
-        backButton.setBackground(new Color(46, 204, 113));
+        backButton.setBackground(new Color(5, 122, 130));
         backButton.setForeground(Color.WHITE);
         backButton.setFocusPainted(false);
         backButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
@@ -116,6 +117,7 @@ public class DashboardFrame extends JFrame {
         footerPanel.setPreferredSize(new Dimension(0, 40));
         
         JLabel footerLabel = new JLabel("Interactive Data Structures Learning Suite - College Edition");
+        footerLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
         footerLabel.setForeground(Color.WHITE);
         footerLabel.setFont(new Font("sansserif", Font.PLAIN, 12));
         footerPanel.add(footerLabel);

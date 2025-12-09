@@ -67,7 +67,7 @@ public class DynamicArrayPanel extends JPanel {
     private void drawTitle(Graphics2D g2d) {
         g2d.setColor(new Color(52, 73, 94));
         g2d.setFont(titleFont);
-        g2d.drawString("Dynamic Array - Resizing Visualization", 20, 30);
+        g2d.drawString("Dynamic Array - Resizing Visualization", 20, 40);
     }
     
     private void drawArray(Graphics2D g2d) {

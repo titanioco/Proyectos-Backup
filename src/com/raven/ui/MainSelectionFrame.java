@@ -8,10 +8,12 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -65,17 +67,18 @@ public class MainSelectionFrame extends JFrame {
         JPanel titlePanel = new JPanel(new BorderLayout()); // Changed to BorderLayout for better positioning
         titlePanel.setBackground(new Color(52, 73, 94));
         titlePanel.setPreferredSize(new Dimension(1200, 100));
-        titlePanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
+        titlePanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 0, 20));
         
-        titleLabel = new JLabel("Universidad Nacional - Proyectos", SwingConstants.CENTER);
+        titleLabel = new JLabel("Universidad Nacional - Proyectos", SwingConstants.LEFT);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         titleLabel.setToolTipText(currentUser != null && currentUser.getUserType() == User.UserType.ADMIN ? 
                                 "Click for Admin Panel" : "Welcome to the University Project Manager");
         
-        // Center the title
-        titlePanel.add(titleLabel, BorderLayout.CENTER);
+        // Add title to the left
+        titlePanel.add(titleLabel, BorderLayout.LINE_START);
+        titlePanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 0, 20));
         
         // User info and logout button panel
         JPanel rightHeaderPanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 15, 35));
@@ -101,12 +104,6 @@ public class MainSelectionFrame extends JFrame {
         rightHeaderPanel.add(logoutButton);
         titlePanel.add(rightHeaderPanel, BorderLayout.EAST);
         
-        // Placeholder for left side to ensure center alignment of title
-        JPanel leftHeaderPanel = new JPanel();
-        leftHeaderPanel.setOpaque(false);
-        leftHeaderPanel.setPreferredSize(rightHeaderPanel.getPreferredSize());
-        titlePanel.add(leftHeaderPanel, BorderLayout.WEST);
-        
         JPanel selectionContainer = new JPanel();
         selectionContainer.setLayout(new java.awt.GridLayout(1, 3, 30, 0));
         selectionContainer.setBackground(new Color(245, 245, 245));
@@ -114,15 +111,18 @@ public class MainSelectionFrame extends JFrame {
         
         leftPanel = createSelectionPanel("BUSINESS ACCOUNTABILITY", 
                                        "Comprehensive Accountability Software Suite for Business Management", 
-                                       new Color(52, 152, 219));
+                                       new Color(52, 152, 219),
+                                       "/com/raven/icon/calculadora.png");
         
         centerPanel = createSelectionPanel("CODE EXAMPLES", 
                                          "Data Structures & Algorithms Visualization and Learning Platform", 
-                                         new Color(46, 204, 113));
+                                         new Color(46, 204, 113),
+                                         "/com/raven/icon/hacker.png");
         
         rightPanel = createSelectionPanel("AI ASSISTANT", 
                                         "Get help with transcription, document analysis, and AI-powered assistance", 
-                                        new Color(231, 76, 60));
+                                        new Color(231, 76, 60),
+                                        "/com/raven/icon/AI-Icon.png");
         
         selectionContainer.add(leftPanel);
         selectionContainer.add(centerPanel);
@@ -185,7 +185,7 @@ public class MainSelectionFrame extends JFrame {
         }
     }
     
-    private JPanel createSelectionPanel(String title, String description, Color accentColor) {
+    private JPanel createSelectionPanel(String title, String description, Color accentColor, String iconPath) {
         JPanel panel = new JPanel(new BorderLayout(0, 20)) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -214,8 +214,20 @@ public class MainSelectionFrame extends JFrame {
         descLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         descLabel.setForeground(new Color(52, 73, 94));
         
-        JLabel iconLabel = new JLabel("[ICON]", SwingConstants.CENTER);
-        iconLabel.setFont(new Font("Segoe UI", Font.PLAIN, 80));
+        // Load and display the icon
+        JLabel iconLabel = new JLabel("", SwingConstants.CENTER);
+        iconLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+
+        try {
+            ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
+            // Scale the icon to a reasonable size (120x120 pixels)
+            Image scaledImage = icon.getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH);
+            iconLabel.setIcon(new ImageIcon(scaledImage));
+        } catch (Exception e) {
+            System.err.println("ERROR: Failed to load icon: " + iconPath);
+            iconLabel.setText("[ICON]");
+            iconLabel.setFont(new Font("Segoe UI", Font.PLAIN, 80));
+        }
         
         JLabel featuresLabel = new JLabel();
         if (title.contains("BUSINESS ACCOUNTABILITY")) {

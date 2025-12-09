@@ -132,14 +132,14 @@ public class AIAssistantFrame extends JFrame {
         chatArea.setBackground(Color.WHITE);
         chatArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         chatArea.setText("Welcome to the AI Assistant!\n\n" +
-                "🤖 AI Service Status: " + aiService.getServiceStatus() + "\n" +
-                "👤 User: " + (currentUser != null ? currentUser.getFullName() + " (" + currentUser.getUserType() + ")" : "Guest") + "\n\n" +
+                "[AI Service Status: " + aiService.getServiceStatus() + "]\n" +
+                "[User: " + (currentUser != null ? currentUser.getFullName() + " (" + currentUser.getUserType() + ")" : "Guest") + "]\n\n" +
                 "Features available:\n" +
-                "• 💬 Text conversations with AI\n" +
-                "• 🎵 Audio file processing (upload and analyze)\n" +
-                "• 🎥 Video file analysis (upload and analyze)\n" +
-                "• 📁 Document processing\n" +
-                "• 🎯 Academic assistance and research help\n\n" +
+                "* Text conversations with AI\n" +
+                "* Audio file processing (upload and analyze)\n" +
+                "* Video file analysis (upload and analyze)\n" +
+                "* Document processing\n" +
+                "* Academic assistance and research help\n\n" +
                 "Start typing below or use the media buttons to upload files...\n");
         
         JScrollPane chatScrollPane = new JScrollPane(chatArea);
@@ -147,8 +147,18 @@ public class AIAssistantFrame extends JFrame {
         chatScrollPane.setBorder(BorderFactory.createTitledBorder("AI Chat Interface"));
         
         // Input panel with media buttons
-        JPanel inputPanel = new JPanel(new BorderLayout(10, 0));
-        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        JPanel inputPanel = new JPanel(new BorderLayout(20, 10)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(getBackground());
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+            super.paintComponent(g);
+            }
+        };
+        inputPanel.setOpaque(false);
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
         // Media buttons panel
         JPanel mediaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
