@@ -1,6 +1,7 @@
 package com.raven.ds.modules.dynamicarray;
 
 import com.raven.ds.core.AnimationEngine;
+import com.raven.ds.core.PDFDocumentGenerator;
 import com.raven.swing.Button;
 import net.miginfocom.swing.MigLayout;
 
@@ -24,10 +25,10 @@ public class DynamicArrayControls extends JPanel {
     private Button pauseBtn;
     private Button stepBtn;
     private Button resetBtn;
+    private Button downloadDocsBtn;
     private JSlider speedSlider;
     private JLabel statusLabel;
     private JLabel stepLabel;
-    private JProgressBar animationProgress;
     
     public DynamicArrayControls(DynamicArrayPanel visualizer, AnimationEngine animationEngine) {
         this.visualizer = visualizer;
@@ -56,51 +57,85 @@ public class DynamicArrayControls extends JPanel {
         ));
         indexField.setToolTipText("Enter index to remove");
         
-        // Operation buttons
+        // Operation buttons (50% bigger)
         addBtn = new Button();
         addBtn.setText("Add");
         addBtn.setBackground(new Color(39, 174, 96)); // Green
+        addBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        addBtn.setForeground(Color.WHITE);
+        addBtn.setPreferredSize(new Dimension(120, 40));
         addBtn.setToolTipText("Add value to array");
         
         removeBtn = new Button();
         removeBtn.setText("Remove");
         removeBtn.setBackground(new Color(231, 76, 60)); // Red
+        removeBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        removeBtn.setForeground(Color.WHITE);
+        removeBtn.setPreferredSize(new Dimension(120, 40));
         removeBtn.setToolTipText("Remove value at index");
         
         clearBtn = new Button();
         clearBtn.setText("Clear");
-        clearBtn.setBackground(new Color(149, 165, 166)); // Gray
+        clearBtn.setBackground(new Color(231, 76, 60)); // Red
+        clearBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        clearBtn.setForeground(Color.WHITE);
+        clearBtn.setPreferredSize(new Dimension(120, 40));
         clearBtn.setToolTipText("Clear entire array");
         
         loadSampleBtn = new Button();
         loadSampleBtn.setText("Sample");
-        loadSampleBtn.setBackground(new Color(155, 89, 182)); // Purple
+        loadSampleBtn.setBackground(new Color(53, 162, 230)); // Lighter blue
+        loadSampleBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        loadSampleBtn.setForeground(Color.WHITE);
+        loadSampleBtn.setPreferredSize(new Dimension(120, 40));
         loadSampleBtn.setToolTipText("Load sample data");
         
         // Animation control buttons
         playBtn = new Button();
         playBtn.setText("▶ Play");
         playBtn.setBackground(new Color(46, 204, 113)); // Green
+        playBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        playBtn.setForeground(Color.WHITE);
+        playBtn.setPreferredSize(new Dimension(80, 40));
         playBtn.setToolTipText("Play animation sequence");
         
         pauseBtn = new Button();
         pauseBtn.setText("⏸ Pause");
         pauseBtn.setBackground(new Color(241, 196, 15)); // Yellow
+        pauseBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        pauseBtn.setForeground(Color.BLACK);
+        pauseBtn.setPreferredSize(new Dimension(80, 40));
         pauseBtn.setToolTipText("Pause current animation");
         
         stepBtn = new Button();
         stepBtn.setText("⏭ Step");
-        stepBtn.setBackground(new Color(52, 152, 219)); // Blue
+        stepBtn.setBackground(new Color(53, 106, 230)); // Primary blue
+        stepBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        stepBtn.setForeground(Color.WHITE);
+        stepBtn.setPreferredSize(new Dimension(80, 40));
         stepBtn.setToolTipText("Execute next animation step");
         
         resetBtn = new Button();
         resetBtn.setText("🔄 Reset");
         resetBtn.setBackground(new Color(149, 165, 166)); // Gray
+        resetBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        resetBtn.setForeground(Color.WHITE);
+        resetBtn.setPreferredSize(new Dimension(80, 40));
         resetBtn.setToolTipText("Reset animation to beginning");
         
-        // Speed control
+        // Download Documentation button
+        downloadDocsBtn = new Button();
+        downloadDocsBtn.setText("📚 Docs");
+        downloadDocsBtn.setBackground(new Color(52, 73, 94));
+        downloadDocsBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        downloadDocsBtn.setForeground(Color.WHITE);
+        downloadDocsBtn.setPreferredSize(new Dimension(80, 40));
+        downloadDocsBtn.setToolTipText("Download module documentation");
+        
+        // Speed control (8 times bigger)
         speedSlider = new JSlider(50, 3000, 1000);
-        speedSlider.setInverted(true);
+        speedSlider.setInverted(true); // Lower values = faster
+        speedSlider.setPreferredSize(new Dimension(400, 60)); // 8x bigger
         speedSlider.setMajorTickSpacing(500);
         speedSlider.setPaintTicks(true);
         speedSlider.setPaintLabels(true);
@@ -109,58 +144,46 @@ public class DynamicArrayControls extends JPanel {
         // Status labels
         statusLabel = new JLabel("Ready for array operations");
         statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        statusLabel.setForeground(new Color(52, 73, 94));
         
         stepLabel = new JLabel("Step: 0/0");
         stepLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
         
-        // Animation progress bar
-        animationProgress = new JProgressBar(0, 100);
-        animationProgress.setStringPainted(true);
-        animationProgress.setString("Ready");
-        animationProgress.setBackground(Color.WHITE);
-        animationProgress.setForeground(new Color(52, 152, 219));
-        
         setBackground(Color.WHITE);
-        setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(new Color(52, 73, 94), 2),
-            "Dynamic Array Controls",
-            0, 0, new Font("SansSerif", Font.BOLD, 14),
-            new Color(52, 73, 94)
-        ));
+        setBorder(BorderFactory.createTitledBorder("Dynamic Array Controls"));
     }
     
     private void setupLayout() {
-        setLayout(new MigLayout("fillx, wrap 6", "[grow][grow][grow][grow][grow][grow]", "[]5[]5[]5[]"));
+        setLayout(new MigLayout("", "[][grow][]", "[]5[]5[]5[]5[]"));
+        setBackground(Color.WHITE);
+        setBorder(BorderFactory.createTitledBorder("Dynamic Array Controls"));
         
-        // Input row
-        add(new JLabel("Value:"), "");
-        add(valueField, "growx");
-        add(new JLabel("Index:"), "");
-        add(indexField, "growx");
-        add(addBtn, "growx");
-        add(removeBtn, "growx");
+        // Operations row
+        add(new JLabel("Operations:"), "cell 0 0");
+        add(valueField, "cell 1 0, split 3");
+        add(indexField, "cell 1 0");
+        add(addBtn, "cell 1 0");
+        add(removeBtn, "cell 2 0");
+        
+        // Sample row
+        add(new JLabel("Sample:"), "cell 0 1");
+        add(loadSampleBtn, "cell 1 1");
+        add(clearBtn, "cell 2 1");
         
         // Animation controls row
-        add(new JLabel("Animation:"), "");
-        add(playBtn, "growx");
-        add(pauseBtn, "growx");
-        add(stepBtn, "growx");
-        add(resetBtn, "growx");
-        add(clearBtn, "growx");
+        add(new JLabel("Animation:"), "cell 0 2");
+        add(playBtn, "cell 1 2");
+        add(pauseBtn, "cell 1 2");
+        add(stepBtn, "cell 1 2");
+        add(resetBtn, "cell 1 2");
+        add(downloadDocsBtn, "cell 2 2");
         
         // Speed control row
-        add(loadSampleBtn, "growx");
-        add(new JLabel("Speed:"), "right");
-        add(speedSlider, "span 4, growx");
-        
-        // Progress row
-        add(new JLabel("Progress:"), "");
-        add(animationProgress, "span 5, growx");
+        add(new JLabel("Speed:"), "cell 0 3");
+        add(speedSlider, "cell 1 3, span 2, grow");
         
         // Status row
-        add(statusLabel, "span 4, growx");
-        add(stepLabel, "span 2, right");
+        add(statusLabel, "cell 0 4, span 2");
+        add(stepLabel, "cell 2 4");
     }
     
     private void setupListeners() {
@@ -237,16 +260,31 @@ public class DynamicArrayControls extends JPanel {
             animationEngine.setSpeed(speedSlider.getValue());
         });
         
+        downloadDocsBtn.addActionListener(e -> {
+            try {
+                String content = PDFDocumentGenerator.generateDynamicArrayDocumentation();
+                PDFDocumentGenerator.generateModuleDocumentation(
+                    "DynamicArray",
+                    "Dynamic Array",
+                    content
+                );
+                statusLabel.setText("Dynamic Array documentation generated");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                    "Failed to generate documentation: " + ex.getMessage(),
+                    "Documentation Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
         valueField.addActionListener(e -> addBtn.doClick());
         
         animationEngine.addListener(new AnimationEngine.AnimationListener() {
             @Override
             public void onStepChanged(int currentStep, int totalSteps) {
                 stepLabel.setText("Step: " + currentStep + "/" + totalSteps);
-                if (totalSteps > 0) {
-                    int progress = (int) ((double) currentStep / totalSteps * 100);
-                    animationProgress.setValue(progress);
-                    animationProgress.setString("Step " + currentStep + "/" + totalSteps + " (" + progress + "%)");
+                if (currentStep < totalSteps) {
+                    statusLabel.setText("Step " + currentStep + " executed");
                 }
                 visualizer.repaint();
             }
@@ -266,15 +304,11 @@ public class DynamicArrayControls extends JPanel {
             @Override
             public void onAnimationComplete() {
                 statusLabel.setText("Operation completed!");
-                animationProgress.setValue(100);
-                animationProgress.setString("Complete");
             }
             
             @Override
             public void onReset() {
                 stepLabel.setText("Step: 0/0");
-                animationProgress.setValue(0);
-                animationProgress.setString("Ready");
                 visualizer.repaint();
             }
         });

@@ -11,8 +11,18 @@ import com.raven.model.User;
 import com.raven.model.UserDAO;
 import com.raven.service.ServiceMail;
 import com.raven.ui.DashboardFrame;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -169,43 +179,62 @@ public class Main extends javax.swing.JFrame {
                 handleVerificationCode();
             }
         });
-        // Add Exit button to the top-right corner and set its layer to always be on top
-        com.raven.swing.Button exitButton = new com.raven.swing.Button() {
+        
+        // Add title bar with integrated close button
+        JPanel titleBar = new JPanel(new BorderLayout()) {
             @Override
             protected void paintComponent(java.awt.Graphics g) {
-                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
-                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
-                // Draw a square with rounded corners (12px radius)
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
-                super.paintComponent(g2);
-                g2.dispose();
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g;
+                java.awt.GradientPaint gra = new java.awt.GradientPaint(0, 0, new Color(29, 99, 81), getWidth(), 0, new Color(35, 166, 97));
+                g2.setPaint(gra);
+                g2.fillRect(0, 0, getWidth(), getHeight());
+                super.paintComponent(g);
             }
         };
-        exitButton.setText("X");
-        exitButton.setBackground(new java.awt.Color(200, 50, 50));
-        exitButton.setForeground(new java.awt.Color(255, 255, 255));
-        exitButton.setFont(new java.awt.Font("sansserif", java.awt.Font.BOLD, 18));
-        exitButton.setFocusPainted(false);
-        exitButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        exitButton.setEffectColor(new java.awt.Color(255,255,255,60)); // subtle white ripple
-        exitButton.addActionListener(e -> {
+        titleBar.setOpaque(false);
+        titleBar.setPreferredSize(new Dimension(800, 50));
+        titleBar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        
+        // Title label
+        JLabel titleLabel = new JLabel("Universidad Nacional - Login");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        titleLabel.setForeground(Color.WHITE);
+        titleBar.add(titleLabel, BorderLayout.WEST);
+        
+        // Close button panel
+        JPanel closePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        closePanel.setOpaque(false);
+        
+        JButton closeButton = new JButton("✕");
+        closeButton.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        closeButton.setForeground(Color.WHITE);
+        closeButton.setBackground(new Color(35, 166, 97)); // Green background
+        closeButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
+        closeButton.setFocusPainted(false);
+        closeButton.setContentAreaFilled(false);
+        closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        closeButton.addActionListener(e -> {
             System.out.println("🧹 Application closing - cleaning up OAuth credentials...");
             System.exit(0); // This will trigger the shutdown hook
         });
-        // Highlight on hover
-        exitButton.addMouseListener(new java.awt.event.MouseAdapter() {
+        closeButton.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
-                exitButton.setBackground(new java.awt.Color(220, 80, 80));
+                closeButton.setBackground(new Color(231, 76, 60)); // Red on hover
+                closeButton.setContentAreaFilled(true);
             }
             @Override
             public void mouseExited(java.awt.event.MouseEvent e) {
-                exitButton.setBackground(new java.awt.Color(200, 50, 50));
+                closeButton.setBackground(new Color(7, 164, 121)); // Back to green
+                closeButton.setContentAreaFilled(false);
             }
         });
-        bg.add(exitButton, "pos 1al 0.01al, w 40!, h 40!");
-        bg.setLayer(exitButton, javax.swing.JLayeredPane.DRAG_LAYER);
+        
+        closePanel.add(closeButton);
+        titleBar.add(closePanel, BorderLayout.EAST);
+        
+        bg.add(titleBar, "pos 0 0 100% 50");
+        bg.setLayer(titleBar, javax.swing.JLayeredPane.MODAL_LAYER);
     }
     private void register(){
         ModelUser modelUser = loginAndRegister.getUser();

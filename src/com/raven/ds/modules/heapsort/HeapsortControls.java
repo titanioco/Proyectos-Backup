@@ -1,6 +1,7 @@
 package com.raven.ds.modules.heapsort;
 
 import com.raven.ds.core.AnimationEngine;
+import com.raven.ds.core.PDFDocumentGenerator;
 import com.raven.swing.Button;
 import net.miginfocom.swing.MigLayout;
 
@@ -23,10 +24,10 @@ public class HeapsortControls extends JPanel {
     private Button pauseBtn;
     private Button stepBtn;
     private Button resetBtn;
+    private Button downloadDocsBtn;
     private JSlider speedSlider;
     private JLabel statusLabel;
     private JLabel stepLabel;
-    private JProgressBar animationProgress;
     
     public HeapsortControls(HeapsortPanel visualizer, AnimationEngine animationEngine) {
         this.visualizer = visualizer;
@@ -47,46 +48,77 @@ public class HeapsortControls extends JPanel {
         ));
         inputField.setToolTipText("Example: 12, 11, 13, 5, 6");
         
-        // Operation buttons
+        // Operation buttons (50% bigger)
         loadBtn = new Button();
         loadBtn.setText("Load");
         loadBtn.setBackground(new Color(52, 152, 219)); // Blue
+        loadBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        loadBtn.setForeground(Color.WHITE);
+        loadBtn.setPreferredSize(new Dimension(120, 40));
         loadBtn.setToolTipText("Load data from input field");
         
         sortBtn = new Button();
         sortBtn.setText("Sort");
         sortBtn.setBackground(new Color(39, 174, 96)); // Green
+        sortBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        sortBtn.setForeground(Color.WHITE);
+        sortBtn.setPreferredSize(new Dimension(120, 40));
         sortBtn.setToolTipText("Start Heapsort algorithm");
         
         sampleBtn = new Button();
         sampleBtn.setText("Sample");
-        sampleBtn.setBackground(new Color(155, 89, 182)); // Purple
+        sampleBtn.setBackground(new Color(53, 162, 230)); // Lighter blue
+        sampleBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        sampleBtn.setForeground(Color.WHITE);
+        sampleBtn.setPreferredSize(new Dimension(120, 40));
         sampleBtn.setToolTipText("Load sample data");
         
         // Animation control buttons
         playBtn = new Button();
         playBtn.setText("▶ Play");
         playBtn.setBackground(new Color(46, 204, 113)); // Green
+        playBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        playBtn.setForeground(Color.WHITE);
+        playBtn.setPreferredSize(new Dimension(80, 40));
         playBtn.setToolTipText("Play animation sequence");
         
         pauseBtn = new Button();
         pauseBtn.setText("⏸ Pause");
         pauseBtn.setBackground(new Color(241, 196, 15)); // Yellow
+        pauseBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        pauseBtn.setForeground(Color.BLACK);
+        pauseBtn.setPreferredSize(new Dimension(80, 40));
         pauseBtn.setToolTipText("Pause current animation");
         
         stepBtn = new Button();
         stepBtn.setText("⏭ Step");
-        stepBtn.setBackground(new Color(52, 152, 219)); // Blue
+        stepBtn.setBackground(new Color(53, 106, 230)); // Primary blue
+        stepBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        stepBtn.setForeground(Color.WHITE);
+        stepBtn.setPreferredSize(new Dimension(80, 40));
         stepBtn.setToolTipText("Execute next animation step");
         
         resetBtn = new Button();
         resetBtn.setText("🔄 Reset");
         resetBtn.setBackground(new Color(149, 165, 166)); // Gray
+        resetBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        resetBtn.setForeground(Color.WHITE);
+        resetBtn.setPreferredSize(new Dimension(80, 40));
         resetBtn.setToolTipText("Reset animation to beginning");
         
-        // Speed control
+        // Download Documentation button
+        downloadDocsBtn = new Button();
+        downloadDocsBtn.setText("📚 Docs");
+        downloadDocsBtn.setBackground(new Color(52, 73, 94));
+        downloadDocsBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        downloadDocsBtn.setForeground(Color.WHITE);
+        downloadDocsBtn.setPreferredSize(new Dimension(80, 40));
+        downloadDocsBtn.setToolTipText("Download module documentation");
+        
+        // Speed control (8 times bigger)
         speedSlider = new JSlider(50, 3000, 1000);
-        speedSlider.setInverted(true);
+        speedSlider.setInverted(true); // Lower values = faster
+        speedSlider.setPreferredSize(new Dimension(400, 60)); // 8x bigger
         speedSlider.setMajorTickSpacing(500);
         speedSlider.setPaintTicks(true);
         speedSlider.setPaintLabels(true);
@@ -95,55 +127,44 @@ public class HeapsortControls extends JPanel {
         // Status labels
         statusLabel = new JLabel("Ready to sort");
         statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        statusLabel.setForeground(new Color(52, 73, 94));
         
         stepLabel = new JLabel("Step: 0/0");
         stepLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
         
-        // Animation progress bar
-        animationProgress = new JProgressBar(0, 100);
-        animationProgress.setStringPainted(true);
-        animationProgress.setString("Ready");
-        animationProgress.setBackground(Color.WHITE);
-        animationProgress.setForeground(new Color(7, 164, 121));
-        
         setBackground(Color.WHITE);
-        setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(new Color(52, 73, 94), 2),
-            "Heapsort Controls",
-            0, 0, new Font("SansSerif", Font.BOLD, 14),
-            new Color(52, 73, 94)
-        ));
+        setBorder(BorderFactory.createTitledBorder("Heapsort Controls"));
     }
     
     private void setupLayout() {
-        setLayout(new MigLayout("fillx, wrap 6", "[grow][grow][grow][grow][grow][grow]", "[]5[]5[]5[]"));
+        setLayout(new MigLayout("", "[][grow][]", "[]5[]5[]5[]5[]"));
+        setBackground(Color.WHITE);
+        setBorder(BorderFactory.createTitledBorder("Heapsort Controls"));
         
         // Input row
-        add(new JLabel("Data:"), "");
-        add(inputField, "span 3, growx");
-        add(loadBtn, "growx");
-        add(sortBtn, "growx");
+        add(new JLabel("Data:"), "cell 0 0");
+        add(inputField, "cell 1 0, split 2");
+        add(loadBtn, "cell 1 0");
+        add(sortBtn, "cell 2 0");
+        
+        // Sample row
+        add(new JLabel("Sample:"), "cell 0 1");
+        add(sampleBtn, "cell 1 1");
         
         // Animation controls row
-        add(new JLabel("Animation:"), "");
-        add(playBtn, "growx");
-        add(pauseBtn, "growx");
-        add(stepBtn, "growx");
-        add(resetBtn, "growx");
-        add(sampleBtn, "growx");
+        add(new JLabel("Animation:"), "cell 0 2");
+        add(playBtn, "cell 1 2");
+        add(pauseBtn, "cell 1 2");
+        add(stepBtn, "cell 1 2");
+        add(resetBtn, "cell 1 2");
+        add(downloadDocsBtn, "cell 2 2");
         
         // Speed control row
-        add(new JLabel("Speed:"), "");
-        add(speedSlider, "span 5, growx");
-        
-        // Progress row
-        add(new JLabel("Progress:"), "");
-        add(animationProgress, "span 5, growx");
+        add(new JLabel("Speed:"), "cell 0 3");
+        add(speedSlider, "cell 1 3, span 2, grow");
         
         // Status row
-        add(statusLabel, "span 4, growx");
-        add(stepLabel, "span 2, right");
+        add(statusLabel, "cell 0 4, span 2");
+        add(stepLabel, "cell 2 4");
     }
     
     private void setupListeners() {
@@ -207,15 +228,30 @@ public class HeapsortControls extends JPanel {
             animationEngine.setSpeed(speedSlider.getValue());
         });
         
+        downloadDocsBtn.addActionListener(e -> {
+            try {
+                String content = PDFDocumentGenerator.generateHeapsortDocumentation();
+                PDFDocumentGenerator.generateModuleDocumentation(
+                    "Heapsort",
+                    "Heapsort Algorithm",
+                    content
+                );
+                statusLabel.setText("Heapsort documentation generated");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                    "Failed to generate documentation: " + ex.getMessage(),
+                    "Documentation Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
         // Animation engine listeners
         animationEngine.addListener(new AnimationEngine.AnimationListener() {
             @Override
             public void onStepChanged(int currentStep, int totalSteps) {
                 stepLabel.setText("Step: " + currentStep + "/" + totalSteps);
-                if (totalSteps > 0) {
-                    int progress = (int) ((double) currentStep / totalSteps * 100);
-                    animationProgress.setValue(progress);
-                    animationProgress.setString("Step " + currentStep + "/" + totalSteps + " (" + progress + "%)");
+                if (currentStep < totalSteps) {
+                    statusLabel.setText("Step " + currentStep + " executed");
                 }
                 visualizer.repaint();
             }
@@ -234,15 +270,11 @@ public class HeapsortControls extends JPanel {
             @Override
             public void onAnimationComplete() {
                 statusLabel.setText("Sorting completed!");
-                animationProgress.setValue(100);
-                animationProgress.setString("Complete");
             }
             
             @Override
             public void onReset() {
                 stepLabel.setText("Step: 0/0");
-                animationProgress.setValue(0);
-                animationProgress.setString("Ready");
                 visualizer.repaint();
             }
         });
