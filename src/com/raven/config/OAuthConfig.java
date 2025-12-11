@@ -15,25 +15,63 @@ public class OAuthConfig {
     
     private static void loadProperties() {
         try {
-            // Try to load from file first
-            try (InputStream input = new FileInputStream("oauth.properties")) {
-                props.load(input);
-                loaded = true;
-                System.out.println("✓ Loaded OAuth configuration from oauth.properties");
-            } catch (IOException e) {
-                // Fallback to classpath
-                try (InputStream input = OAuthConfig.class.getClassLoader().getResourceAsStream("oauth.properties")) {
-                    if (input != null) {
-                        props.load(input);
-                        loaded = true;
-                        System.out.println("✓ Loaded OAuth configuration from classpath");
-                    }
-                } catch (IOException e2) {
-                    System.out.println("⚠ Could not load oauth.properties, using default values");
+            // 1. Try to load from working directory (file system)
+            java.io.File file = new java.io.File("oauth.properties");
+            System.out.println("🔍 Looking for config at: " + file.getAbsolutePath());
+            if (file.exists()) {
+                try (InputStream input = new FileInputStream(file)) {
+                    props.load(input);
+                    loaded = true;
+                    System.out.println("✅ Loaded OAuth configuration from file: " + file.getAbsolutePath());
+                    return;
+                }
+            } else {
+                System.out.println("❌ File not found at: " + file.getAbsolutePath());
+            }
+
+            // 2. Try to load from classpath (root)
+            System.out.println("🔍 Looking for config in classpath: oauth.properties");
+            try (InputStream input = OAuthConfig.class.getClassLoader().getResourceAsStream("oauth.properties")) {
+                if (input != null) {
+                    props.load(input);
+                    loaded = true;
+                    System.out.println("✅ Loaded OAuth configuration from classpath (root)");
+                    return;
+                } else {
+                    System.out.println("❌ Not found in classpath (root)");
                 }
             }
+
+            // 3. Try to load from classpath (com/raven package)
+            System.out.println("🔍 Looking for config in classpath: com/raven/oauth.properties");
+            try (InputStream input = OAuthConfig.class.getClassLoader().getResourceAsStream("com/raven/oauth.properties")) {
+                if (input != null) {
+                    props.load(input);
+                    loaded = true;
+                    System.out.println("✅ Loaded OAuth configuration from classpath (com/raven)");
+                    return;
+                } else {
+                    System.out.println("❌ Not found in classpath (com/raven)");
+                }
+            }
+            
+            // 4. Try to load from src/com/raven/oauth.properties (direct file access for dev)
+            java.io.File devFile = new java.io.File("src/com/raven/oauth.properties");
+            System.out.println("🔍 Looking for config at: " + devFile.getAbsolutePath());
+            if (devFile.exists()) {
+                try (InputStream input = new FileInputStream(devFile)) {
+                    props.load(input);
+                    loaded = true;
+                    System.out.println("✅ Loaded OAuth configuration from dev file: " + devFile.getAbsolutePath());
+                    return;
+                }
+            }
+
+            System.out.println("⚠ Could not load oauth.properties from any location, using default values");
+
         } catch (Exception e) {
             System.out.println("⚠ Error loading OAuth configuration: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     

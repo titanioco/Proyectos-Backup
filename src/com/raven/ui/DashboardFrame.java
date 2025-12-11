@@ -10,6 +10,15 @@ import com.raven.ds.modules.graph.GraphControls;
 import com.raven.ds.modules.hashtable.HashTablePanel;
 import com.raven.ds.modules.hashtable.HashTableControls;
 
+import com.raven.ds.modules.heap.BinaryHeapPanel;
+import com.raven.ds.modules.heap.BinaryHeapControls;
+import com.raven.ds.modules.heapsort.HeapsortPanel;
+import com.raven.ds.modules.heapsort.HeapsortControls;
+import com.raven.ds.modules.avl.AVLTreePanel;
+import com.raven.ds.modules.avl.AVLTreeControls;
+import com.raven.ds.modules.dynamicarray.DynamicArrayPanel;
+import com.raven.ds.modules.dynamicarray.DynamicArrayControls;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -28,7 +37,7 @@ public class DashboardFrame extends JFrame {
     private void initComponents() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Dashboard - " + currentUser.getFullName());
-        setSize(800, 600);
+        setSize(1000, 800);
         setLocationRelativeTo(null);
         setResizable(true);
     }
@@ -38,20 +47,29 @@ public class DashboardFrame extends JFrame {
         
         // Header Panel
         JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(new Color(52, 73, 94));
+        headerPanel.setBackground(new Color(5, 130, 97));
         headerPanel.setPreferredSize(new Dimension(0, 80));
         
         JLabel titleLabel = new JLabel("Interactive Data Structures Learning Suite");
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(40, 10, 10, 0));
         titleLabel.setFont(new Font("sansserif", Font.BOLD, 24));
         titleLabel.setForeground(Color.WHITE);
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0));
         
         JPanel userPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         userPanel.setOpaque(false);
+        userPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         
         JLabel userLabel = new JLabel("Hello, " + currentUser.getFullName());
         userLabel.setFont(new Font("sansserif", Font.PLAIN, 14));
         userLabel.setForeground(Color.WHITE);
+        
+        JButton backButton = new JButton("← Back to Menu");
+        backButton.setBackground(new Color(5, 122, 130));
+        backButton.setForeground(Color.WHITE);
+        backButton.setFocusPainted(false);
+        backButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        backButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        backButton.addActionListener(e -> goBackToMenu());
         
         JButton exportBtn = new JButton("Export PDF");
         exportBtn.setBackground(new Color(7, 164, 121)); // Raven green
@@ -76,6 +94,8 @@ public class DashboardFrame extends JFrame {
         
         userPanel.add(userLabel);
         userPanel.add(Box.createHorizontalStrut(15));
+        userPanel.add(backButton);
+        userPanel.add(Box.createHorizontalStrut(10));
         userPanel.add(exportBtn);
         userPanel.add(Box.createHorizontalStrut(10));
         userPanel.add(logoutButton);
@@ -97,6 +117,7 @@ public class DashboardFrame extends JFrame {
         footerPanel.setPreferredSize(new Dimension(0, 40));
         
         JLabel footerLabel = new JLabel("Interactive Data Structures Learning Suite - College Edition");
+        footerLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
         footerLabel.setForeground(Color.WHITE);
         footerLabel.setFont(new Font("sansserif", Font.PLAIN, 12));
         footerPanel.add(footerLabel);
@@ -116,17 +137,19 @@ public class DashboardFrame extends JFrame {
         );
         
         if (result == JOptionPane.YES_OPTION) {
-            // Close dashboard window
+            // Close current window
             dispose();
-            // Restart the main application to show login/register UI
-            SwingUtilities.invokeLater(() -> {
-                try {
-                    new com.raven.main.Main().setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+            // Use SessionManager to return to original login screen
+            com.raven.service.SessionManager.getInstance().logout();
         }
+    }
+    
+    private void goBackToMenu() {
+        SwingUtilities.invokeLater(() -> {
+            this.dispose();
+            // Use SessionManager to return to existing MainSelectionFrame
+            com.raven.service.SessionManager.getInstance().showMainSelectionFrame();
+        });
     }
     
     private void createDataStructureTabs(JTabbedPane tabbedPane) {
@@ -139,11 +162,113 @@ public class DashboardFrame extends JFrame {
         // Tab 3: Hash Table
         createHashTableTab(tabbedPane);
         
-        // Tab 4-7: Placeholder tabs for other data structures
-        createPlaceholderTab(tabbedPane, "Binary Heap", "Min/Max heap operations");
-        createPlaceholderTab(tabbedPane, "Heapsort", "Heap-based sorting algorithm");
-        createPlaceholderTab(tabbedPane, "AVL Tree", "Self-balancing binary search tree");
-        createPlaceholderTab(tabbedPane, "Dynamic Array", "ArrayList implementation with resizing");
+        // Tab 4: Binary Heap
+        createBinaryHeapTab(tabbedPane);
+        
+        // Tab 5: Heapsort
+        createHeapsortTab(tabbedPane);
+        
+        // Tab 6: AVL Tree
+        createAVLTreeTab(tabbedPane);
+        
+        // Tab 7: Dynamic Array
+        createDynamicArrayTab(tabbedPane);
+    }
+    
+    private void createBinaryHeapTab(JTabbedPane tabbedPane) {
+        AnimationEngine engine = new AnimationEngine();
+        BinaryHeapPanel panel = new BinaryHeapPanel(engine);
+        BinaryHeapControls controls = new BinaryHeapControls(panel, engine);
+        
+        JPanel container = new JPanel(new BorderLayout());
+        container.add(panel, BorderLayout.CENTER);
+        container.add(controls, BorderLayout.SOUTH);
+        
+        // Add demo button
+        JPanel demoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton demoBtn = new JButton("Load Demo Heap");
+        demoBtn.setBackground(new Color(7, 164, 121));
+        demoBtn.setForeground(Color.WHITE);
+        demoBtn.setFocusPainted(false);
+        demoBtn.addActionListener(e -> controls.loadDemo());
+        demoPanel.add(demoBtn);
+        demoPanel.setBackground(Color.WHITE);
+        
+        container.add(demoPanel, BorderLayout.NORTH);
+        
+        tabbedPane.addTab("Binary Heap", container);
+    }
+    
+    private void createHeapsortTab(JTabbedPane tabbedPane) {
+        AnimationEngine engine = new AnimationEngine();
+        HeapsortPanel panel = new HeapsortPanel(engine);
+        HeapsortControls controls = new HeapsortControls(panel, engine);
+        
+        JPanel container = new JPanel(new BorderLayout());
+        container.add(panel, BorderLayout.CENTER);
+        container.add(controls, BorderLayout.SOUTH);
+        
+        // Add demo button
+        JPanel demoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton demoBtn = new JButton("Load Random Data");
+        demoBtn.setBackground(new Color(7, 164, 121));
+        demoBtn.setForeground(Color.WHITE);
+        demoBtn.setFocusPainted(false);
+        demoBtn.addActionListener(e -> controls.loadDemo());
+        demoPanel.add(demoBtn);
+        demoPanel.setBackground(Color.WHITE);
+        
+        container.add(demoPanel, BorderLayout.NORTH);
+        
+        tabbedPane.addTab("Heapsort", container);
+    }
+    
+    private void createAVLTreeTab(JTabbedPane tabbedPane) {
+        AnimationEngine engine = new AnimationEngine();
+        AVLTreePanel panel = new AVLTreePanel(engine);
+        AVLTreeControls controls = new AVLTreeControls(panel, engine);
+        
+        JPanel container = new JPanel(new BorderLayout());
+        container.add(panel, BorderLayout.CENTER);
+        container.add(controls, BorderLayout.SOUTH);
+        
+        // Add demo button
+        JPanel demoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton demoBtn = new JButton("Load Demo Tree");
+        demoBtn.setBackground(new Color(7, 164, 121));
+        demoBtn.setForeground(Color.WHITE);
+        demoBtn.setFocusPainted(false);
+        demoBtn.addActionListener(e -> controls.loadDemo());
+        demoPanel.add(demoBtn);
+        demoPanel.setBackground(Color.WHITE);
+        
+        container.add(demoPanel, BorderLayout.NORTH);
+        
+        tabbedPane.addTab("AVL Tree", container);
+    }
+    
+    private void createDynamicArrayTab(JTabbedPane tabbedPane) {
+        AnimationEngine engine = new AnimationEngine();
+        DynamicArrayPanel panel = new DynamicArrayPanel(engine);
+        DynamicArrayControls controls = new DynamicArrayControls(panel, engine);
+        
+        JPanel container = new JPanel(new BorderLayout());
+        container.add(panel, BorderLayout.CENTER);
+        container.add(controls, BorderLayout.SOUTH);
+        
+        // Add demo button
+        JPanel demoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton demoBtn = new JButton("Load Demo Array");
+        demoBtn.setBackground(new Color(7, 164, 121));
+        demoBtn.setForeground(Color.WHITE);
+        demoBtn.setFocusPainted(false);
+        demoBtn.addActionListener(e -> controls.loadDemo());
+        demoPanel.add(demoBtn);
+        demoPanel.setBackground(Color.WHITE);
+        
+        container.add(demoPanel, BorderLayout.NORTH);
+        
+        tabbedPane.addTab("Dynamic Array", container);
     }
     
     private void createBSTTab(JTabbedPane tabbedPane) {

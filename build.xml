@@ -93,6 +93,7 @@
         <copy todir="${dist.dir}">
             <fileset file="miglayout-4.0.jar"/>
             <fileset file="TimingFramework-0.55.jar"/>
+            <fileset file="oauth.properties"/>
         </copy>
         
         <echo message="Executable JAR created: ${dist.jar}"/>

@@ -46,7 +46,7 @@ public class HashTablePanel extends JPanel {
         g2d.setColor(new Color(52, 73, 94));
         g2d.setFont(titleFont);
         String title = "Hash Table - " + hashTable.getHashFunction().name().replace("_", " ");
-        g2d.drawString(title, 20, 30);
+        g2d.drawString(title, 20, 40);
     }
     
     private void drawHashTable(Graphics2D g2d) {

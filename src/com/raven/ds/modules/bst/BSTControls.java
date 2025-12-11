@@ -2,6 +2,7 @@ package com.raven.ds.modules.bst;
 
 import com.raven.ds.core.AnimationEngine;
 import com.raven.ds.core.PDFExporter;
+import com.raven.ds.core.PDFDocumentGenerator;
 import com.raven.swing.Button;
 import net.miginfocom.swing.MigLayout;
 
@@ -26,11 +27,10 @@ public class BSTControls extends JPanel {
     private Button stepBtn;
     private Button resetBtn;
     private Button downloadBtn;
+    private Button downloadDocsBtn;
     private JSlider speedSlider;
     private JLabel statusLabel;
-    private JLabel speedLabel;
     private JComboBox<String> traversalCombo;
-    private JProgressBar animationProgress;
     
     public BSTControls(BSTPanel visualizer, AnimationEngine animationEngine) {
         this.visualizer = visualizer;
@@ -51,64 +51,99 @@ public class BSTControls extends JPanel {
         ));
         inputField.setToolTipText("Enter a number to insert, delete, or search");
         
-        // Operation buttons with enhanced styling
+        // Operation buttons with enhanced styling (50% bigger)
         insertBtn = new Button();
         insertBtn.setText("Insert");
         insertBtn.setBackground(new Color(39, 174, 96)); // Green
+        insertBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        insertBtn.setForeground(Color.WHITE);
+        insertBtn.setPreferredSize(new Dimension(120, 40));
         insertBtn.setToolTipText("Insert value into BST");
         
         deleteBtn = new Button();
         deleteBtn.setText("Delete");
         deleteBtn.setBackground(new Color(231, 76, 60)); // Red
+        deleteBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        deleteBtn.setForeground(Color.WHITE);
+        deleteBtn.setPreferredSize(new Dimension(120, 40));
         deleteBtn.setToolTipText("Delete value from BST");
         
         findBtn = new Button();
         findBtn.setText("Find");
         findBtn.setBackground(new Color(52, 152, 219)); // Blue
+        findBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        findBtn.setForeground(Color.WHITE);
+        findBtn.setPreferredSize(new Dimension(120, 40));
         findBtn.setToolTipText("Search for value in BST");
         
         clearBtn = new Button();
         clearBtn.setText("Clear");
         clearBtn.setBackground(new Color(149, 165, 166)); // Gray
+        clearBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        clearBtn.setForeground(Color.WHITE);
+        clearBtn.setPreferredSize(new Dimension(120, 40));
         clearBtn.setToolTipText("Clear entire BST");
         
         // Animation controls with enhanced styling
         playBtn = new Button();
         playBtn.setText("▶ Play");
         playBtn.setBackground(new Color(46, 204, 113)); // Green
+        playBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        playBtn.setForeground(Color.WHITE);
+        playBtn.setPreferredSize(new Dimension(80, 40));
         playBtn.setToolTipText("Play animation sequence");
         
         pauseBtn = new Button();
         pauseBtn.setText("⏸ Pause");
         pauseBtn.setBackground(new Color(241, 196, 15)); // Yellow
+        pauseBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        pauseBtn.setForeground(Color.BLACK);
+        pauseBtn.setPreferredSize(new Dimension(80, 40));
         pauseBtn.setToolTipText("Pause current animation");
         
         stepBtn = new Button();
         stepBtn.setText("⏭ Step");
         stepBtn.setBackground(new Color(52, 152, 219)); // Blue
+        stepBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        stepBtn.setForeground(Color.WHITE);
+        stepBtn.setPreferredSize(new Dimension(80, 40));
         stepBtn.setToolTipText("Execute next animation step");
         
         resetBtn = new Button();
         resetBtn.setText("🔄 Reset");
         resetBtn.setBackground(new Color(149, 165, 166)); // Gray
+        resetBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        resetBtn.setForeground(Color.WHITE);
+        resetBtn.setPreferredSize(new Dimension(80, 40));
         resetBtn.setToolTipText("Reset animation to beginning");
         
         // Download/Export button
         downloadBtn = new Button();
-        downloadBtn.setText("📁 Download Analysis");
+        downloadBtn.setText("📁 Export");
         downloadBtn.setBackground(new Color(155, 89, 182)); // Purple
+        downloadBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        downloadBtn.setForeground(Color.WHITE);
+        downloadBtn.setPreferredSize(new Dimension(120, 40));
         downloadBtn.setToolTipText("Download detailed analysis report");
         
-        // Speed control with labels
+        // Download Documentation button
+        downloadDocsBtn = new Button();
+        downloadDocsBtn.setText("📚 Docs");
+        downloadDocsBtn.setBackground(new Color(52, 73, 94)); // Dark blue
+        downloadDocsBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        downloadDocsBtn.setForeground(Color.WHITE);
+        downloadDocsBtn.setPreferredSize(new Dimension(80, 40));
+        downloadDocsBtn.setToolTipText("Download complete module documentation PDF");
+        
+        // Speed control (8 times bigger)
         speedSlider = new JSlider(100, 3000, 1000);
+        speedSlider.setInverted(true); // Lower values = faster
+        speedSlider.setPreferredSize(new Dimension(400, 60)); // 8x bigger
         speedSlider.setMajorTickSpacing(500);
         speedSlider.setPaintTicks(true);
         speedSlider.setPaintLabels(true);
         speedSlider.setBackground(Color.WHITE);
         speedSlider.setToolTipText("Adjust animation speed");
-        
-        speedLabel = new JLabel("Speed:");
-        speedLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
         
         // Traversal options
         traversalCombo = new JComboBox<>(new String[]{
@@ -117,56 +152,47 @@ public class BSTControls extends JPanel {
         traversalCombo.setFont(new Font("SansSerif", Font.PLAIN, 12));
         traversalCombo.setToolTipText("Select traversal type");
         
-        // Animation progress bar
-        animationProgress = new JProgressBar(0, 100);
-        animationProgress.setStringPainted(true);
-        animationProgress.setString("Ready");
-        animationProgress.setBackground(Color.WHITE);
-        animationProgress.setForeground(new Color(52, 152, 219));
-        
         // Status label with enhanced styling
         statusLabel = new JLabel("Enter a number and select an operation");
         statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
         statusLabel.setForeground(new Color(52, 73, 94));
+        
+        setBackground(Color.WHITE);
+        setBorder(BorderFactory.createTitledBorder("BST Controls"));
     }
     
     private void setupLayout() {
-        setLayout(new MigLayout("fillx, wrap 6", "[grow][grow][grow][grow][grow][grow]", "[]5[]5[]5[]"));
+        setLayout(new MigLayout("", "[][grow][]", "[]5[]5[]5[]5[]"));
         setBackground(Color.WHITE);
-        setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(new Color(52, 73, 94), 2),
-            "BST Controls & Animation",
-            0, 0, new Font("SansSerif", Font.BOLD, 14),
-            new Color(52, 73, 94)
-        ));
+        setBorder(BorderFactory.createTitledBorder("BST Controls"));
         
-        // Input row
-        add(new JLabel("Value:"), "");
-        add(inputField, "growx");
-        add(insertBtn, "growx");
-        add(deleteBtn, "growx");
-        add(findBtn, "growx");
-        add(clearBtn, "growx");
+        // Operations row
+        add(new JLabel("Operations:"), "cell 0 0");
+        add(inputField, "cell 1 0, split 4");
+        add(insertBtn, "cell 1 0");
+        add(deleteBtn, "cell 1 0");
+        add(findBtn, "cell 1 0");
+        add(clearBtn, "cell 2 0");
+        
+        // Traversal row
+        add(new JLabel("Traversal:"), "cell 0 1");
+        add(traversalCombo, "cell 1 1");
+        add(downloadBtn, "cell 2 1");
         
         // Animation controls row
-        add(new JLabel("Animation:"), "");
-        add(playBtn, "growx");
-        add(pauseBtn, "growx");
-        add(stepBtn, "growx");
-        add(resetBtn, "growx");
-        add(traversalCombo, "growx");
+        add(new JLabel("Animation:"), "cell 0 2");
+        add(playBtn, "cell 1 2");
+        add(pauseBtn, "cell 1 2");
+        add(stepBtn, "cell 1 2");
+        add(resetBtn, "cell 1 2");
+        add(downloadDocsBtn, "cell 2 2");
         
-        // Speed control and download row
-        add(speedLabel, "");
-        add(speedSlider, "span 4, growx");
-        add(downloadBtn, "growx");
-        
-        // Progress and status row
-        add(new JLabel("Progress:"), "");
-        add(animationProgress, "span 5, growx");
+        // Speed control row
+        add(new JLabel("Speed:"), "cell 0 3");
+        add(speedSlider, "cell 1 3, span 2, grow");
         
         // Status row
-        add(statusLabel, "span 6, growx, center");
+        add(statusLabel, "cell 0 4, span 3");
     }
     
     private void setupListeners() {
@@ -182,6 +208,7 @@ public class BSTControls extends JPanel {
         
         // Enhanced download functionality
         downloadBtn.addActionListener(e -> downloadAnalysis());
+        downloadDocsBtn.addActionListener(e -> downloadDocumentation());
         
         speedSlider.addChangeListener(e -> {
             int speed = 3100 - speedSlider.getValue(); // Invert so right = faster
@@ -190,16 +217,11 @@ public class BSTControls extends JPanel {
         
         traversalCombo.addActionListener(e -> performTraversal());
         
-        // Enhanced animation engine listener with progress tracking
+        // Enhanced animation engine listener
         animationEngine.addListener(new AnimationEngine.AnimationListener() {
             @Override
             public void onStepChanged(int currentStep, int totalSteps) {
                 updateStatus("Step " + (currentStep + 1) + " of " + totalSteps);
-                if (totalSteps > 0) {
-                    int progress = (int) ((double) (currentStep + 1) / totalSteps * 100);
-                    animationProgress.setValue(progress);
-                    animationProgress.setString("Step " + (currentStep + 1) + "/" + totalSteps + " (" + progress + "%)");
-                }
             }
             
             @Override
@@ -214,24 +236,16 @@ public class BSTControls extends JPanel {
                 findBtn.setEnabled(!isPlaying);
                 clearBtn.setEnabled(!isPlaying);
                 traversalCombo.setEnabled(!isPlaying);
-                
-                if (isPlaying) {
-                    animationProgress.setString("Playing...");
-                }
             }
             
             @Override
             public void onAnimationComplete() {
                 updateStatus("Animation complete");
-                animationProgress.setValue(100);
-                animationProgress.setString("Complete");
             }
             
             @Override
             public void onReset() {
                 updateStatus("Animation reset");
-                animationProgress.setValue(0);
-                animationProgress.setString("Ready");
             }
         });
         
@@ -300,8 +314,6 @@ public class BSTControls extends JPanel {
         if (result == JOptionPane.YES_OPTION) {
             visualizer.clear();
             animationEngine.clearSteps();
-            animationProgress.setValue(0);
-            animationProgress.setString("Tree cleared");
             updateStatus("Tree cleared successfully");
         }
     }
@@ -348,8 +360,28 @@ public class BSTControls extends JPanel {
         } catch (Exception e) {
             updateStatus("Failed to generate analysis report: " + e.getMessage());
             JOptionPane.showMessageDialog(this,
-                "Failed to generate analysis report:\n" + e.getMessage(),
-                "Export Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private void downloadDocumentation() {
+        try {
+            String content = PDFDocumentGenerator.generateBSTDocumentation();
+            boolean success = PDFDocumentGenerator.generateModuleDocumentation(
+                "BST",
+                "Binary Search Tree (BST)",
+                content
+            );
+            
+            if (success) {
+                updateStatus("BST documentation generated successfully");
+            }
+            
+        } catch (Exception e) {
+            updateStatus("Failed to generate documentation: " + e.getMessage());
+            JOptionPane.showMessageDialog(this,
+                "Failed to generate documentation:\n" + e.getMessage(),
+                "Documentation Error",
                 JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -373,37 +405,10 @@ public class BSTControls extends JPanel {
         // Create a more interesting demo tree
         int[] demoValues = {50, 30, 70, 20, 40, 60, 80, 10, 25, 35, 45, 55, 65, 75, 90};
         
-        // Show progress dialog for demo loading
-        JDialog progressDialog = new JDialog((JFrame) SwingUtilities.getWindowAncestor(this), 
-            "Loading Demo Tree", true);
-        JProgressBar progressBar = new JProgressBar(0, demoValues.length);
-        progressBar.setStringPainted(true);
-        progressDialog.add(progressBar);
-        progressDialog.setSize(300, 100);
-        progressDialog.setLocationRelativeTo(this);
+        for (int value : demoValues) {
+            visualizer.insertValueInstant(value);
+        }
         
-        // Load demo values with a small delay for visual effect
-        Timer demoTimer = new Timer(200, null);
-        final int[] index = {0};
-        
-        demoTimer.addActionListener(e -> {
-            if (index[0] < demoValues.length) {
-                visualizer.insertValueInstant(demoValues[index[0]]);
-                progressBar.setValue(index[0] + 1);
-                progressBar.setString("Inserting " + demoValues[index[0]] + "...");
-                index[0]++;
-            } else {
-                demoTimer.stop();
-                progressDialog.dispose();
-                updateStatus("Demo tree loaded with " + demoValues.length + " nodes");
-                animationProgress.setString("Demo loaded");
-            }
-        });
-        
-        // Show progress dialog and start loading
-        SwingUtilities.invokeLater(() -> {
-            progressDialog.setVisible(true);
-        });
-        demoTimer.start();
+        updateStatus("Demo tree loaded with " + demoValues.length + " nodes");
     }
 }

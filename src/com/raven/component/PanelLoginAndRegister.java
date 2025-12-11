@@ -55,45 +55,55 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         label.setFont(new Font("sansserif", 1, 30));
         label.setForeground(new Color(7, 164, 121));
         register.add(label);
-        MyTextField txtUser = new MyTextField();
-        txtUser.setPrefixIcon(new ImageIcon(getClass().getResource("/com/raven/icon/user.png")));
-        txtUser.setHint("Name");
-        register.add(txtUser, "w 60%");
-        MyTextField txtEmail = new MyTextField();
-        txtEmail.setPrefixIcon(new ImageIcon(getClass().getResource("/com/raven/icon/mail.png")));
-        txtEmail.setHint("Email");
-        register.add(txtEmail, "w 60%");
-        MyPasswordField txtPass = new MyPasswordField();
-        txtPass.setPrefixIcon(new ImageIcon(getClass().getResource("/com/raven/icon/pass.png")));
-        txtPass.setHint("Password");
-        register.add(txtPass, "w 60%");
+        // MyTextField txtUser = new MyTextField();
+        // txtUser.setPrefixIcon(new ImageIcon(getClass().getResource("/com/raven/icon/user.png")));
+        // txtUser.setHint("Name");
+        // register.add(txtUser, "w 60%");
+        // MyTextField txtEmail = new MyTextField();
+        // txtEmail.setPrefixIcon(new ImageIcon(getClass().getResource("/com/raven/icon/mail.png")));
+        // txtEmail.setHint("Email");
+        // register.add(txtEmail, "w 60%");
+        // MyPasswordField txtPass = new MyPasswordField();
+        // txtPass.setPrefixIcon(new ImageIcon(getClass().getResource("/com/raven/icon/pass.png")));
+        // txtPass.setHint("Password");
+        // register.add(txtPass, "w 60%");
         
-        // Add password strength indicator
-        PasswordStrengthLabel strengthLabel = new PasswordStrengthLabel();
-        register.add(strengthLabel, "w 60%");
+        // // Add password strength indicator
+        // PasswordStrengthLabel strengthLabel = new PasswordStrengthLabel();
+        // register.add(strengthLabel, "w 60%");
         
-        // Add password strength checking
-        txtPass.addCaretListener(e -> {
-            strengthLabel.updateStrength(String.valueOf(txtPass.getPassword()));
-        });
+        // // Add password strength checking
+        // txtPass.addCaretListener(e -> {
+        //     strengthLabel.updateStrength(String.valueOf(txtPass.getPassword()));
+        // });
         
-        Button cmd = new Button();
-        cmd.setBackground(new Color(7, 164, 121));
-        cmd.setForeground(new Color(250, 250, 250));
-        cmd.setFont(new Font("sansserif", Font.BOLD, 14)); // Explicit bold font for register button
-        cmd.addActionListener(eventRegister);
-        cmd.setText("SIGN UP");
-        register.add(cmd, "w 40%, h 40");
-        cmd.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                String userName = txtUser.getText().trim();
-                String email = txtEmail.getText().trim();
-                String password = String.valueOf(txtPass.getPassword());
-                user = new ModelUser(0, userName, email, password);
-            }
-        });        
+        // Button cmd = new Button();
+        // cmd.setBackground(new Color(7, 164, 121));
+        // cmd.setForeground(new Color(250, 250, 250));
+        // cmd.setFont(new Font("sansserif", Font.BOLD, 14)); // Explicit bold font for register button
+        // cmd.addActionListener(eventRegister);
+        // cmd.setText("SIGN UP");
+        // register.add(cmd, "w 40%, h 40");
+        // cmd.addActionListener(new ActionListener() {
+        //     @Override
+        //     public void actionPerformed(ActionEvent ae) {
+        //         String userName = txtUser.getText().trim();
+        //         String email = txtEmail.getText().trim();
+        //         String password = String.valueOf(txtPass.getPassword());
+        //         user = new ModelUser(0, userName, email, password);
+        //     }
+        // });        
 
+        // Add Google Sign-In button for registration
+        GoogleSignInButton googleBtn = new GoogleSignInButton();
+        googleBtn.setText("Sign up with Google");
+        googleBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleGoogleSignIn();
+            }
+        });
+        register.add(googleBtn, "w 70%, h 50, gaptop 20");
     }
 
     private void initLogin() {
@@ -102,7 +112,7 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         label.setFont(new Font("sansserif", 1, 40));
         label.setForeground(new Color(7, 163, 15));
         login.add(label);
-        JLabel labelLogo = new JLabel("Proyectos Universitarios UN");
+        JLabel labelLogo = new JLabel("Proyectos Universitarios");
         labelLogo.setFont(new Font("sansserif", 1, 30));
         labelLogo.setForeground(new Color(7, 163, 121));
         login.add(labelLogo);
@@ -112,35 +122,33 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
         login.add(labelDescription);
         
         // Comment out email/password fields to focus on Google authentication
-        /*
-        MyTextField txtEmail = new MyTextField();
-        txtEmail.setPrefixIcon(new ImageIcon(getClass().getResource("/com/raven/icon/mail.png")));
-        txtEmail.setHint("Email");
-        login.add(txtEmail, "w 60%");
-        MyPasswordField txtPass = new MyPasswordField();
-        txtPass.setPrefixIcon(new ImageIcon(getClass().getResource("/com/raven/icon/pass.png")));
-        txtPass.setHint("Password");
-        login.add(txtPass, "w 60%");
-        JButton cmdForget = new JButton("Olvidaste tu Contraseña ?");
-        cmdForget.setForeground(new Color(100, 100, 100));
-        cmdForget.setFont(new Font("sansserif", 1, 12));
-        cmdForget.setContentAreaFilled(false);
-        cmdForget.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        // MyTextField txtEmail = new MyTextField();
+        // txtEmail.setPrefixIcon(new ImageIcon(getClass().getResource("/com/raven/icon/mail.png")));
+        // txtEmail.setHint("Email");
+        // login.add(txtEmail, "w 60%");
+        // MyPasswordField txtPass = new MyPasswordField();
+        // txtPass.setPrefixIcon(new ImageIcon(getClass().getResource("/com/raven/icon/pass.png")));
+        // txtPass.setHint("Password");
+        // login.add(txtPass, "w 60%");
+        // JButton cmdForget = new JButton("Olvidaste tu Contraseña ?");
+        // cmdForget.setForeground(new Color(100, 100, 100));
+        // cmdForget.setFont(new Font("sansserif", 1, 12));
+        // cmdForget.setContentAreaFilled(false);
+        // cmdForget.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        login.add(cmdForget);
-        Button cmd = new Button();
-        cmd.setBackground(new Color(29, 99, 81));
-        cmd.setForeground(new Color(250, 250, 250));
-        cmd.setFont(new Font("sansserif", Font.BOLD, 14)); // Explicit bold font for login button
-        cmd.setText("SIGN IN");
-        cmd.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleLogin(txtEmail.getText().trim(), String.valueOf(txtPass.getPassword()));
-            }
-        });
-        login.add(cmd, "w 40%, h 40");
-        */
+        // login.add(cmdForget);
+        // Button cmd = new Button();
+        // cmd.setBackground(new Color(29, 99, 81));
+        // cmd.setForeground(new Color(250, 250, 250));
+        // cmd.setFont(new Font("sansserif", Font.BOLD, 14)); // Explicit bold font for login button
+        // cmd.setText("SIGN IN");
+        // cmd.addActionListener(new ActionListener() {
+        //     @Override
+        //     public void actionPerformed(ActionEvent e) {
+        //         handleLogin(txtEmail.getText().trim(), String.valueOf(txtPass.getPassword()));
+        //     }
+        // });
+        // login.add(cmd, "w 40%, h 40");
         
         // Centered Google Sign-In Button with enhanced styling
         GoogleSignInButton googleBtn = new GoogleSignInButton();
@@ -381,13 +389,13 @@ public class PanelLoginAndRegister extends javax.swing.JLayeredPane {
             loginWindow.dispose();
             System.out.println("✅ Login window closed by helper");
         }
-        // Map to internal User model and open Dashboard
+        // Map to internal User model and open MainSelectionFrame
         com.raven.model.User user = new com.raven.model.User(userInfo.getEmail(), userInfo.getName());
-        com.raven.ui.DashboardFrame dashboard = new com.raven.ui.DashboardFrame(user);
-        dashboard.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
-        dashboard.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
-        dashboard.setVisible(true);
-        System.out.println("✅ Dashboard opened by helper for: " + userInfo.getEmail());
+        com.raven.ui.MainSelectionFrame mainSelection = new com.raven.ui.MainSelectionFrame(user);
+        mainSelection.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
+        mainSelection.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+        mainSelection.setVisible(true);
+        System.out.println("✅ MainSelectionFrame opened for: " + userInfo.getEmail());
         dashboardOpened = true;
     }
 

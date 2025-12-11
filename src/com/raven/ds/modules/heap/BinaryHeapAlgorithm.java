@@ -29,7 +29,7 @@ public class BinaryHeapAlgorithm {
             heap.add(newNode);
             clearHighlights();
             newNode.setHighlighted(true);
-        }, "Insert " + value + " at the end of the heap"));
+        }, "➕ <b>Insert:</b> Adding value <b>" + value + "</b> at the end of the heap (first available leaf)."));
         
         if (heap.size() > 1) {
             heapifyUp(heap.size() - 1);
@@ -37,7 +37,7 @@ public class BinaryHeapAlgorithm {
         
         animationEngine.addStep(new SimpleAnimationStep("Complete", () -> {
             clearHighlights();
-        }, "Insertion completed. Heap property maintained."));
+        }, "✅ <b>Insertion Complete:</b> Heap property is maintained. All nodes satisfy the " + (isMaxHeap ? "Max-Heap" : "Min-Heap") + " condition."));
     }
     
     public void extractRoot() {
@@ -50,12 +50,12 @@ public class BinaryHeapAlgorithm {
             if (!heap.isEmpty()) {
                 heap.get(0).setHighlighted(true);
             }
-        }, "Extract the root element: " + (heap.isEmpty() ? "none" : heap.get(0).getValue())));
+        }, "📤 <b>Extract Root:</b> Removing the root element <b>" + (heap.isEmpty() ? "none" : heap.get(0).getValue()) + "</b> (" + (isMaxHeap ? "Maximum" : "Minimum") + ")."));
         
         if (heap.size() == 1) {
             animationEngine.addStep(new SimpleAnimationStep("Remove Last", () -> {
                 heap.clear();
-            }, "Remove the only element"));
+            }, "🗑️ <b>Remove Last:</b> The heap is now empty."));
             return;
         }
         
@@ -67,7 +67,7 @@ public class BinaryHeapAlgorithm {
                 clearHighlights();
                 heap.get(0).setHighlighted(true);
             }
-        }, "Replace root with the last element"));
+        }, "🔄 <b>Replace Root:</b> Moved the last element to the root position to maintain the complete tree structure."));
         
         if (!heap.isEmpty()) {
             heapifyDown(0);
@@ -75,7 +75,7 @@ public class BinaryHeapAlgorithm {
         
         animationEngine.addStep(new SimpleAnimationStep("Complete", () -> {
             clearHighlights();
-        }, "Extraction completed. Heap property restored."));
+        }, "✅ <b>Extraction Complete:</b> Heap property restored."));
     }
     
     private void heapifyUp(int index) {
@@ -93,7 +93,7 @@ public class BinaryHeapAlgorithm {
             clearHighlights();
             current.setHighlighted(true);
             parent.setHighlighted(true);
-        }, "Compare " + current.getValue() + " with parent " + parent.getValue()));
+        }, "🔍 <b>Compare:</b> Checking if child <b>" + current.getValue() + "</b> violates heap property with parent <b>" + parent.getValue() + "</b>."));
         
         if (shouldSwap) {
             animationEngine.addStep(new SimpleAnimationStep("Swap", () -> {
@@ -104,14 +104,14 @@ public class BinaryHeapAlgorithm {
                 int temp = current.getValue();
                 current.setValue(parent.getValue());
                 parent.setValue(temp);
-            }, "Swap " + current.getValue() + " and " + parent.getValue()));
+            }, "🔀 <b>Swap:</b> Child <b>" + current.getValue() + "</b> is " + (isMaxHeap ? "greater" : "smaller") + " than parent. Swapping to restore heap property."));
             
             animationEngine.addStep(new SimpleAnimationStep("Continue Heapify", () -> {
                 current.setBeingSwapped(false);
                 parent.setBeingSwapped(false);
                 clearHighlights();
                 parent.setHighlighted(true);
-            }, "Continue heapify up from parent"));
+            }, "⬆️ <b>Continue:</b> Moving up to check the parent's new position."));
             
             heapifyUp(parentIndex);
         }
@@ -133,7 +133,7 @@ public class BinaryHeapAlgorithm {
             if (rightChild < heap.size()) {
                 heap.get(rightChild).setHighlighted(true);
             }
-        }, "Compare with children to find " + (isMaxHeap ? "maximum" : "minimum")));
+        }, "🔍 <b>Compare Children:</b> Comparing <b>" + heap.get(index).getValue() + "</b> with its children to find the " + (isMaxHeap ? "largest" : "smallest") + "."));
         
         // Find the target child to potentially swap with
         if (isMaxHeap) {
@@ -169,14 +169,14 @@ public class BinaryHeapAlgorithm {
                 int temp = current.getValue();
                 current.setValue(target.getValue());
                 target.setValue(temp);
-            }, "Swap " + heap.get(index).getValue() + " with " + heap.get(targetIndex).getValue()));
+            }, "🔀 <b>Swap:</b> Swapping <b>" + heap.get(index).getValue() + "</b> with <b>" + heap.get(targetIndex).getValue() + "</b> to restore heap property."));
             
             animationEngine.addStep(new SimpleAnimationStep("Continue Heapify", () -> {
                 heap.get(index).setBeingSwapped(false);
                 heap.get(finalTarget).setBeingSwapped(false);
                 clearHighlights();
                 heap.get(finalTarget).setHighlighted(true);
-            }, "Continue heapify down"));
+            }, "⬇️ <b>Continue:</b> Moving down to check the child's new position."));
             
             heapifyDown(targetIndex);
         }
@@ -190,7 +190,7 @@ public class BinaryHeapAlgorithm {
             for (int value : values) {
                 heap.add(new HeapNode(value));
             }
-        }, "Initialize heap with values: " + java.util.Arrays.toString(values)));
+        }, "🏗️ <b>Build Heap:</b> Initialized heap with " + values.length + " elements. Starting bottom-up construction."));
         
         // Build heap from bottom up
         for (int i = heap.size() / 2 - 1; i >= 0; i--) {
@@ -199,7 +199,7 @@ public class BinaryHeapAlgorithm {
         
         animationEngine.addStep(new SimpleAnimationStep("Complete", () -> {
             clearHighlights();
-        }, "Heap construction completed!"));
+        }, "✅ <b>Build Complete:</b> The array has been transformed into a valid " + (isMaxHeap ? "Max-Heap" : "Min-Heap") + "."));
     }
     
     public void clear() {

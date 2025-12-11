@@ -1,0 +1,1761 @@
+package com.raven.accountability.ui.components;
+
+import com.raven.accountability.model.*;
+import com.raven.accountability.service.*;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import javax.swing.RowFilter;
+
+/**
+ * Billing and Invoicing Panel - Production ready billing system
+ * Comprehensive billing system with database integration for invoices and payments
+ */
+public class BillingPanelSimple extends JPanel {
+    
+    // Static data holder to maintain state across navigation
+    private static List<SampleInvoice> persistentInvoices = null;
+    private static boolean staticDataInitialized = false;
+    
+    // Database services - Single working database with production backup
+    private InvoiceService workingInvoiceService;  // Main working database
+    private CustomerService workingCustomerService;
+    
+    // Production backup services (for deployment)
+    private InvoiceService productionInvoiceService;  // Production database
+    private CustomerService productionCustomerService;
+    
+    // Main components
+    private JTable invoicesTable;
+    private DefaultTableModel tableModel;
+    private TableRowSorter<DefaultTableModel> tableSorter;
+    private JTextField searchField;
+    private JComboBox<String> statusFilter;
+    private JButton createInvoiceBtn;
+    private JButton editInvoiceBtn;
+    private JButton viewInvoiceBtn;
+    private JButton deleteInvoiceBtn;
+    private JButton saveToBackupBtn;
+    private JButton saveToProductionBtn;
+    
+    // Statistics panels
+    private JPanel statsPanel;
+    private JLabel totalInvoicesLabel;
+    private JLabel totalAmountLabel;
+    private JLabel outstandingLabel;
+    private JLabel overdueLabel;
+    
+    // In-memory storage for invoices (treated as regular input, not sample data)
+    private List<SampleInvoice> invoices;
+    
+    // Change tracking for database operations
+    private List<SampleInvoice> newInvoices = new ArrayList<>();
+    private List<String> deletedInvoiceNumbers = new ArrayList<>();
+    private List<String> modifiedInvoiceNumbers = new ArrayList<>();
+    private boolean hasUnsavedChanges = false;
+    private boolean isDatabaseUpdateInProgress = false;
+    
+    public BillingPanelSimple() {
+        // Initialize database services
+        initializeServices();
+        
+        // Initialize empty invoice list (will be populated by loadInvoices)
+        invoices = new ArrayList<>();
+        
+        initComponents();
+        setupLayout();
+        loadInvoices();
+        updateStatistics();
+        
+        System.out.println("BILLING: BillingPanelSimple initialized with " + getInvoiceCount() + " invoices");
+    }
+    
+    private void initializeServices() {
+        try {
+            // Initialize working database services (main database for all operations)
+            this.workingInvoiceService = new InvoiceService();
+            this.workingCustomerService = new CustomerService();
+            
+            // Initialize production database services (for deployment backup)
+            this.productionInvoiceService = new InvoiceService();
+            this.productionCustomerService = new CustomerService();
+            
+            System.out.println("BILLING: Database services initialized successfully");
+        } catch (Exception e) {
+            System.err.println("BILLING: Failed to initialize database services: " + e.getMessage());
+            this.workingInvoiceService = null;
+            this.workingCustomerService = null;
+            this.productionInvoiceService = null;
+            this.productionCustomerService = null;
+        }
+    }
+    
+    private void initComponents() {
+        setBackground(new Color(248, 249, 250));
+        setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+        
+        // Initialize table with editable cells
+        String[] columnNames = {"Invoice #", "Customer", "Date", "Due Date", "Status", "Amount", "Paid", "Balance"};
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                // Make all cells editable for sample invoices
+                return true;
+            }
+            
+            @Override
+            public void setValueAt(Object value, int row, int col) {
+                super.setValueAt(value, row, col);
+            // Update the corresponding sample invoice when cell is edited
+            BillingPanelSimple.this.updateSampleInvoice(row, col, value);
+            }
+        };
+        
+        invoicesTable = new JTable(tableModel);
+        invoicesTable.setRowHeight(40);
+        invoicesTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        invoicesTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        
+        // Enhanced header styling with better contrast - light background with dark text
+        invoicesTable.getTableHeader().setBackground(new Color(238, 242, 248)); // Very light shade of #425c80
+        invoicesTable.getTableHeader().setForeground(new Color(66, 92, 128)); // #425c80 for text
+        invoicesTable.getTableHeader().setPreferredSize(new Dimension(0, 45));
+        
+        // Custom header renderer that forces #425c80 styling to override Nimbus
+        invoicesTable.getTableHeader().setDefaultRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                
+                // Force the styling to override Nimbus completely
+                setOpaque(true);
+                setBackground(new Color(238, 242, 248)); // Very light shade of #425c80
+                setForeground(new Color(66, 92, 128)); // #425c80 for text
+                setFont(new Font("Segoe UI", Font.BOLD, 13));
+                setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+                setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, 1, 1, new Color(189, 203, 220)),
+                    BorderFactory.createEmptyBorder(8, 12, 8, 12)
+                ));
+                
+                return this;
+            }
+        });
+        
+        // Enhanced table styling with #425c80 theme
+        invoicesTable.setBackground(new Color(223, 230, 240)); // Light shade of #425c80
+        invoicesTable.setSelectionBackground(new Color(66, 92, 128)); // #425c80
+        invoicesTable.setSelectionForeground(Color.WHITE);
+        invoicesTable.setGridColor(new Color(189, 203, 220)); // Medium shade of #425c80
+        invoicesTable.setShowGrid(true);
+        invoicesTable.setIntercellSpacing(new Dimension(1, 1));
+        
+        // Alternating row colors for better readability with #425c80 theme
+        invoicesTable.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                
+                if (!isSelected) {
+                    if (row % 2 == 0) {
+                        setBackground(new Color(238, 242, 248)); // Very light shade of #425c80
+                    } else {
+                        setBackground(new Color(223, 230, 240)); // Light shade of #425c80
+                    }
+                    setForeground(new Color(52, 73, 94)); // Dark text for good contrast
+                } else {
+                    setBackground(new Color(66, 92, 128)); // #425c80 for selection
+                    setForeground(Color.WHITE);
+                }
+                
+                // Status column styling - only apply colors when not selected
+                if (column == 4 && value != null && !isSelected) {
+                    String status = value.toString();
+                    switch (status) {
+                        case "PAID":
+                            setForeground(new Color(34, 139, 77)); // Darker green for better contrast on light backgrounds
+                            break;
+                        case "OVERDUE":
+                            setForeground(new Color(192, 57, 43)); // Darker red for better contrast
+                            break;
+                        case "SENT":
+                            setForeground(new Color(41, 121, 175)); // Darker blue for better contrast
+                            break;
+                        case "DRAFT":
+                            setForeground(new Color(125, 138, 139)); // Darker gray for better contrast
+                            break;
+                        case "PARTIALLY_PAID":
+                            setForeground(new Color(184, 100, 27)); // Darker orange for better contrast
+                            break;
+                        default:
+                            setForeground(new Color(52, 73, 94));
+                    }
+                } else if (!isSelected) {
+                    setForeground(new Color(52, 73, 94));
+                }
+                
+                return this;
+            }
+        });
+        
+        // Add table sorter
+        tableSorter = new TableRowSorter<>(tableModel);
+        invoicesTable.setRowSorter(tableSorter);
+        
+        // Table double-click listener for editing
+        invoicesTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    viewSelectedInvoice();
+                }
+            }
+        });
+        
+        // Search components
+        searchField = new JTextField(15);
+        searchField.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(220, 221, 225)),
+            BorderFactory.createEmptyBorder(8, 12, 8, 12)
+        ));
+        
+        String[] statusOptions = {"All Statuses", "DRAFT", "SENT", "VIEWED", "PAID", "OVERDUE", "CANCELLED", "PARTIALLY_PAID"};
+        statusFilter = new JComboBox<>(statusOptions);
+        statusFilter.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        
+        // Search listeners
+        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { filterTable(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { filterTable(); }
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { filterTable(); }
+        });
+        
+        statusFilter.addActionListener(e -> filterTable());
+        
+        // Action buttons (working database with production backup)
+        createInvoiceBtn = createActionButton("📄 Create Invoice", new Color(52, 152, 219));
+        editInvoiceBtn = createActionButton("✏️ Edit Invoice", new Color(39, 174, 96));
+        viewInvoiceBtn = createActionButton("👁️ View Invoice", new Color(155, 89, 182));
+        deleteInvoiceBtn = createActionButton("🗑️ Delete Invoice", new Color(231, 76, 60));
+        saveToBackupBtn = createActionButton("💾 Save All Changes", new Color(46, 125, 50));
+        saveToProductionBtn = createActionButton("🚀 Backup to Production", new Color(220, 53, 69));
+        
+        // Button listeners
+        createInvoiceBtn.addActionListener(e -> createNewInvoice());
+        editInvoiceBtn.addActionListener(e -> editSelectedInvoice());
+        viewInvoiceBtn.addActionListener(e -> viewSelectedInvoice());
+        deleteInvoiceBtn.addActionListener(e -> deleteSelectedInvoice());
+        saveToBackupBtn.addActionListener(e -> saveAllChanges());
+        saveToProductionBtn.addActionListener(e -> backupToProduction());
+        
+        // Initially disable edit/view/delete buttons
+        editInvoiceBtn.setEnabled(false);
+        viewInvoiceBtn.setEnabled(false);
+        deleteInvoiceBtn.setEnabled(false);
+        updateSaveButtonStates();
+        
+        // Table selection listener
+        invoicesTable.getSelectionModel().addListSelectionListener(e -> {
+            boolean hasSelection = invoicesTable.getSelectedRow() != -1;
+            editInvoiceBtn.setEnabled(hasSelection);
+            viewInvoiceBtn.setEnabled(hasSelection);
+            deleteInvoiceBtn.setEnabled(hasSelection);
+        });
+        
+        createStatisticsPanel();
+    }
+    
+    private void setupLayout() {
+        setLayout(new BorderLayout(20, 20));
+        
+        // Header
+        JPanel headerPanel = createHeaderPanel();
+        add(headerPanel, BorderLayout.NORTH);
+        
+        // Main content
+        JPanel contentPanel = new JPanel(new BorderLayout(15, 15));
+        contentPanel.setOpaque(false);
+        
+        // Search and filter panel
+        JPanel searchPanel = createSearchPanel();
+        contentPanel.add(searchPanel, BorderLayout.NORTH);
+        
+        // Table panel
+        JScrollPane tableScrollPane = new JScrollPane(invoicesTable);
+        tableScrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 221, 225)));
+        tableScrollPane.getViewport().setBackground(Color.WHITE);
+        contentPanel.add(tableScrollPane, BorderLayout.CENTER);
+        
+        // Button panel
+        JPanel buttonPanel = createButtonPanel();
+        contentPanel.add(buttonPanel, BorderLayout.SOUTH);
+        
+        // Split pane for statistics and content
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, statsPanel, contentPanel);
+        splitPane.setDividerLocation(120);
+        splitPane.setOpaque(false);
+        splitPane.setBorder(null);
+        
+        add(splitPane, BorderLayout.CENTER);
+    }
+    
+    private JPanel createHeaderPanel() {
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setOpaque(false);
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+        
+        JLabel titleLabel = new JLabel("🧾 Billing & Invoicing Management");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        titleLabel.setForeground(new Color(52, 73, 94));
+        
+        JLabel subtitleLabel = new JLabel("Create, manage, and track invoices and payments");
+        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitleLabel.setForeground(new Color(127, 140, 141));
+        
+        JPanel titlePanel = new JPanel(new BorderLayout());
+        titlePanel.setOpaque(false);
+        titlePanel.add(titleLabel, BorderLayout.NORTH);
+        titlePanel.add(subtitleLabel, BorderLayout.SOUTH);
+        
+        headerPanel.add(titlePanel, BorderLayout.WEST);
+        
+        return headerPanel;
+    }
+    
+    private void createStatisticsPanel() {
+        statsPanel = new JPanel(new GridLayout(1, 4, 15, 0));
+        statsPanel.setOpaque(false);
+        statsPanel.setPreferredSize(new Dimension(0, 100));
+        
+        // Create stat cards
+        totalInvoicesLabel = new JLabel("0");
+        totalAmountLabel = new JLabel("$0.00");
+        outstandingLabel = new JLabel("$0.00");
+        overdueLabel = new JLabel("$0.00");
+        
+        statsPanel.add(createStatCard("📊", "Total Invoices", totalInvoicesLabel, new Color(52, 152, 219)));
+        statsPanel.add(createStatCard("💰", "Total Amount", totalAmountLabel, new Color(39, 174, 96)));
+        statsPanel.add(createStatCard("⏳", "Outstanding", outstandingLabel, new Color(230, 126, 34)));
+        statsPanel.add(createStatCard("⚠️", "Overdue", overdueLabel, new Color(231, 76, 60)));
+    }
+    
+    private JPanel createStatCard(String icon, String title, JLabel valueLabel, Color accentColor) {
+        JPanel card = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Card background
+                g2.setColor(Color.WHITE);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                
+                // Accent line
+                g2.setColor(accentColor);
+                g2.fillRoundRect(0, 0, getWidth(), 4, 12, 12);
+                
+                // Shadow effect
+                g2.setColor(new Color(0, 0, 0, 10));
+                g2.fillRoundRect(2, 2, getWidth(), getHeight(), 12, 12);
+            }
+        };
+        
+        card.setOpaque(false);
+        card.setLayout(new BorderLayout(5, 5));
+        card.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
+        
+        JLabel iconLabel = new JLabel(icon);
+        iconLabel.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        titleLabel.setForeground(new Color(127, 140, 141));
+        
+        topPanel.add(iconLabel, BorderLayout.WEST);
+        topPanel.add(titleLabel, BorderLayout.CENTER);
+        
+        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        valueLabel.setForeground(new Color(52, 73, 94));
+        
+        card.add(topPanel, BorderLayout.NORTH);
+        card.add(valueLabel, BorderLayout.CENTER);
+        
+        return card;
+    }
+    
+    private JPanel createSearchPanel() {
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        searchPanel.setOpaque(false);
+        
+        JLabel searchLabel = new JLabel("🔍 Search:");
+        searchLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        searchLabel.setForeground(new Color(52, 73, 94));
+        
+        JLabel filterLabel = new JLabel("Filter:");
+        filterLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        filterLabel.setForeground(new Color(52, 73, 94));
+        
+        searchPanel.add(searchLabel);
+        searchPanel.add(searchField);
+        searchPanel.add(Box.createHorizontalStrut(20));
+        searchPanel.add(filterLabel);
+        searchPanel.add(statusFilter);
+        
+        return searchPanel;
+    }
+    
+    private JPanel createButtonPanel() {
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        buttonPanel.setOpaque(false);
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
+        
+        buttonPanel.add(createInvoiceBtn);
+        buttonPanel.add(editInvoiceBtn);
+        buttonPanel.add(viewInvoiceBtn);
+        buttonPanel.add(Box.createHorizontalStrut(20));
+        buttonPanel.add(deleteInvoiceBtn);
+        buttonPanel.add(Box.createHorizontalStrut(20));
+        buttonPanel.add(saveToBackupBtn);
+        buttonPanel.add(saveToProductionBtn);
+        
+        return buttonPanel;
+    }
+    
+    private JButton createActionButton(String text, Color backgroundColor) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        button.setBackground(backgroundColor);
+        button.setForeground(Color.WHITE);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        button.setFocusPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        // Hover effect
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(backgroundColor.darker());
+            }
+            
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(backgroundColor);
+            }
+        });
+        
+        return button;
+    }
+    
+    private void filterTable() {
+        String searchText = searchField.getText().toLowerCase().trim();
+        String selectedStatus = (String) statusFilter.getSelectedItem();
+        
+        if (searchText.isEmpty() && "All Statuses".equals(selectedStatus)) {
+            tableSorter.setRowFilter(null);
+        } else {
+            tableSorter.setRowFilter(new RowFilter<DefaultTableModel, Integer>() {
+                @Override
+                public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                    // Get row data
+                    String invoiceNumber = entry.getStringValue(0).toLowerCase();
+                    String customer = entry.getStringValue(1).toLowerCase();
+                    String status = entry.getStringValue(4);
+                    
+                    // Apply search filter
+                    boolean matchesSearch = searchText.isEmpty() || 
+                        invoiceNumber.contains(searchText) || 
+                        customer.contains(searchText);
+                    
+                    // Apply status filter
+                    boolean matchesStatus = "All Statuses".equals(selectedStatus) || 
+                        status.equals(selectedStatus);
+                    
+                    return matchesSearch && matchesStatus;
+                }
+            });
+        }
+        
+        // Update statistics after filtering
+        updateStatistics();
+    }
+    
+    private void loadInvoices() {
+        // Clear existing data
+        tableModel.setRowCount(0);
+        
+        // Initialize invoices list if null
+        if (invoices == null) {
+            invoices = new ArrayList<>();
+        }
+        
+        // Use persistent data if available and not yet initialized from database
+        if (persistentInvoices != null && !staticDataInitialized) {
+            invoices = new ArrayList<>(persistentInvoices);
+            System.out.println("BILLING: Using persistent data (" + invoices.size() + " invoices)");
+        } else {
+            // Try to load from working database (main database)
+            boolean loadedFromDatabase = false;
+            try {
+                if (workingInvoiceService != null) {
+                    List<Invoice> dbInvoices = workingInvoiceService.getAllInvoices();
+                    if (dbInvoices != null && !dbInvoices.isEmpty()) {
+                        // Convert database invoices to SampleInvoice format for display
+                        invoices = convertDatabaseInvoicesToDisplay(dbInvoices);
+                        loadedFromDatabase = true;
+                        staticDataInitialized = true;
+                        System.out.println("BILLING: Loaded " + invoices.size() + " invoices from working database");
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("BILLING: Error loading from working database: " + e.getMessage());
+            }
+            
+            // If no data loaded from database, check if we have existing in-memory data
+            if (!loadedFromDatabase) {
+                if (invoices.isEmpty()) {
+                    // Initialize with test data only if we have no data at all
+                    initializeInvoices();
+                    staticDataInitialized = true;
+                    System.out.println("BILLING: No database data, initialized with test data");
+                } else {
+                    System.out.println("BILLING: Using existing in-memory data (" + invoices.size() + " invoices)");
+                }
+            }
+            
+            // Update persistent data
+            persistentInvoices = new ArrayList<>(invoices);
+        }
+        
+        // Add all invoice data to table model
+        for (SampleInvoice invoice : invoices) {
+            try {
+                Object[] rowData = invoice.toTableRow();
+                tableModel.addRow(rowData);
+            } catch (Exception e) {
+                System.err.println("Error adding invoice to table: " + e.getMessage());
+            }
+        }
+        
+        System.out.println("BILLING: Loaded " + invoices.size() + " invoices for display");
+        
+        // Apply any existing filters
+        filterTable();
+        
+        // Refresh the table display
+        tableModel.fireTableDataChanged();
+        invoicesTable.repaint();
+    }
+    
+    private void initializeInvoices() {
+        invoices = new ArrayList<>();
+        
+        invoices.add(new SampleInvoice("INV-2025-001", "Acme Corporation", "2025-07-15", "2025-08-14", "SENT", "$2,450.00", "$0.00", "$2,450.00"));
+        invoices.add(new SampleInvoice("INV-2025-002", "TechStart Solutions", "2025-07-18", "2025-08-17", "PAID", "$1,875.50", "$1,875.50", "$0.00"));
+        invoices.add(new SampleInvoice("INV-2025-003", "Global Industries", "2025-07-20", "2025-08-19", "OVERDUE", "$3,200.75", "$1,000.00", "$2,200.75"));
+        invoices.add(new SampleInvoice("INV-2025-004", "Innovation Labs", "2025-07-22", "2025-08-21", "VIEWED", "$950.25", "$0.00", "$950.25"));
+        invoices.add(new SampleInvoice("INV-2025-005", "Digital Dynamics", "2025-07-25", "2025-08-24", "PARTIALLY_PAID", "$4,100.00", "$2,050.00", "$2,050.00"));
+        invoices.add(new SampleInvoice("INV-2025-006", "Smart Solutions Inc", "2025-07-28", "2025-08-27", "DRAFT", "$1,650.80", "$0.00", "$1,650.80"));
+        invoices.add(new SampleInvoice("INV-2025-007", "Future Systems", "2025-07-30", "2025-08-29", "SENT", "$2,890.40", "$0.00", "$2,890.40"));
+    }
+    
+    private List<SampleInvoice> convertDatabaseInvoicesToDisplay(List<Invoice> dbInvoices) {
+        List<SampleInvoice> displayInvoices = new ArrayList<>();
+        
+        for (Invoice dbInvoice : dbInvoices) {
+            try {
+                String invoiceNumber = dbInvoice.getInvoiceNumber();
+                String customerName = dbInvoice.getCustomer() != null ? 
+                    dbInvoice.getCustomer().getCompanyName() : "Unknown";
+                String invoiceDate = dbInvoice.getInvoiceDate().toString();
+                String dueDate = dbInvoice.getDueDate().toString();
+                String status = dbInvoice.getStatus().toString();
+                String amount = "$" + dbInvoice.getTotalAmount().toString();
+                String paid = "$" + dbInvoice.getPaidAmount().toString();
+                String balance = "$" + dbInvoice.getBalanceAmount().toString();
+                
+                SampleInvoice displayInvoice = new SampleInvoice(
+                    invoiceNumber, customerName, invoiceDate, dueDate, 
+                    status, amount, paid, balance
+                );
+                displayInvoices.add(displayInvoice);
+            } catch (Exception e) {
+                System.err.println("Error converting invoice: " + e.getMessage());
+            }
+        }
+        
+        return displayInvoices;
+    }
+    
+    private void updateSampleInvoice(int row, int col, Object value) {
+        if (row >= 0 && row < invoices.size()) {
+            SampleInvoice invoice = invoices.get(row);
+            String strValue = value.toString();
+            
+            // Track this as a modification
+            if (!modifiedInvoiceNumbers.contains(invoice.getInvoiceNumber())) {
+                modifiedInvoiceNumbers.add(invoice.getInvoiceNumber());
+            }
+            hasUnsavedChanges = true;
+            
+            switch (col) {
+                case 0: invoice.setInvoiceNumber(strValue); break;
+                case 1: invoice.setCustomerName(strValue); break;
+                case 2: invoice.setInvoiceDate(strValue); break;
+                case 3: invoice.setDueDate(strValue); break;
+                case 4: invoice.setStatus(strValue); break;
+                case 5: 
+                    try {
+                        String cleanAmount = strValue.replace("$", "").replace(",", "");
+                        invoice.setAmount(new BigDecimal(cleanAmount));
+                    } catch (NumberFormatException e) {
+                        // Keep original value if parsing fails
+                    }
+                    break;
+                case 6:
+                    try {
+                        String cleanAmount = strValue.replace("$", "").replace(",", "");
+                        invoice.setPaid(new BigDecimal(cleanAmount));
+                        // Recalculate balance
+                        BigDecimal balance = invoice.getAmount().subtract(invoice.getPaid());
+                        invoice.setBalance(balance);
+                        // Update balance cell in table
+                        tableModel.setValueAt(invoice.getFormattedBalance(), row, 7);
+                    } catch (NumberFormatException e) {
+                        // Keep original value if parsing fails
+                    }
+                    break;
+                case 7:
+                    try {
+                        String cleanAmount = strValue.replace("$", "").replace(",", "");
+                        invoice.setBalance(new BigDecimal(cleanAmount));
+                    } catch (NumberFormatException e) {
+                        // Keep original value if parsing fails
+                    }
+                    break;
+            }
+            
+            // Update statistics after editing
+            updateStatistics();
+            updateSaveButtonStates();
+            
+            // Update persistent data
+            persistentInvoices = new ArrayList<>(invoices);
+        }
+    }
+    
+    private void updateStatistics() {
+        if (invoices == null || invoices.isEmpty()) {
+            totalInvoicesLabel.setText("0");
+            totalAmountLabel.setText("$0.00");
+            outstandingLabel.setText("$0.00");
+            overdueLabel.setText("$0.00");
+            return;
+        }
+        
+        int totalInvoices = invoices.size();
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal totalOutstanding = BigDecimal.ZERO;
+        BigDecimal overdueAmount = BigDecimal.ZERO;
+        
+        for (SampleInvoice invoice : invoices) {
+            totalAmount = totalAmount.add(invoice.getAmount());
+            totalOutstanding = totalOutstanding.add(invoice.getBalance());
+            
+            if ("OVERDUE".equals(invoice.getStatus())) {
+                overdueAmount = overdueAmount.add(invoice.getBalance());
+            }
+        }
+        
+        totalInvoicesLabel.setText(String.valueOf(totalInvoices));
+        totalAmountLabel.setText("$" + totalAmount.toString());
+        outstandingLabel.setText("$" + totalOutstanding.toString());
+        overdueLabel.setText("$" + overdueAmount.toString());
+    }
+    
+    private void createNewInvoice() {
+        JOptionPane.showMessageDialog(this, "Create New Invoice functionality", 
+            "Info", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    private void editSelectedInvoice() {
+        JOptionPane.showMessageDialog(this, "Edit Invoice functionality", 
+            "Info", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    private void viewSelectedInvoice() {
+        JOptionPane.showMessageDialog(this, "View Invoice functionality", 
+            "Info", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    private void deleteSelectedInvoice() {
+        int selectedRow = invoicesTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select an invoice to delete.", 
+                "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        // Convert table row to model row (in case of sorting/filtering)
+        int modelRow = invoicesTable.convertRowIndexToModel(selectedRow);
+        
+        if (modelRow >= 0 && modelRow < invoices.size()) {
+            SampleInvoice invoiceToDelete = invoices.get(modelRow);
+            
+            // Confirm deletion
+            int choice = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to delete invoice: " + invoiceToDelete.getInvoiceNumber() + "?\n" +
+                "Customer: " + invoiceToDelete.getCustomerName() + "\n" +
+                "Amount: " + invoiceToDelete.getFormattedAmount() + "\n\n" +
+                "This action will be saved to the backup database immediately.",
+                "Confirm Delete Invoice",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+                
+            if (choice == JOptionPane.YES_OPTION) {
+                try {
+                    // Remove from in-memory list
+                    invoices.remove(modelRow);
+                    
+                    // Remove from table model
+                    tableModel.removeRow(modelRow);
+                    
+                    // Update persistent data
+                    persistentInvoices = new ArrayList<>(invoices);
+                    
+                    // Track deletion for database operations
+                    if (!deletedInvoiceNumbers.contains(invoiceToDelete.getInvoiceNumber())) {
+                        deletedInvoiceNumbers.add(invoiceToDelete.getInvoiceNumber());
+                    }
+                    
+                    // Remove from new invoices list if it was there
+                    newInvoices.removeIf(inv -> inv.getInvoiceNumber().equals(invoiceToDelete.getInvoiceNumber()));
+                    
+                    // Remove from modified list if it was there
+                    modifiedInvoiceNumbers.remove(invoiceToDelete.getInvoiceNumber());
+                    
+                    // Mark as having unsaved changes
+                    hasUnsavedChanges = true;
+                    
+                    // Update statistics and button states
+                    updateStatistics();
+                    updateSaveButtonStates();
+                    
+                    // Immediately delete from working database
+                    deleteFromWorkingDatabase(invoiceToDelete.getInvoiceNumber());
+                    
+                    System.out.println("BILLING: Invoice " + invoiceToDelete.getInvoiceNumber() + " deleted successfully");
+                    
+                } catch (Exception e) {
+                    System.err.println("BILLING: Error deleting invoice: " + e.getMessage());
+                    e.printStackTrace();
+                    
+                    // Restore the deleted invoice if operation failed
+                    invoices.add(modelRow, invoiceToDelete);
+                    tableModel.insertRow(modelRow, invoiceToDelete.toTableRow());
+                    deletedInvoiceNumbers.remove(invoiceToDelete.getInvoiceNumber());
+                    hasUnsavedChanges = true; // Keep the modified state
+                    
+                    JOptionPane.showMessageDialog(this,
+                        "Error deleting invoice: " + e.getMessage(),
+                        "Delete Error",
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Immediately delete invoice from working database
+     */
+    private void deleteFromWorkingDatabase(String invoiceNumber) {
+        try {
+            if (workingInvoiceService != null) {
+                Invoice existingInvoice = workingInvoiceService.findInvoiceByNumber(invoiceNumber);
+                if (existingInvoice != null) {
+                    boolean deleted = workingInvoiceService.deleteInvoice(existingInvoice.getInvoiceId());
+                    if (deleted) {
+                        System.out.println("BILLING: Successfully deleted invoice " + invoiceNumber + " from database");
+                        // Remove from deleted tracking since it's already deleted
+                        deletedInvoiceNumbers.remove(invoiceNumber);
+                        hasUnsavedChanges = false; // Reset since change is saved
+                    } else {
+                        System.err.println("BILLING: Failed to delete invoice " + invoiceNumber + " from database");
+                    }
+                } else {
+                    System.out.println("BILLING: Invoice " + invoiceNumber + " not found in database (may have been deleted already)");
+                    deletedInvoiceNumbers.remove(invoiceNumber);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("BILLING: Database error while deleting invoice " + invoiceNumber + ": " + e.getMessage());
+            throw new RuntimeException("Database deletion failed: " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Refresh the invoice data display while preserving current selections and filters
+     */
+    public void refreshInvoiceData() {
+        // Remember current selection
+        int selectedRow = invoicesTable.getSelectedRow();
+        String selectedInvoiceNumber = null;
+        if (selectedRow >= 0) {
+            int modelRow = invoicesTable.convertRowIndexToModel(selectedRow);
+            if (modelRow >= 0 && modelRow < invoices.size()) {
+                selectedInvoiceNumber = invoices.get(modelRow).getInvoiceNumber();
+            }
+        }
+        
+        // Remember current filter state
+        String currentSearchText = searchField.getText();
+        String currentStatusFilter = (String) statusFilter.getSelectedItem();
+        
+        // Reload data
+        loadInvoices();
+        
+        // Restore filter state
+        searchField.setText(currentSearchText);
+        statusFilter.setSelectedItem(currentStatusFilter);
+        filterTable();
+        
+        // Try to restore selection
+        if (selectedInvoiceNumber != null) {
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                String invoiceNumber = (String) tableModel.getValueAt(i, 0);
+                if (selectedInvoiceNumber.equals(invoiceNumber)) {
+                    int viewRow = invoicesTable.convertRowIndexToView(i);
+                    if (viewRow >= 0) {
+                        invoicesTable.setRowSelectionInterval(viewRow, viewRow);
+                        invoicesTable.scrollRectToVisible(invoicesTable.getCellRect(viewRow, 0, true));
+                    }
+                    break;
+                }
+            }
+        }
+        
+        updateStatistics();
+        updateSaveButtonStates();
+    }
+    
+    /**
+     * Called when the panel becomes visible or is navigated to
+     * Ensures data is fresh and synchronized
+     */
+    public void onPanelActivated() {
+        System.out.println("BILLING: Panel activated, refreshing data...");
+        refreshInvoiceData();
+    }
+    
+    /**
+     * Called when navigating away from the panel
+     * Ensures data is saved if needed
+     */
+    public void onPanelDeactivated() {
+        System.out.println("BILLING: Panel deactivated");
+        if (hasUnsavedChanges) {
+            System.out.println("BILLING: Has unsaved changes, consider saving to backup");
+        }
+    }
+    
+    /**
+     * Get the current invoice count for external components
+     */
+    public int getInvoiceCount() {
+        return invoices != null ? invoices.size() : 0;
+    }
+    
+    /**
+     * Check if there are unsaved changes
+     */
+    public boolean hasUnsavedChanges() {
+        return hasUnsavedChanges;
+    }
+    
+    private void updateSaveButtonStates() {
+        if (saveToBackupBtn != null && saveToProductionBtn != null) {
+            // Check if working database is empty to determine if we can save data
+            boolean isWorkingDatabaseEmpty = false;
+            try {
+                if (workingInvoiceService != null) {
+                    List<Invoice> existingInvoices = workingInvoiceService.getAllInvoices();
+                    isWorkingDatabaseEmpty = (existingInvoices == null || existingInvoices.isEmpty());
+                }
+            } catch (Exception e) {
+                // If we can't check, assume database might be empty
+                isWorkingDatabaseEmpty = true;
+            }
+            
+            // Count total changes for display
+            int totalChanges = newInvoices.size() + deletedInvoiceNumbers.size() + modifiedInvoiceNumbers.size();
+            
+            boolean hasDataToSave = hasUnsavedChanges || (isWorkingDatabaseEmpty && !invoices.isEmpty());
+            boolean canSave = hasDataToSave && !isDatabaseUpdateInProgress;
+            saveToBackupBtn.setEnabled(canSave);
+            
+            // Production button is enabled when working database has data
+            boolean hasWorkingData = false;
+            try {
+                if (workingInvoiceService != null) {
+                    List<Invoice> workingInvoices = workingInvoiceService.getAllInvoices();
+                    hasWorkingData = (workingInvoices != null && !workingInvoices.isEmpty());
+                }
+            } catch (Exception e) {
+                hasWorkingData = false;
+            }
+            saveToProductionBtn.setEnabled(hasWorkingData && !isDatabaseUpdateInProgress);
+            
+            if (isDatabaseUpdateInProgress) {
+                saveToBackupBtn.setText("💾 Saving...");
+                saveToProductionBtn.setText("🚀 Backing up...");
+            } else if (hasUnsavedChanges) {
+                if (totalChanges > 0) {
+                    saveToBackupBtn.setText("💾 Save Changes (" + totalChanges + ") *");
+                } else {
+                    saveToBackupBtn.setText("💾 Save Changes *");
+                }
+                saveToProductionBtn.setText("🚀 Backup to Production");
+            } else if (isWorkingDatabaseEmpty && !invoices.isEmpty()) {
+                saveToBackupBtn.setText("💾 Save Data (" + invoices.size() + ")");
+                saveToProductionBtn.setText("🚀 Backup to Production");
+            } else {
+                saveToBackupBtn.setText("💾 Save All Changes");
+                saveToProductionBtn.setText("🚀 Backup to Production");
+            }
+        }
+    }
+    
+    private void saveAllChanges() {
+        // Check if we have anything to save
+        boolean isWorkingDatabaseEmpty = false;
+        try {
+            if (workingInvoiceService != null) {
+                List<Invoice> existingInvoices = workingInvoiceService.getAllInvoices();
+                isWorkingDatabaseEmpty = (existingInvoices == null || existingInvoices.isEmpty());
+            }
+        } catch (Exception e) {
+            isWorkingDatabaseEmpty = true;
+        }
+        
+        boolean hasDataToSave = hasUnsavedChanges || (isWorkingDatabaseEmpty && !invoices.isEmpty());
+        
+        if (!hasDataToSave) {
+            JOptionPane.showMessageDialog(this, "No changes to save.", 
+                "Information", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // Check if database services are available
+        if (workingInvoiceService == null || workingCustomerService == null) {
+            JOptionPane.showMessageDialog(this,
+                "Database services are not available. Please check your database connection.",
+                "Database Connection Issue",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Determine which invoices need to be saved
+        final List<SampleInvoice> invoicesToSave = new ArrayList<>();
+        
+        if (isWorkingDatabaseEmpty) {
+            // If database is empty, save all invoices
+            invoicesToSave.addAll(invoices);
+        } else {
+            // Save only new invoices and those that have been modified
+            invoicesToSave.addAll(newInvoices);
+            
+            // Add modified invoices
+            for (String modifiedInvoiceNumber : modifiedInvoiceNumbers) {
+                for (SampleInvoice invoice : invoices) {
+                    if (invoice.getInvoiceNumber().equals(modifiedInvoiceNumber) && !invoicesToSave.contains(invoice)) {
+                        invoicesToSave.add(invoice);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Show confirmation dialog
+        String confirmMessage = "Save all changes to the database?\n";
+        if (isWorkingDatabaseEmpty) {
+            confirmMessage += "All table data to save: " + invoicesToSave.size() + " invoices\n";
+        } else {
+            confirmMessage += "Modified/New invoices: " + invoicesToSave.size() + "\n";
+            confirmMessage += "Cell modifications: " + modifiedInvoiceNumbers.size() + "\n";
+        }
+        confirmMessage += "Deleted invoices: " + deletedInvoiceNumbers.size() + "\n";
+        confirmMessage += "This includes all table cell modifications.";
+        
+        int choice = JOptionPane.showConfirmDialog(this,
+            confirmMessage,
+            "Confirm Save to Database",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE);
+            
+        if (choice != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        // Start save operation in background thread
+        isDatabaseUpdateInProgress = true;
+        updateSaveButtonStates();
+        
+        SwingWorker<Void, String> saveWorker = new SwingWorker<Void, String>() {
+            private JDialog progressDialog;
+            private JProgressBar progressBar;
+            private JLabel statusLabel;
+            
+            @Override
+            protected void process(List<String> chunks) {
+                if (!chunks.isEmpty()) {
+                    statusLabel.setText(chunks.get(chunks.size() - 1));
+                }
+            }
+            
+            @Override
+            protected Void doInBackground() throws Exception {
+                SwingUtilities.invokeLater(() -> createProgressDialog());
+                
+                try {
+                    int totalOperations = invoicesToSave.size() + deletedInvoiceNumbers.size();
+                    int currentOperation = 0;
+                    
+                    if (totalOperations == 0) {
+                        publish("No operations to perform...");
+                        return null;
+                    }
+                    
+                    publish("Initializing database connection...");
+                    Thread.sleep(1000);
+                    
+                    // Process invoices to save
+                    publish("Saving invoices and modifications to database...");
+                    for (SampleInvoice sampleInvoice : invoicesToSave) {
+                        try {
+                            publish("Converting invoice: " + sampleInvoice.getInvoiceNumber());
+                            
+                            // Convert and save to working database
+                            Invoice dbInvoice = convertSampleToInvoice(sampleInvoice);
+                            workingInvoiceService.saveInvoice(dbInvoice);
+                            
+                            currentOperation++;
+                            int progress = (int) ((currentOperation * 100.0) / totalOperations);
+                            SwingUtilities.invokeLater(() -> progressBar.setValue(progress));
+                            
+                            publish("Saved invoice: " + sampleInvoice.getInvoiceNumber());
+                            Thread.sleep(200);
+                            
+                        } catch (Exception e) {
+                            System.err.println("ERROR: Failed to save invoice " + sampleInvoice.getInvoiceNumber() + ": " + e.getMessage());
+                            e.printStackTrace();
+                            throw new Exception("Failed to save invoice " + sampleInvoice.getInvoiceNumber() + ": " + e.getMessage());
+                        }
+                    }
+                    
+                    // Process deleted invoices that haven't been deleted yet
+                    publish("Processing remaining deleted invoices...");
+                    for (String deletedInvoiceNumber : deletedInvoiceNumbers) {
+                        try {
+                            Invoice existingInvoice = workingInvoiceService.findInvoiceByNumber(deletedInvoiceNumber);
+                            if (existingInvoice != null) {
+                                workingInvoiceService.deleteInvoice(existingInvoice.getInvoiceId());
+                                publish("Deleted invoice: " + deletedInvoiceNumber);
+                            }
+                            
+                            currentOperation++;
+                            int progress = (int) ((currentOperation * 100.0) / totalOperations);
+                            SwingUtilities.invokeLater(() -> progressBar.setValue(progress));
+                            Thread.sleep(200);
+                            
+                        } catch (Exception e) {
+                            System.err.println("ERROR: Failed to delete invoice " + deletedInvoiceNumber + ": " + e.getMessage());
+                            e.printStackTrace();
+                            throw new Exception("Failed to delete invoice " + deletedInvoiceNumber + ": " + e.getMessage());
+                        }
+                    }
+                    
+                    publish("Save operation completed successfully!");
+                    Thread.sleep(500);
+                    
+                } catch (Exception e) {
+                    throw e;
+                }
+                
+                return null;
+            }
+            
+            @Override
+            protected void done() {
+                try {
+                    get(); // This will throw any exception that occurred in doInBackground
+                    
+                    // Success - clear change tracking
+                    newInvoices.clear();
+                    deletedInvoiceNumbers.clear();
+                    modifiedInvoiceNumbers.clear();
+                    hasUnsavedChanges = false;
+                    isDatabaseUpdateInProgress = false;
+                    updateSaveButtonStates();
+                    
+                    // Refresh data from database
+                    refreshInvoiceData();
+                    
+                    SwingUtilities.invokeLater(() -> {
+                        if (progressDialog != null) {
+                            progressDialog.dispose();
+                        }
+                        JOptionPane.showMessageDialog(BillingPanelSimple.this,
+                            "All changes have been successfully saved to the database!\n" +
+                            "This includes all table cell modifications and new invoices.\n" +
+                            "The invoice list has been refreshed from the database.",
+                            "Save Successful",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    });
+                    
+                } catch (Exception e) {
+                    isDatabaseUpdateInProgress = false;
+                    updateSaveButtonStates();
+                    
+                    SwingUtilities.invokeLater(() -> {
+                        if (progressDialog != null) {
+                            progressDialog.dispose();
+                        }
+                        JOptionPane.showMessageDialog(BillingPanelSimple.this,
+                            "Failed to save changes to database:\n" + e.getMessage() +
+                            "\n\nPlease check your database connection and try again.",
+                            "Save Failed",
+                            JOptionPane.ERROR_MESSAGE);
+                    });
+                    
+                    System.err.println("BILLING PANEL ERROR: Save operation failed - " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            
+            private void createProgressDialog() {
+                progressDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(BillingPanelSimple.this), 
+                    "Saving to Database", true);
+                progressDialog.setSize(400, 150);
+                progressDialog.setLocationRelativeTo(BillingPanelSimple.this);
+                progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+                
+                JPanel panel = new JPanel(new BorderLayout(10, 10));
+                panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+                
+                statusLabel = new JLabel("Initializing...");
+                statusLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                
+                progressBar = new JProgressBar(0, 100);
+                progressBar.setStringPainted(true);
+                progressBar.setString("Preparing...");
+                
+                panel.add(statusLabel, BorderLayout.NORTH);
+                panel.add(progressBar, BorderLayout.CENTER);
+                
+                progressDialog.add(panel);
+                progressDialog.setVisible(true);
+            }
+        };
+        
+        saveWorker.execute();
+    }
+    
+    private void backupToProduction() {
+        JOptionPane.showMessageDialog(this, 
+            "Production backup functionality will be implemented in the next version.\n" +
+            "Current data is safely stored in the working database.",
+            "Feature Coming Soon", 
+            JOptionPane.INFORMATION_MESSAGE);
+    }
+            return;
+        }
+
+        // Check if database services are available
+        if (workingInvoiceService == null || workingCustomerService == null) {
+            JOptionPane.showMessageDialog(this,
+                "Backup database services are not available. Please check your database connection.",
+                "Database Connection Issue",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Determine which invoices need to be saved
+        final List<SampleInvoice> invoicesToSave = new ArrayList<>();
+        
+        if (isBackupDatabaseEmpty) {
+            // If database is empty, save all invoices
+            invoicesToSave.addAll(invoices);
+        } else {
+            // Save only new invoices and those that have been modified
+            invoicesToSave.addAll(newInvoices);
+            
+            // Add modified invoices
+            for (String modifiedInvoiceNumber : modifiedInvoiceNumbers) {
+                for (SampleInvoice invoice : invoices) {
+                    if (invoice.getInvoiceNumber().equals(modifiedInvoiceNumber) && !invoicesToSave.contains(invoice)) {
+                        invoicesToSave.add(invoice);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Show confirmation dialog
+        String confirmMessage = "Save all changes to the backup database?\n";
+        if (isBackupDatabaseEmpty) {
+            confirmMessage += "All table data to save: " + invoicesToSave.size() + " invoices\n";
+        } else {
+            confirmMessage += "Modified/New invoices: " + invoicesToSave.size() + "\n";
+            confirmMessage += "Cell modifications: " + modifiedInvoiceNumbers.size() + "\n";
+        }
+        confirmMessage += "Deleted invoices: " + deletedInvoiceNumbers.size() + "\n";
+        confirmMessage += "This includes all table cell modifications.";
+        
+        int choice = JOptionPane.showConfirmDialog(this,
+            confirmMessage,
+            "Confirm Save to Backup Database",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE);
+            
+        if (choice != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        // Start save operation in background thread
+        isDatabaseUpdateInProgress = true;
+        updateSaveButtonStates();
+        
+        SwingWorker<Void, String> saveWorker = new SwingWorker<Void, String>() {
+            private JDialog progressDialog;
+            private JProgressBar progressBar;
+            private JLabel statusLabel;
+            
+            @Override
+            protected void process(List<String> chunks) {
+                if (!chunks.isEmpty()) {
+                    statusLabel.setText(chunks.get(chunks.size() - 1));
+                }
+            }
+            
+            @Override
+            protected Void doInBackground() throws Exception {
+                SwingUtilities.invokeLater(() -> createProgressDialog());
+                
+                try {
+                    int totalOperations = invoicesToSave.size() + deletedInvoiceNumbers.size();
+                    int currentOperation = 0;
+                    
+                    if (totalOperations == 0) {
+                        publish("No operations to perform...");
+                        return null;
+                    }
+                    
+                    publish("Initializing backup database connection...");
+                    Thread.sleep(1000);
+                    
+                    // Process invoices to save
+                    publish("Saving invoices and table modifications to backup database...");
+                    for (SampleInvoice sampleInvoice : invoicesToSave) {
+                        try {
+                            publish("Converting invoice: " + sampleInvoice.getInvoiceNumber());
+                            
+                            // Convert and save to backup database
+                            Invoice dbInvoice = convertSampleToInvoiceForBackup(sampleInvoice);
+                            workingInvoiceService.saveInvoice(dbInvoice);
+                            
+                            currentOperation++;
+                            int progress = (int) ((currentOperation * 100.0) / totalOperations);
+                            SwingUtilities.invokeLater(() -> progressBar.setValue(progress));
+                            
+                            publish("Saved invoice: " + sampleInvoice.getInvoiceNumber());
+                            Thread.sleep(200);
+                            
+                        } catch (Exception e) {
+                            System.err.println("ERROR: Failed to save invoice " + sampleInvoice.getInvoiceNumber() + ": " + e.getMessage());
+                            e.printStackTrace();
+                            throw new Exception("Failed to save invoice " + sampleInvoice.getInvoiceNumber() + ": " + e.getMessage());
+                        }
+                    }
+                    
+                    // Process deleted invoices
+                    publish("Processing deleted invoices...");
+                    for (String deletedInvoiceNumber : deletedInvoiceNumbers) {
+                        try {
+                            Invoice existingInvoice = workingInvoiceService.findInvoiceByNumber(deletedInvoiceNumber);
+                            if (existingInvoice != null) {
+                                workingInvoiceService.deleteInvoice(existingInvoice.getInvoiceId());
+                                publish("Deleted invoice: " + deletedInvoiceNumber);
+                            }
+                            
+                            currentOperation++;
+                            int progress = (int) ((currentOperation * 100.0) / totalOperations);
+                            SwingUtilities.invokeLater(() -> progressBar.setValue(progress));
+                            Thread.sleep(200);
+                            
+                        } catch (Exception e) {
+                            System.err.println("ERROR: Failed to delete invoice " + deletedInvoiceNumber + ": " + e.getMessage());
+                            e.printStackTrace();
+                            throw new Exception("Failed to delete invoice " + deletedInvoiceNumber + ": " + e.getMessage());
+                        }
+                    }
+                    
+                    publish("Backup save operation completed successfully!");
+                    Thread.sleep(500);
+                    
+                } catch (Exception e) {
+                    throw e;
+                }
+                
+                return null;
+            }
+            
+            @Override
+            protected void done() {
+                try {
+                    get(); // This will throw any exception that occurred in doInBackground
+                    
+                    // Success - clear change tracking
+                    newInvoices.clear();
+                    deletedInvoiceNumbers.clear();
+                    modifiedInvoiceNumbers.clear();
+                    hasUnsavedChanges = false;
+                    isDatabaseUpdateInProgress = false;
+                    updateSaveButtonStates();
+                    
+                    // Refresh data from backup database
+                    loadInvoices();
+                    updateStatistics();
+                    
+                    SwingUtilities.invokeLater(() -> {
+                        if (progressDialog != null) {
+                            progressDialog.dispose();
+                        }
+                        JOptionPane.showMessageDialog(BillingPanelSimple.this,
+                            "All changes have been successfully saved to the backup database!\n" +
+                            "This includes all table cell modifications and new invoices.\n" +
+                            "The invoice list has been refreshed from the backup database.\n\n" +
+                            "Use 'Push to Production DB' to deploy changes to production.",
+                            "Backup Save Successful",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    });
+                    
+                } catch (Exception e) {
+                    isDatabaseUpdateInProgress = false;
+                    updateSaveButtonStates();
+                    
+                    SwingUtilities.invokeLater(() -> {
+                        if (progressDialog != null) {
+                            progressDialog.dispose();
+                        }
+                        JOptionPane.showMessageDialog(BillingPanelSimple.this,
+                            "Failed to save changes to backup database:\n" + e.getMessage() +
+                            "\n\nPlease check your database connection and try again.",
+                            "Backup Save Failed",
+                            JOptionPane.ERROR_MESSAGE);
+                    });
+                    
+                    System.err.println("BILLING PANEL ERROR: Backup save operation failed - " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            
+            private void createProgressDialog() {
+                progressDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(BillingPanelSimple.this), 
+                    "Saving to Backup Database", true);
+                progressDialog.setSize(400, 150);
+                progressDialog.setLocationRelativeTo(BillingPanelSimple.this);
+                progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+                
+                JPanel panel = new JPanel(new BorderLayout(10, 10));
+                panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+                
+                statusLabel = new JLabel("Initializing...");
+                statusLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                
+                progressBar = new JProgressBar(0, 100);
+                progressBar.setStringPainted(true);
+                progressBar.setString("Preparing...");
+                
+                panel.add(statusLabel, BorderLayout.NORTH);
+                panel.add(progressBar, BorderLayout.CENTER);
+                
+                progressDialog.add(panel);
+                progressDialog.setVisible(true);
+            }
+        };
+        
+        saveWorker.execute();
+    }
+    
+    private void saveToProductionDatabase() {
+        // Check if backup database has data
+        List<Invoice> backupInvoices = null;
+        try {
+            if (workingInvoiceService != null) {
+                backupInvoices = workingInvoiceService.getAllInvoices();
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                "Cannot access backup database: " + e.getMessage(),
+                "Database Connection Issue",
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (backupInvoices == null || backupInvoices.isEmpty()) {
+            JOptionPane.showMessageDialog(this, 
+                "No data found in backup database to push to production.\n" +
+                "Please save data to backup database first.",
+                "No Backup Data", 
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Check if production database services are available
+        if (productionInvoiceService == null || productionCustomerService == null) {
+            JOptionPane.showMessageDialog(this,
+                "Production database services are not available. Please check your database connection.",
+                "Database Connection Issue",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Make backup invoices final for use in inner class
+        final List<Invoice> finalBackupInvoices = backupInvoices;
+
+        // Show confirmation dialog
+        String confirmMessage = "Push all data from backup database to PRODUCTION database?\n\n";
+        confirmMessage += "This will:\n";
+        confirmMessage += "• Replace ALL data in the production database\n";
+        confirmMessage += "• Copy " + finalBackupInvoices.size() + " invoices from backup to production\n";
+        confirmMessage += "• This action CANNOT be undone!\n\n";
+        confirmMessage += "Are you sure you want to proceed?";
+        
+        int choice = JOptionPane.showConfirmDialog(this,
+            confirmMessage,
+            "CONFIRM PRODUCTION DEPLOYMENT",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE);
+            
+        if (choice != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        // Start production deployment in background thread
+        isDatabaseUpdateInProgress = true;
+        updateSaveButtonStates();
+        
+        SwingWorker<Void, String> deployWorker = new SwingWorker<Void, String>() {
+            private JDialog progressDialog;
+            private JProgressBar progressBar;
+            private JLabel statusLabel;
+            
+            @Override
+            protected void process(List<String> chunks) {
+                if (!chunks.isEmpty()) {
+                    statusLabel.setText(chunks.get(chunks.size() - 1));
+                }
+            }
+            
+            @Override
+            protected Void doInBackground() throws Exception {
+                SwingUtilities.invokeLater(() -> createProgressDialog());
+                
+                try {
+                    publish("Initializing production database deployment...");
+                    Thread.sleep(1000);
+                    
+                    // Clear production database first
+                    publish("Clearing production database...");
+                    List<Invoice> existingProductionInvoices = productionInvoiceService.getAllInvoices();
+                    if (existingProductionInvoices != null) {
+                        for (Invoice existingInvoice : existingProductionInvoices) {
+                            productionInvoiceService.deleteInvoice(existingInvoice.getInvoiceId());
+                        }
+                    }
+                    Thread.sleep(500);
+                    
+                    int totalOperations = finalBackupInvoices.size();
+                    int currentOperation = 0;
+                    
+                    // Copy all invoices from backup to production
+                    publish("Copying invoices from backup to production database...");
+                    for (Invoice backupInvoice : finalBackupInvoices) {
+                        try {
+                            publish("Copying invoice: " + backupInvoice.getInvoiceNumber());
+                            
+                            // Ensure customer exists in production - inline implementation
+                            Customer productionCustomer = null;
+                            String companyName = backupInvoice.getCustomer().getCompanyName();
+                            
+                            // Try to find existing customer in production database
+                            List<Customer> existingCustomers = productionCustomerService.getAllCustomers();
+                            if (existingCustomers != null) {
+                                for (Customer customer : existingCustomers) {
+                                    if (customer.getCompanyName() != null && 
+                                        customer.getCompanyName().trim().equalsIgnoreCase(companyName.trim())) {
+                                        productionCustomer = customer;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // Create new customer if not found
+                            if (productionCustomer == null) {
+                                Customer newProductionCustomer = new Customer();
+                                Customer workingCustomer = backupInvoice.getCustomer();
+                                newProductionCustomer.setCustomerCode(workingCustomer.getCustomerCode() != null ? workingCustomer.getCustomerCode() : 
+                                    companyName.toUpperCase().replaceAll("\\s+", "").substring(0, Math.min(companyName.length(), 8)));
+                                newProductionCustomer.setCompanyName(workingCustomer.getCompanyName());
+                                newProductionCustomer.setContactPerson(workingCustomer.getContactPerson() != null ? workingCustomer.getContactPerson() : "Contact Person");
+                                newProductionCustomer.setEmail(workingCustomer.getEmail() != null ? workingCustomer.getEmail() : 
+                                    companyName.toLowerCase().replaceAll("\\s+", "").replaceAll("[^a-z0-9]", "") + "@example.com");
+                                newProductionCustomer.setPhone(workingCustomer.getPhone() != null ? workingCustomer.getPhone() : "(555) 123-4567");
+                                newProductionCustomer.setAddress(workingCustomer.getAddress() != null ? workingCustomer.getAddress() : "123 Business Street");
+                                newProductionCustomer.setCity(workingCustomer.getCity() != null ? workingCustomer.getCity() : "Business City");
+                                newProductionCustomer.setState(workingCustomer.getState() != null ? workingCustomer.getState() : "State");
+                                newProductionCustomer.setZipCode(workingCustomer.getZipCode() != null ? workingCustomer.getZipCode() : "12345");
+                                newProductionCustomer.setCountry(workingCustomer.getCountry() != null ? workingCustomer.getCountry() : "United States");
+                                newProductionCustomer.setStatus(workingCustomer.getStatus() != null ? workingCustomer.getStatus() : Customer.CustomerStatus.ACTIVE);
+                                newProductionCustomer.setPaymentTerms(workingCustomer.getPaymentTerms() != null ? workingCustomer.getPaymentTerms() : Customer.PaymentTerms.NET_30);
+                                
+                                productionCustomer = productionCustomerService.saveCustomer(newProductionCustomer);
+                            }
+                            
+                            // Create new invoice for production
+                            Invoice productionInvoice = new Invoice();
+                            productionInvoice.setInvoiceNumber(backupInvoice.getInvoiceNumber());
+                            productionInvoice.setCustomer(productionCustomer);
+                            productionInvoice.setInvoiceDate(backupInvoice.getInvoiceDate());
+                            productionInvoice.setDueDate(backupInvoice.getDueDate());
+                            productionInvoice.setTotalAmount(backupInvoice.getTotalAmount());
+                            productionInvoice.setPaidAmount(backupInvoice.getPaidAmount());
+                            productionInvoice.setBalanceAmount(backupInvoice.getBalanceAmount());
+                            productionInvoice.setStatus(backupInvoice.getStatus());
+                            productionInvoice.setNotes(backupInvoice.getNotes());
+                            productionInvoice.setCreatedBy("Production Deployment");
+                            
+                            productionInvoiceService.saveInvoice(productionInvoice);
+                            
+                            currentOperation++;
+                            int progress = (int) ((currentOperation * 100.0) / totalOperations);
+                            SwingUtilities.invokeLater(() -> progressBar.setValue(progress));
+                            
+                            publish("Deployed invoice: " + backupInvoice.getInvoiceNumber());
+                            Thread.sleep(200);
+                            
+                        } catch (Exception e) {
+                            System.err.println("ERROR: Failed to deploy invoice " + backupInvoice.getInvoiceNumber() + ": " + e.getMessage());
+                            e.printStackTrace();
+                            throw new Exception("Failed to deploy invoice " + backupInvoice.getInvoiceNumber() + ": " + e.getMessage());
+                        }
+                    }
+                    
+                    publish("Production deployment completed successfully!");
+                    Thread.sleep(500);
+                    
+                } catch (Exception e) {
+                    throw e;
+                }
+                
+                return null;
+            }
+            
+            @Override
+            protected void done() {
+                try {
+                    get(); // This will throw any exception that occurred in doInBackground
+                    
+                    isDatabaseUpdateInProgress = false;
+                    updateSaveButtonStates();
+                    
+                    SwingUtilities.invokeLater(() -> {
+                        if (progressDialog != null) {
+                            progressDialog.dispose();
+                        }
+                        JOptionPane.showMessageDialog(BillingPanelSimple.this,
+                            "Successfully deployed all data to PRODUCTION database!\n\n" +
+                            "• " + finalBackupInvoices.size() + " invoices copied to production\n" +
+                            "• All customers synchronized\n" +
+                            "• Production database is now up to date\n\n" +
+                            "The changes are now live in production!",
+                            "Production Deployment Successful",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    });
+                    
+                } catch (Exception e) {
+                    isDatabaseUpdateInProgress = false;
+                    updateSaveButtonStates();
+                    
+                    SwingUtilities.invokeLater(() -> {
+                        if (progressDialog != null) {
+                            progressDialog.dispose();
+                        }
+                        JOptionPane.showMessageDialog(BillingPanelSimple.this,
+                            "Failed to deploy to production database:\n" + e.getMessage() +
+                            "\n\nPlease check your database connection and try again.\n" +
+                            "Your backup data is safe and unchanged.",
+                            "Production Deployment Failed",
+                            JOptionPane.ERROR_MESSAGE);
+                    });
+                    
+                    System.err.println("BILLING PANEL ERROR: Production deployment failed - " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            
+            private void createProgressDialog() {
+                progressDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(BillingPanelSimple.this), 
+                    "Deploying to Production Database", true);
+                progressDialog.setSize(450, 150);
+                progressDialog.setLocationRelativeTo(BillingPanelSimple.this);
+                progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+                
+                JPanel panel = new JPanel(new BorderLayout(10, 10));
+                panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+                
+                statusLabel = new JLabel("Initializing production deployment...");
+                statusLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                
+                progressBar = new JProgressBar(0, 100);
+                progressBar.setStringPainted(true);
+                progressBar.setString("Preparing deployment...");
+                
+                panel.add(statusLabel, BorderLayout.NORTH);
+                panel.add(progressBar, BorderLayout.CENTER);
+                
+                progressDialog.add(panel);
+                progressDialog.setVisible(true);
+            }
+        };
+        
+        deployWorker.execute();
+    }
+
+    /**
+     * Convert SampleInvoice to Invoice entity for database storage
+     */
+    private Invoice convertSampleToInvoice(SampleInvoice sampleInvoice) throws SQLException {
+        // Ensure customer exists in working database
+        Customer customer = ensureCustomerExists(sampleInvoice.getCustomerName());
+        
+        // Create Invoice entity
+        Invoice invoice = new Invoice();
+        
+        // Ensure unique invoice number in working database
+        String uniqueInvoiceNumber = ensureUniqueInvoiceNumber(sampleInvoice.getInvoiceNumber());
+        invoice.setInvoiceNumber(uniqueInvoiceNumber);
+        
+        invoice.setCustomer(customer);
+        
+        // Parse dates
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            invoice.setInvoiceDate(LocalDate.parse(sampleInvoice.getInvoiceDate(), formatter));
+            invoice.setDueDate(LocalDate.parse(sampleInvoice.getDueDate(), formatter));
+        } catch (Exception e) {
+            // Use current date as fallback
+            invoice.setInvoiceDate(LocalDate.now());
+            invoice.setDueDate(LocalDate.now().plusDays(30));
+        }
+        
+        // Set amounts
+        invoice.setTotalAmount(sampleInvoice.getAmount());
+        invoice.setPaidAmount(sampleInvoice.getPaid());
+        invoice.setBalanceAmount(sampleInvoice.getBalance());
+        
+        // Set status
+        try {
+            Invoice.InvoiceStatus status = Invoice.InvoiceStatus.valueOf(sampleInvoice.getStatus());
+            invoice.setStatus(status);
+        } catch (IllegalArgumentException e) {
+            invoice.setStatus(Invoice.InvoiceStatus.DRAFT);
+        }
+        
+        // Set additional fields
+        invoice.setNotes("Saved from billing panel");
+        invoice.setCreatedBy("System");
+        
+        return invoice;
+    }
+    
+    /**
+     * Ensure invoice number is unique in working database by checking and generating new one if needed
+     */
+    private String ensureUniqueInvoiceNumber(String originalNumber) throws SQLException {
+        try {
+            // Check if the original number exists in working database
+            Invoice existingInvoice = workingInvoiceService.findInvoiceByNumber(originalNumber);
+            if (existingInvoice == null) {
+                return originalNumber;
+            }
+            
+            // Generate a new unique number
+            String timestamp = String.valueOf(System.currentTimeMillis() % 10000);
+            return "INV-2025-" + timestamp;
+            
+        } catch (SQLException e) {
+            // Fallback to timestamp-based number if database check fails
+            String timestamp = String.valueOf(System.currentTimeMillis() % 10000);
+            return "INV-2025-" + timestamp;
+        }
+    }
+    
+    /**
+     * Ensure customer exists in working database, create if necessary
+     */
+    private Customer ensureCustomerExists(String companyName) throws SQLException {
+        if (companyName == null || companyName.trim().isEmpty()) {
+            throw new SQLException("Company name cannot be null or empty");
+        }
+        
+        // Try to find existing customer in working database
+        try {
+            List<Customer> existingCustomers = workingCustomerService.getAllCustomers();
+            if (existingCustomers != null) {
+                for (Customer customer : existingCustomers) {
+                    if (customer.getCompanyName() != null && 
+                        customer.getCompanyName().trim().equalsIgnoreCase(companyName.trim())) {
+                        return customer;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error checking existing customers in working database: " + e.getMessage());
+        }
+        
+        // Create new customer if not found
+        Customer newCustomer = new Customer();
+        String customerCode = companyName.toUpperCase().replaceAll("\\s+", "").substring(0, Math.min(companyName.length(), 8));
+        
+        newCustomer.setCustomerCode(customerCode);
+        newCustomer.setCompanyName(companyName.trim());
+        newCustomer.setContactPerson("Contact Person");
+        newCustomer.setEmail(companyName.toLowerCase().replaceAll("\\s+", "").replaceAll("[^a-z0-9]", "") + "@example.com");
+        newCustomer.setPhone("(555) 123-4567");
+        newCustomer.setAddress("123 Business Street");
+        newCustomer.setCity("Business City");
+        newCustomer.setState("State");
+        newCustomer.setZipCode("12345");
+        newCustomer.setCountry("United States");
+        newCustomer.setStatus(Customer.CustomerStatus.ACTIVE);
+        newCustomer.setPaymentTerms(Customer.PaymentTerms.NET_30);
+        
+        return workingCustomerService.saveCustomer(newCustomer);
+    }
+}

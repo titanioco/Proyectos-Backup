@@ -177,7 +177,7 @@ public class OAuth2CallbackHandler {
     // Manual callback injection for when browser can't connect to localhost
     public void injectManualCallback(String callbackUrl) {
         try {
-            System.out.println("🔧 Processing manual callback URL: " + callbackUrl);
+            System.out.println("CALLBACK: Processing manual callback URL: " + callbackUrl);
             
             // Extract query parameters from the URL
             if (callbackUrl.contains("?")) {

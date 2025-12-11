@@ -1,6 +1,7 @@
 package com.raven.ds.modules.graph;
 
 import com.raven.ds.core.AnimationEngine;
+import com.raven.ds.core.PDFDocumentGenerator;
 import com.raven.swing.Button;
 import net.miginfocom.swing.MigLayout;
 
@@ -28,6 +29,7 @@ public class GraphControls extends JPanel {
     private Button pauseBtn;
     private Button stepBtn;
     private Button resetBtn;
+    private Button downloadDocsBtn;
     private JSlider speedSlider;
     private JLabel statusLabel;
     private JLabel stepLabel;
@@ -143,6 +145,15 @@ public class GraphControls extends JPanel {
         resetBtn.setPreferredSize(new Dimension(80, 40));
         resetBtn.setToolTipText("Reset animation to beginning");
         
+        // Download Documentation button
+        downloadDocsBtn = new Button();
+        downloadDocsBtn.setText("📚 Docs");
+        downloadDocsBtn.setBackground(new Color(52, 73, 94));
+        downloadDocsBtn.setFont(new Font("sansserif", Font.BOLD, 12));
+        downloadDocsBtn.setForeground(Color.WHITE);
+        downloadDocsBtn.setPreferredSize(new Dimension(80, 40));
+        downloadDocsBtn.setToolTipText("Download module documentation");
+        
         // Speed control (8 times bigger)
         speedSlider = new JSlider(50, 3000, 1000);
         speedSlider.setInverted(true); // Lower values = faster
@@ -185,6 +196,7 @@ public class GraphControls extends JPanel {
         add(pauseBtn, "cell 1 2");
         add(stepBtn, "cell 1 2");
         add(resetBtn, "cell 1 2");
+        add(downloadDocsBtn, "cell 2 2");
         
         // Speed control row
         add(new JLabel("Speed:"), "cell 0 3");
@@ -286,6 +298,23 @@ public class GraphControls extends JPanel {
         
         speedSlider.addChangeListener(e -> {
             animationEngine.setSpeed(speedSlider.getValue());
+        });
+        
+        downloadDocsBtn.addActionListener(e -> {
+            try {
+                String content = PDFDocumentGenerator.generateGraphDocumentation();
+                PDFDocumentGenerator.generateModuleDocumentation(
+                    "Graph",
+                    "Graph Data Structure & Algorithms",
+                    content
+                );
+                statusLabel.setText("Graph documentation generated");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                    "Failed to generate documentation: " + ex.getMessage(),
+                    "Documentation Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
         });
         
         // Animation engine listeners
