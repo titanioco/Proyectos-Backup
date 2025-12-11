@@ -205,7 +205,7 @@ public class Main extends javax.swing.JFrame {
         JPanel closePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         closePanel.setOpaque(false);
         
-        JButton closeButton = new JButton("✕");
+        JButton closeButton = new JButton("X");
         closeButton.setFont(new Font("Segoe UI", Font.BOLD, 20));
         closeButton.setForeground(Color.WHITE);
         closeButton.setBackground(new Color(35, 166, 97)); // Green background
